@@ -2,7 +2,7 @@
 
 ## General overview of architecture
 
-![Overview](https://bmstu.codes/developers34/SBWeb/blob/master/docs/GeneralOverview.png "Overview")
+![Overview](./docs/GeneralOverview.png "Overview")
 
 ## Data structures
 
