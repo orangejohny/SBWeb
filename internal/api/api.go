@@ -1,12 +1,16 @@
 package api
 
 import (
+	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/schema"
 	"github.com/orangejohny/SBWeb/internal/model"
 )
 
@@ -99,14 +103,14 @@ func ReadUserWithID(m *model.Model) http.Handler {
 		w.Header().Set("Content-type", "application/json")
 		idStr, _ := mux.Vars(r)["id"]
 		id, _ := strconv.Atoi(idStr)
-		ad, err := m.GetUserWithID(id)
+		user, err := m.GetUserWithID(id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(apiErrorHandle("Can't take information from database", "DatabaseError", err))
 			return
 		}
 
-		adData, err := json.Marshal(ad)
+		userData, err := json.Marshal(user)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(apiErrorHandle("Can't encode JSON", "JSONerror", err))
@@ -114,7 +118,7 @@ func ReadUserWithID(m *model.Model) http.Handler {
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write(adData)
+		w.Write(userData)
 	})
 }
 
@@ -125,9 +129,53 @@ func AddNewUser(m *model.Model) http.Handler {
 		err := r.ParseForm()
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write(apiErrorHandle("Can't parse request body", "RequestFormError", err))
+			w.Write(apiErrorHandle("Can't parse request body", "RequestFormParseError", err))
 			return
 		}
 
+		var user model.User
+		decoder := schema.NewDecoder()
+		err = decoder.Decode(&user, r.Form)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(apiErrorHandle("Can't decode request body", "RequestFormDecodeError", err))
+			return
+		}
+
+		_, err = govalidator.ValidateStruct(&user)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle("Data didn't passed validation", "RequestDataValidError", err))
+			return
+		}
+
+		if user.Password == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle("Password wasn't received", "NoPasswordError", errors.New("Need Password to create new user")))
+			return
+		}
+
+		h := sha256.New()
+		h.Write([]byte(user.Password))
+		user.Password = string(h.Sum(nil))
+
+		id, err := m.NewUser(&user)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(apiErrorHandle("Can't create new user", "UserCreatingError", err))
+			return
+		}
+
+		user.ID = id
+		user.Password = ""
+		userData, err := json.Marshal(user)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(apiErrorHandle("Can't encode JSON", "JSONerror", err))
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		w.Write(userData)
 	})
 }

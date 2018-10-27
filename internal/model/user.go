@@ -4,16 +4,14 @@ import (
 	"time"
 )
 
-// TODO add tags
-
 // User struct describes user of service
 type User struct {
-	ID        int       `db:"id" json:"id"`
-	FirstName string    `db:"first_name" json:"first_name"`
-	LastName  string    `db:"last_name" json:"last_name"`
-	Email     string    `db:"email" json:"email"`
-	Password  string    `db:"password_hash" json:"-"`
-	TelNumber string    `db:"telephone" json:"tel_number,omitempty"`
-	About     string    `db:"about" json:"about,omitempty"`
-	RegTime   time.Time `db:"reg_time" json:"reg_time"`
+	ID        int64     `db:"id" json:"id" schema:"id,optional" valid:"-"`
+	FirstName string    `db:"first_name" json:"first_name" schema:"first_name,required" valid:"alpha,required"`
+	LastName  string    `db:"last_name" json:"last_name" schema:"last_name,required" valid:"alpha,requierd"`
+	Email     string    `db:"email" json:"email" schema:"email,required" valid:"email,required" `
+	Password  string    `db:"password_hash" json:"-" schema:"password,optional" valid:"-"`
+	TelNumber string    `db:"telephone" json:"tel_number,omitempty" schema:"tel_number,optional" valid:"-"`
+	About     string    `db:"about" json:"about,omitempty" schema:"about,optional" valid:"utfletternum,optional"`
+	RegTime   time.Time `db:"reg_time" json:"reg_time" schema:"-" valid:"-"`
 }
