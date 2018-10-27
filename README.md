@@ -141,7 +141,7 @@ With parameter `show_ads=true` added, URL will return array of JSON objects _ads
     * __about__ (string, *optional*) *information about user: what does he likes, useful skills etc.*
 3. If there is no user with such email in API database, then record with user's data will be inserted in database. On this case API returns HTTP status `201 Created` and JSON object
 
-    ```json
+    ```JSON with Comments
     {
         "id": 123,               // id of new user
         "ref": "root/users/123"  // URL to new user
