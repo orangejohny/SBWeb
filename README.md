@@ -2,7 +2,7 @@
 
 ## General overview of architecture
 
-![Overview](./docs/GeneralOverview.png "Overview")
+![Overview](/docs/GeneralOverview.png "Overview")
 
 ## Data structures
 
@@ -25,7 +25,7 @@ to clients:
 {
     "id": 123456,
     "first_name": "Random",
-    "last name": "Valerka",
+    "last_name": "Valerka",
     "email": "valerka@example.com",
     "tel_num": "1-234-56-78",
     "about": "Some information about this man",
@@ -72,6 +72,24 @@ to clients:
 }
 ```
 
+### Error type
+
+It will be sent to client in JSON format if something went wrong.
+
+* Message
+* Description
+* Error Code
+
+Example:
+
+```json
+{
+    "message": "Can't create user",
+    "description": "User with such enail is already exists",
+    "error": "UserEmailExists"
+}
+```
+
 ## API interface
 
 ### 1 stage
@@ -106,3 +124,44 @@ With parameter `show_ads=true` added, URL will return array of JSON objects _ads
 `root/users/{id}` - method `POST`. Update existing _user_.
 
 `root/users/{id}` - method `DELETE`. Delete existing _user_.
+
+### 3 stage. Autentification and authorization
+
+#### Sign up
+
+![SignUp](/docs/SignUp.PNG "SignUp")
+
+1. Web-server, Android-application: receive data entered by user and validate it
+2. Create request with method `POST` to `root/users/new`. Possible parameters:
+    * __email__ (string) *email of user, must be unique*
+    * __password__ (string) *password of user, can contain numbers and english letters*
+    * __first_name__ (string) *first name of user, only english or                                   russian letters allowed*
+    * __last_name__ (string) *last name of user, only english or russian letters allowed*
+    * __tel_num__ (string, *optional*) *telephone number of user in any format*
+    * __about__ (string, *optional*) *information about user: what does he likes, useful skills etc.*
+3. If there is no user with such email in API database, then record with user's data will be inserted in database. On this case API returns HTTP status `201 Created` and JSON object
+
+    ```json
+    {
+        "id": 123,               // id of new user
+        "ref": "root/users/123"  // URL to new user
+    }
+    ```
+
+4. If user is already exists API will return HTTP status `409 Conflict` and JSON object of Error:
+
+    ```json
+    {
+        "description": "User with such enail is already exists",
+        "message": "Can't create user",
+        "error": "UserEmailExists"
+    }
+    ```
+
+#### Sign in
+
+![SignIn](/docs/SignIn.PNG "SignIn")
+
+#### Access to actions requiring authorization
+
+![AuthReq](/docs/AuthReq.PNG "AuthReq")
