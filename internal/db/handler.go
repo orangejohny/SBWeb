@@ -1,19 +1,22 @@
 package db
 
-import "database/sql"
+import (
+	"github.com/jmoiron/sqlx"
+)
 
 // Handler is used to store database connection and
 // implements database interface
 type Handler struct {
-	DB *sql.DB
+	DB *sqlx.DB
 
-	CreateUser *sql.Stmt
-	CreateAd   *sql.Stmt
-	UpdateUser *sql.Stmt
-	UpdateAd   *sql.Stmt
-	ReadAds    *sql.Stmt
-	ReadAd     *sql.Stmt
-	ReadUser   *sql.Stmt
-	DeleteUser *sql.Stmt
-	DeleteAd   *sql.Stmt
+	CreateUser        *sqlx.NamedStmt
+	CreateAd          *sqlx.NamedStmt
+	UpdateUser        *sqlx.NamedStmt
+	UpdateAd          *sqlx.NamedStmt
+	ReadAds           *sqlx.Stmt
+	ReadAd            *sqlx.Stmt
+	ReadUserWithID    *sqlx.Stmt
+	ReadUserWithEmail *sqlx.Stmt
+	DeleteUser        *sqlx.Stmt
+	DeleteAd          *sqlx.Stmt
 }
