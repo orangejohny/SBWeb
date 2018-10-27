@@ -5,7 +5,7 @@ import (
 )
 
 // Handler is used to store database connection and
-// implements database interface
+// implements database interface needed by API
 type Handler struct {
 	DB *sqlx.DB
 

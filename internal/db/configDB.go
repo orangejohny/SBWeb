@@ -1,6 +1,6 @@
 package db
 
-// Config for database configuration
+// Config is stuct for database configuration
 type Config struct {
 	DBAddress    string
 	MaxOpenConns int
