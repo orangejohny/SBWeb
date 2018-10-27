@@ -85,7 +85,7 @@ Example:
 ```json
 {
     "message": "Can't create user",
-    "description": "User with such enail is already exists",
+    "description": "User with such email is already exists",
     "error": "UserEmailExists"
 }
 ```
@@ -125,7 +125,7 @@ With parameter `show_ads=true` added, URL will return array of JSON objects _ads
 
 `root/users/{id}` - method `DELETE`. Delete existing _user_.
 
-### 3 stage. Autentification and authorization
+### 2 stage. Autentification and authorization
 
 #### Sign up
 
@@ -152,7 +152,7 @@ With parameter `show_ads=true` added, URL will return array of JSON objects _ads
 
     ```json
     {
-        "description": "User with such enail is already exists",
+        "description": "User with such email is already exists",
         "message": "Can't create user",
         "error": "UserEmailExists"
     }
