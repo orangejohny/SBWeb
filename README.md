@@ -135,7 +135,7 @@ With parameter `show_ads=true` added, URL will return array of JSON objects _ads
 2. Create request with method `POST` to `root/users/new`. Possible parameters:
     * __email__ (string) *email of user, must be unique*
     * __password__ (string) *password of user, can contain numbers and english letters*
-    * __first_name__ (string) *first name of user, only english or                                   russian letters allowed*
+    * __first_name__ (string) *first name of user, only english or russian letters allowed*
     * __last_name__ (string) *last name of user, only english or russian letters allowed*
     * __tel_num__ (string, *optional*) *telephone number of user in any format*
     * __about__ (string, *optional*) *information about user: what does he likes, useful skills etc.*

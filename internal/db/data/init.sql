@@ -24,7 +24,7 @@ CREATE TABLE ads
     subway_station varchar(80),
     images_folder  varchar(256),
     -- when deleting user we should delete his ads
-    owner_ad       integer      REFERENCES users (id) ON DELETE CASCADE,
+    owner_ad       integer      REFERENCES users (id) ON DELETE CASCADE NOT NULL,
     description_ad text,
     -- do we need this tocken if there is id already?
     -- tocken         varchar(16) UNIQUE NOT NULL,

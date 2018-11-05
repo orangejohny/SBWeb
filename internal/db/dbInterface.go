@@ -89,14 +89,14 @@ func (h *Handler) GetAds(limit int, offset int) ([]*model.AdItem, error) {
 }
 
 // GetAd returns AdItem struct with such ID
-func (h *Handler) GetAd(adID int) (*model.AdItem, error) {
+func (h *Handler) GetAd(adID int64) (*model.AdItem, error) {
 	ad := &model.AdItem{}
 	err := h.ReadAd.Select(ad, adID) // will sqlx manage with foreign keys?
 	return ad, err
 }
 
 // GetUserWithID returns User struct with such ID
-func (h *Handler) GetUserWithID(userID int) (*model.User, error) {
+func (h *Handler) GetUserWithID(userID int64) (*model.User, error) {
 	user := &model.User{}
 	err := h.ReadUserWithID.Select(user, userID)
 	return user, err
@@ -170,7 +170,7 @@ func (h *Handler) EditAd(ad *model.AdItem) (int64, error) {
 }
 
 // RemoveUser deletes user with such ID from database
-func (h *Handler) RemoveUser(userID int) (int64, error) {
+func (h *Handler) RemoveUser(userID int64) (int64, error) {
 	res, err := h.DeleteUser.Exec(userID)
 	if err != nil {
 		return -1, err
@@ -185,7 +185,7 @@ func (h *Handler) RemoveUser(userID int) (int64, error) {
 }
 
 // RemoveAd deletes ad with such ID from database
-func (h *Handler) RemoveAd(adID int) (int64, error) {
+func (h *Handler) RemoveAd(adID int64) (int64, error) {
 	res, err := h.DeleteAd.Exec(adID)
 	if err != nil {
 		return -1, err

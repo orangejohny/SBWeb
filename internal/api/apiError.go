@@ -15,6 +15,7 @@ func (e *apiError) Error() string {
 	return e.ErrorCode
 }
 
+// apiErrorHandle creates apiError and returns JSON serialized object
 func apiErrorHandle(message, errorCode string, err error) []byte {
 	dbErr := apiError{
 		Description: err.Error(),
