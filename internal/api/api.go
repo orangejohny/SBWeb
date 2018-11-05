@@ -1,9 +1,9 @@
 package api
 
 import (
-	"crypto/sha256"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -12,20 +12,21 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
 	"github.com/orangejohny/SBWeb/internal/model"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Config for api package. Address is domain name of server
 type Config struct {
-	Address      string
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
-	IdleTimeout  time.Duration
+	Address string `json:"Address,"`
+	//ReadTimeout  time.Duration `json:"ReadTimeout,int"`
+	//WriteTimeout time.Duration `json:"WriteTimeout,int"`
+	//IdleTimeout  time.Duration `json:"IdleTimeout,int"`
 }
 
 // StartServer creates and runs API server
 func StartServer(cfg Config, m *model.Model) {
 	r := mux.NewRouter()
-	r.Host(cfg.Address)
+	//r.Host(cfg.Address)
 
 	r.Handle("/ads", readMultipleAds(m)).Methods("GET")
 	r.Handle("/ads/{id:[0-9]+}", readOneAd(m)).Methods("GET")
@@ -38,14 +39,17 @@ func StartServer(cfg Config, m *model.Model) {
 	r.Handle("/users/profile", userDeletePage(m)).Methods("DELETE")
 
 	server := http.Server{
-		Addr:         cfg.Address,
-		Handler:      r,
-		ReadTimeout:  cfg.ReadTimeout,
-		WriteTimeout: cfg.WriteTimeout,
-		IdleTimeout:  cfg.IdleTimeout,
+		Addr:    cfg.Address,
+		Handler: r,
+		//ReadTimeout:  cfg.ReadTimeout,
+		//WriteTimeout: cfg.WriteTimeout,
+		//IdleTimeout:  cfg.IdleTimeout,
 	}
 
-	server.ListenAndServe()
+	err := server.ListenAndServe()
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
 }
 
 // readMultipleAds handles */ads. It responses with list of Ads. Method is GET
@@ -179,9 +183,8 @@ func userCreatePage(m *model.Model) http.Handler {
 		}
 
 		// make hash from incoming password
-		h := sha256.New()
-		h.Write([]byte(user.Password))
-		user.Password = string(h.Sum(nil))
+		hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		user.Password = string(hash)
 
 		// add user to database
 		id, err := m.NewUser(&user)
@@ -255,13 +258,9 @@ func userLoginPage(m *model.Model) http.Handler {
 			return
 		}
 
-		// make hash from incoming password
-		h := sha256.New()
-		h.Write([]byte(user.Password))
-		user.Password = string(h.Sum(nil))
-
 		// check if password is valid
-		if user.Password != userFromDB.Password {
+
+		if err = bcrypt.CompareHashAndPassword([]byte(userFromDB.Password), []byte(user.Password)); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle("Login or password is incorrect", "BadAuth", errors.New("Login or password is incorrect")))
 			return

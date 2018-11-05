@@ -9,7 +9,7 @@ import (
 
 // CreateSession creates new session
 func (sm *SessionManager) CreateSession(in *model.Session) (*model.SessionID, error) {
-	tocken, err := GenerateRandomString(sm.tockenLength)
+	tocken, err := generateRandomString(sm.tockenLength)
 	if err != nil {
 		return nil, err
 	}

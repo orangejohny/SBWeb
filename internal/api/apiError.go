@@ -23,6 +23,6 @@ func apiErrorHandle(message, errorCode string, err error) []byte {
 		ErrorCode:   errorCode,
 	}
 	dbErrData, _ := json.Marshal(dbErr) // should check error
-	log.Println(dbErrData)
+	log.Println(dbErr)
 	return dbErrData
 }

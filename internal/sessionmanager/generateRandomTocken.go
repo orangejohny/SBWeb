@@ -5,8 +5,8 @@ import (
 	"encoding/base64"
 )
 
-// GenerateRandomBytes returns slice of random bytes
-func GenerateRandomBytes(length int) ([]byte, error) {
+// generateRandomBytes returns slice of random bytes
+func generateRandomBytes(length int) ([]byte, error) {
 	tocken := make([]byte, length)
 	_, err := rand.Read(tocken)
 	if err != nil {
@@ -16,8 +16,8 @@ func GenerateRandomBytes(length int) ([]byte, error) {
 	return tocken, nil
 }
 
-// GenerateRandomString returns random string that can be used as a tocken
-func GenerateRandomString(length int) (string, error) {
-	tocken, err := GenerateRandomBytes(length)
+// generateRandomString returns random string that can be used as a tocken
+func generateRandomString(length int) (string, error) {
+	tocken, err := generateRandomBytes(length)
 	return base64.URLEncoding.EncodeToString(tocken), err
 }
