@@ -15,7 +15,7 @@ func (h *Handler) prepareStatements() (err error) {
 		 FROM
 		 ads
 		 INNER JOIN
-		 users
+		 users 
 		 ON
 		 users.id = ads.owner_ad
 		 LIMIT $1 OFFSET $2`,
