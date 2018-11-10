@@ -32,11 +32,11 @@ func StartServer(cfg Config, m *model.Model) {
 	r.Handle("/ads/{id:[0-9]+}", readOneAd(m)).Methods("GET")
 	r.Handle("/users/{id:[0-9]+}", readUserWithID(m)).Methods("GET")
 	r.Handle("/users/new", userCreatePage(m)).Methods("POST")
-	r.Handle("/users/login", userLoginPage(m)).Methods("POST")
+	r.Handle("/users/login", checkCookieMiddleware(m, userLoginPage(m))).Methods("POST")
 	r.Handle("/users/logout", userLogoutPage(m)).Methods("POST")
-	r.Handle("/users/profile", userProfilePage(m)).Methods("GET")
-	r.Handle("/users/profile", userUpdatePage(m)).Methods("POST")
-	r.Handle("/users/profile", userDeletePage(m)).Methods("DELETE")
+	r.Handle("/users/profile", checkCookieMiddleware(m, userProfilePage(m))).Methods("GET")
+	r.Handle("/users/profile", checkCookieMiddleware(m, userUpdatePage(m))).Methods("POST")
+	r.Handle("/users/profile", checkCookieMiddleware(m, userDeletePage(m))).Methods("DELETE")
 
 	server := http.Server{
 		Addr:    cfg.Address,
@@ -268,6 +268,7 @@ func userLoginPage(m *model.Model) http.Handler {
 
 		// create new session for user
 		sess, err := m.CreateSession(&model.Session{
+			ID:        userFromDB.ID,
 			Login:     user.Email,
 			UserAgent: r.UserAgent(),
 		})
@@ -315,24 +316,8 @@ func userUpdatePage(m *model.Model) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "application/json")
 
-		cookieSession, err := r.Cookie("session_id")
-		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write(apiErrorHandle("Can't update profile", "NoCookieError", err))
-			return
-		}
-
-		_, err = m.CheckSession(&model.SessionID{
-			ID: cookieSession.Value,
-		})
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write(apiErrorHandle("Can't update profile", "No such session", err))
-			return
-		}
-
 		// trying to parse form
-		err = r.ParseForm()
+		err := r.ParseForm()
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle("Can't parse request body", "RequestFormParseError", err))
@@ -356,6 +341,8 @@ func userUpdatePage(m *model.Model) http.Handler {
 			return
 		}
 
+		user.ID = getIDfromCookie(m, r)
+
 		_, err = m.EditUser(&user)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -372,23 +359,7 @@ func userProfilePage(m *model.Model) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "application/json")
 
-		cookieSession, err := r.Cookie("session_id")
-		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write(apiErrorHandle("Can't access profile", "NoCookieError", err))
-			return
-		}
-
-		session, err := m.CheckSession(&model.SessionID{
-			ID: cookieSession.Value,
-		})
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write(apiErrorHandle("Can't access profile", "No such session", err))
-			return
-		}
-
-		user, err := m.GetUserWithEmail(session.Login)
+		user, err := m.GetUserWithID(getIDfromCookie(m, r))
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(apiErrorHandle("Can't take information from database", "DatabaseError", err))
@@ -412,23 +383,7 @@ func userDeletePage(m *model.Model) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "application/json")
 
-		cookieSession, err := r.Cookie("session_id")
-		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write(apiErrorHandle("Can't access profile", "NoCookieError", err))
-			return
-		}
-
-		session, err := m.CheckSession(&model.SessionID{
-			ID: cookieSession.Value,
-		})
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write(apiErrorHandle("Can't access profile", "No such session", err))
-			return
-		}
-
-		user, err := m.GetUserWithEmail(session.Login)
+		user, err := m.GetUserWithID(getIDfromCookie(m, r))
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(apiErrorHandle("Can't take information from database", "DatabaseError", err))
