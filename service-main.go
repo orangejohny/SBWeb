@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/orangejohny/SBWeb/internal/daemon"
+	"bmstu.codes/developers34/SBWeb/internal/daemon"
 )
 
 func setConfig() *daemon.Config {

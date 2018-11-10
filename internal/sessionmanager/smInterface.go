@@ -3,8 +3,8 @@ package sessionmanager
 import (
 	"encoding/json"
 
+	"bmstu.codes/developers34/SBWeb/internal/model"
 	"github.com/garyburd/redigo/redis"
-	"github.com/orangejohny/SBWeb/internal/model"
 )
 
 // CreateSession creates new session

@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/orangejohny/SBWeb/internal/model"
+	"bmstu.codes/developers34/SBWeb/internal/model"
 )
 
 // getIDfromCookie return ID of user with cookie from request

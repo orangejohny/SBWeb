@@ -3,8 +3,8 @@ package sessionmanager_test
 import (
 	"testing"
 
+	sm "bmstu.codes/developers34/SBWeb/internal/sessionmanager"
 	"github.com/alicebob/miniredis"
-	sm "github.com/orangejohny/SBWeb/internal/sessionmanager"
 )
 
 func TestInitSM(t *testing.T) {

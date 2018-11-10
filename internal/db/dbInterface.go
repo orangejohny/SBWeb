@@ -3,7 +3,7 @@ package db
 import (
 	"log"
 
-	"github.com/orangejohny/SBWeb/internal/model"
+	"bmstu.codes/developers34/SBWeb/internal/model"
 )
 
 // prepareStateents just preapares SQL requests
