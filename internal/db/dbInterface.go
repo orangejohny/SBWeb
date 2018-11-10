@@ -9,7 +9,16 @@ import (
 // prepareStateents just preapares SQL requests
 func (h *Handler) prepareStatements() (err error) {
 	if h.ReadAds, err = h.DB.Preparex( // return list of ads
-		"SELECT * FROM ads LIMIT $1 OFFSET $2",
+		`SELECT
+		 ads.id "id_", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
+		 users.id, first_name, last_name, email, telephone, about, reg_time
+		 FROM
+		 ads
+		 INNER JOIN
+		 users
+		 ON
+		 users.id = ads.owner_ad
+		 LIMIT $1 OFFSET $2`,
 	); err != nil {
 		log.Println(err.Error())
 
@@ -17,7 +26,15 @@ func (h *Handler) prepareStatements() (err error) {
 	}
 
 	if h.ReadAd, err = h.DB.Preparex( // return ad with such id
-		"SELECT * FROM ads WHERE id=$1",
+		`SELECT
+		ads.id "id_", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
+		users.id, first_name, last_name, email, telephone, about, reg_time
+		FROM
+		ads
+		INNER JOIN
+		users
+		ON
+		users.id = ads.owner_ad AND ads.id = $1`,
 	); err != nil {
 		log.Println(err.Error())
 
@@ -25,7 +42,7 @@ func (h *Handler) prepareStatements() (err error) {
 	}
 
 	if h.ReadUserWithID, err = h.DB.Preparex( // return user with such id
-		"SELECT * FROM users WHERE id=$1",
+		"SELECT id, first_name, last_name, email, telephone, about, reg_time FROM users WHERE id=$1",
 	); err != nil {
 		log.Println(err.Error())
 
@@ -33,7 +50,7 @@ func (h *Handler) prepareStatements() (err error) {
 	}
 
 	if h.ReadUserWithEmail, err = h.DB.Preparex( // return user with such email
-		"SELECT * FROM users WHERE email=$1",
+		"SELECT id, first_name, last_name, email, telephone, about, reg_time FROM users WHERE email=$1",
 	); err != nil {
 		log.Println(err.Error())
 
@@ -56,7 +73,8 @@ func (h *Handler) prepareStatements() (err error) {
 		`INSERT INTO ads
 			(title, owner_ad, description_ad, price, country, city, subway_station, images_folder)
 			VALUES
-			(:title, :owner_ad, :description_ad, :price, :country, :city, :subway_station, :images_folder)`,
+			(:title, :owner_ad, :description_ad, :price, :country, :city, :subway_station, :images_folder)
+			RETURNING id`,
 	); err != nil {
 		log.Println(err.Error())
 

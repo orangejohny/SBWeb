@@ -15,14 +15,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Config for api package. Address is domain name of server
-type Config struct {
-	Address string `json:"Address,"`
-	//ReadTimeout  time.Duration `json:"ReadTimeout,int"`
-	//WriteTimeout time.Duration `json:"WriteTimeout,int"`
-	//IdleTimeout  time.Duration `json:"IdleTimeout,int"`
-}
-
 // StartServer creates and runs API server
 func StartServer(cfg Config, m *model.Model) {
 	r := mux.NewRouter()
@@ -31,19 +23,33 @@ func StartServer(cfg Config, m *model.Model) {
 	r.Handle("/ads", readMultipleAds(m)).Methods("GET")
 	r.Handle("/ads/{id:[0-9]+}", readOneAd(m)).Methods("GET")
 	r.Handle("/users/{id:[0-9]+}", readUserWithID(m)).Methods("GET")
+
 	r.Handle("/users/new", userCreatePage(m)).Methods("POST")
-	r.Handle("/users/login", checkCookieMiddleware(m, userLoginPage(m))).Methods("POST")
+
+	r.Handle("/users/login", userLoginPage(m)).Methods("POST")
 	r.Handle("/users/logout", userLogoutPage(m)).Methods("POST")
+
 	r.Handle("/users/profile", checkCookieMiddleware(m, userProfilePage(m))).Methods("GET")
 	r.Handle("/users/profile", checkCookieMiddleware(m, userUpdatePage(m))).Methods("POST")
 	r.Handle("/users/profile", checkCookieMiddleware(m, userDeletePage(m))).Methods("DELETE")
 
+	r.Handle("/ads/new", checkCookieMiddleware(m, adCreatePage(m))).Methods("POST")
+	r.Handle("/ads/edit/{id:[0-9]+}", checkCookieMiddleware(m, adUpdatePage(m))).Methods("POST")
+	r.Handle("/ads/delete/{id:[0-9]+}", checkCookieMiddleware(m, adDeletePage(m))).Methods("DELETE")
+
+	RT, err1 := time.ParseDuration(cfg.ReadTimeout)
+	WT, err2 := time.ParseDuration(cfg.WriteTimeout)
+	IT, err3 := time.ParseDuration(cfg.IdleTimeout)
+	if err1 != nil || err2 != nil || err3 != nil {
+		log.Fatalln("Can't parse API config")
+	}
+
 	server := http.Server{
-		Addr:    cfg.Address,
-		Handler: r,
-		//ReadTimeout:  cfg.ReadTimeout,
-		//WriteTimeout: cfg.WriteTimeout,
-		//IdleTimeout:  cfg.IdleTimeout,
+		Addr:         cfg.Address,
+		Handler:      r,
+		ReadTimeout:  RT,
+		WriteTimeout: WT,
+		IdleTimeout:  IT,
 	}
 
 	err := server.ListenAndServe()
@@ -196,11 +202,11 @@ func userCreatePage(m *model.Model) http.Handler {
 
 		// send user id as a response
 		userData, err := json.Marshal(struct {
-			id  int64
-			ref string
+			ID  int64
+			Ref string
 		}{
-			id:  id,
-			ref: "/users/" + strconv.FormatInt(id, 10),
+			ID:  id,
+			Ref: "/users/" + strconv.FormatInt(id, 10),
 		})
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -383,17 +389,164 @@ func userDeletePage(m *model.Model) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "application/json")
 
-		user, err := m.GetUserWithID(getIDfromCookie(m, r))
+		_, err := m.RemoveUser(getIDfromCookie(m, r))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(apiErrorHandle("Can't delete user from database", "DatabaseError", err))
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	})
+}
+
+// adCreatePage handles */ads/new with method POST
+func adCreatePage(m *model.Model) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-type", "application/json")
+
+		// trying to parse form
+		err := r.ParseForm()
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle("Can't parse request body", "RequestFormParseError", err))
+			return
+		}
+
+		// get info about ad from request
+		var ad model.AdItem
+		decoder := schema.NewDecoder()
+		err = decoder.Decode(&ad, r.Form)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(apiErrorHandle("Can't decode request body", "RequestFormDecodeError", err))
+			return
+		}
+
+		// validate incoming data
+		_, err = govalidator.ValidateStruct(&ad)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle("Data didn't passed validation", "RequestDataValidError", err))
+			return
+		}
+
+		ad.UserID = getIDfromCookie(m, r)
+
+		// add ad to database
+		id, err := m.NewAd(&ad)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(apiErrorHandle("Can't create new ad", "AdCreatingError", err))
+			return
+		}
+
+		// send ad id as a response
+		adData, err := json.Marshal(struct {
+			ID  int64
+			Ref string
+		}{
+			ID:  id,
+			Ref: "/ads/" + strconv.FormatInt(id, 10),
+		})
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(apiErrorHandle("Can't encode JSON", "JSONerror", err))
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+		w.Write(adData)
+	})
+}
+
+// adUpdatePage handles */ads/edit/{id:[0-9]+} with method POST
+func adUpdatePage(m *model.Model) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-type", "application/json")
+
+		idStr, _ := mux.Vars(r)["id"]
+		id, _ := strconv.ParseInt(idStr, 10, 64)
+
+		// trying to parse form
+		err := r.ParseForm()
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle("Can't parse request body", "RequestFormParseError", err))
+			return
+		}
+
+		// get info about ad from request
+		var ad model.AdItem
+		decoder := schema.NewDecoder()
+		err = decoder.Decode(&ad, r.Form)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(apiErrorHandle("Can't decode request body", "RequestFormDecodeError", err))
+			return
+		}
+
+		// validate incoming data
+		_, err = govalidator.ValidateStruct(&ad)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle("Data didn't passed validation", "RequestDataValidError", err))
+			return
+		}
+
+		ad.User.ID = getIDfromCookie(m, r)
+		ad.ID = id
+
+		adFromDatabase, err := m.GetAd(id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(apiErrorHandle("Can't take information from database", "DatabaseError", err))
 			return
 		}
 
-		_, err = m.RemoveUser(user.ID)
+		if ad.User.ID != adFromDatabase.User.ID {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle("Trying to change ad that created by other user", "AdUpdateError", errors.New("You can change ads that created only by yourself")))
+			return
+		}
+
+		_, err = m.EditAd(&ad)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(apiErrorHandle("Can't delete user from database", "DatabaseError", err))
+			w.Write(apiErrorHandle("Can't update ad", "AdUpdatingError", err))
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	})
+}
+
+// adDeletePage handles */ads/delete/{id:[0-9]+} with method DELETE
+func adDeletePage(m *model.Model) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-type", "application/json")
+
+		idStr, _ := mux.Vars(r)["id"]
+		id, _ := strconv.ParseInt(idStr, 10, 64)
+
+		ownerIDfromCookie := getIDfromCookie(m, r)
+		adFromDatabase, err := m.GetAd(id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(apiErrorHandle("Can't take information from database", "DatabaseError", err))
+			return
+		}
+
+		if ownerIDfromCookie != adFromDatabase.User.ID {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle("Trying to change ad that created by other user", "AdUpdateError", errors.New("You can change ads that created only by yourself")))
+			return
+		}
+
+		_, err = m.RemoveAd(id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(apiErrorHandle("Can't delete ad", "AdDeleteError", err))
 			return
 		}
 
