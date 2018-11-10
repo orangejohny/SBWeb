@@ -6,10 +6,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/orangejohny/SBWeb/internal/api"
-	"github.com/orangejohny/SBWeb/internal/db"
-	"github.com/orangejohny/SBWeb/internal/model"
-	sm "github.com/orangejohny/SBWeb/internal/sessionmanager"
+	"bmstu.codes/developers34/SBWeb/internal/api"
+	"bmstu.codes/developers34/SBWeb/internal/db"
+	"bmstu.codes/developers34/SBWeb/internal/model"
+	sm "bmstu.codes/developers34/SBWeb/internal/sessionmanager"
 )
 
 // Config is config structure for whole service

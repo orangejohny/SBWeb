@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"bmstu.codes/developers34/SBWeb/internal/model"
+	sm "bmstu.codes/developers34/SBWeb/internal/sessionmanager"
 	"github.com/alicebob/miniredis"
-	"github.com/orangejohny/SBWeb/internal/model"
-	sm "github.com/orangejohny/SBWeb/internal/sessionmanager"
 )
 
 func TestInterfaceSession(t *testing.T) {

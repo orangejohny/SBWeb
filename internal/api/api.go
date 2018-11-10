@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"time"
 
+	"bmstu.codes/developers34/SBWeb/internal/model"
 	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
-	"github.com/orangejohny/SBWeb/internal/model"
 	"golang.org/x/crypto/bcrypt"
 )
 
