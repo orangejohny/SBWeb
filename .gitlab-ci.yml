@@ -58,6 +58,7 @@ build:
   script:
     - make
     - ls .
+    - ls $CI_PROJECT_DIR
   artifacts:
     paths:
-      - SBWeb
+      - ./SBWeb
