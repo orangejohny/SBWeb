@@ -1,0 +1,20 @@
+version: "3.1"
+
+services:
+  api:
+    image: registry.bmstu.codes/developers34/sbweb:latest
+    volumes:
+      - .:/go/src/bmstu.codes/SBWeb
+    working_dir: /go/src/bmstu.codes/SBWeb
+    command: make && ./SBWeb -cfg ./internal/config.json
+    links:
+      - redis
+      - postgres
+    ports:
+      - "8000:8000"
+
+  redis:
+    image: redis:alpine
+
+  postgres:
+    image: postgres:alpine
