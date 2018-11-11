@@ -2,6 +2,7 @@ image: registry.bmstu.codes/developers34/sbweb:latest
 
 variables:
   REPO_NAME: bmstu.codes/developers34/SBWeb
+  PROJECT_PATH: $GOPATH/src/$REPO_NAME
 
 cache:
   paths:
@@ -17,9 +18,9 @@ stages:
 
 before_script:
   - export CC=clang
-  - mkdir -p /go/src/$(dirname $REPO_NAME)
-  - mount -o bind $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
-  - cd $GOPATH/src/$REPO_NAME
+  - mkdir -p $PROJECT_PATH
+  - mount -o bind `pwd` $PROJECT_PATH
+  - cd $PROJECT_PATH
   - make dep
 
 unit_tests:
