@@ -24,26 +24,36 @@ before_script:
 
 unit_tests:
   stage: test
+  tags:
+    - laptop-runner
   script:
     - make test
 
 race_detector:
   stage: test
+  tags:
+    - laptop-runner
   script:
     - make race
 
 memory_sanitizer:
   stage: test
+  tags:
+    - laptop-runner
   script:
     - make msan
 
 lint_code:
   stage: test
+  tags:
+    - laptop-runner
   script:
     - make lint
 
 build:
   stage: build
+  tags:
+    - laptop-runner
   script:
     - make
   artifacts:
