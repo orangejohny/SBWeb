@@ -6,9 +6,10 @@ import (
 	"os/signal"
 	"syscall"
 
+	"bmstu.codes/developers34/SBWeb/internal/model"
+
 	"bmstu.codes/developers34/SBWeb/internal/api"
 	"bmstu.codes/developers34/SBWeb/internal/db"
-	"bmstu.codes/developers34/SBWeb/internal/model"
 	sm "bmstu.codes/developers34/SBWeb/internal/sessionmanager"
 )
 
@@ -26,12 +27,14 @@ func RunService(cfg *Config) error {
 		log.Fatalln("Can't connect to database", err.Error())
 		return err
 	}
+	log.Println("Connected to DB")
 
 	sm, err := sm.InitConnSM(cfg.SM)
 	if err != nil {
 		log.Fatalln("Can't start session manager", err.Error())
 		return err
 	}
+	log.Println("Connected to SM")
 
 	m := model.New(db, sm)
 

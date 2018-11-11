@@ -1,20 +1,35 @@
-version: "3.1"
+version: "3.2"
+
+#Before launching docker-machine
+# export VIRTUALBOX_SHARE_FOLDER="$PWD:$PWD"
 
 services:
   api:
-    image: registry.bmstu.codes/developers34/sbweb:latest
+    image: golang:1.11
     volumes:
-      - .:/go/src/bmstu.codes/SBWeb
-    working_dir: /go/src/bmstu.codes/SBWeb
-    command: make && ./SBWeb -cfg ./internal/config.json
+      - ./:/go/src/bmstu.codes/developers34/SBWeb
+    working_dir: /go/src/bmstu.codes/developers34/SBWeb
+    command: go run bmstu.codes/developers34/SBWeb -cfg ./internal/config.json
     links:
       - redis
       - postgres
     ports:
-      - "8000:8000"
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        mode: host
 
   redis:
     image: redis:alpine
 
   postgres:
+    volumes:
+      - ./internal/db/data/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - /var/lib/postgresql/data:/var/lib/postgresql/data/pgdata
+    environment:
+      POSTGRES_DB: data
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: dataUSER
+      POSTGRES_PASSWORD: dataPASSWORD
+    #restart: always
     image: postgres:alpine

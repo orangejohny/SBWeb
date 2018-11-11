@@ -1,8 +1,8 @@
-SET NAMES utf8;
+--SET NAMES utf8;
 
 --DROP TABLE IF EXISTS users;
 --DROP TABLE IF EXISTS ads;
-CREATE TABLE users
+CREATE TABLE IF NOT EXISTS users
 (
     id                SERIAL      PRIMARY KEY,
     first_name        varchar(80) NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE users
     reg_time timestamp   DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE TABLE ads
+CREATE TABLE IF NOT EXISTS ads
 (
     id             SERIAL       PRIMARY KEY,
     title          varchar(80)  NOT NULL,

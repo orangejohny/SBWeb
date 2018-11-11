@@ -1,15 +1,15 @@
 {
   "DB": {
-    "DBAddress": "host=/var/run/postgresql sslmode=disable dbname=data",
+    "DBAddress": "postgresql://dataUSER:dataPASSWORD@postgres/data?sslmode=disable",
     "MaxOpenConns": 10
   },
   "SM": {
-    "DBAddress": "redis://user:@localhost:6379/0",
+    "DBAddress": "redis://redis:6379/0",
     "TockenLength": 32,
     "ExpirationTime": 86400
   },
   "API": {
-    "Address": "127.0.0.1:8000",
+    "Address": ":8080",
     "ReadTimeout": "10s",
     "WriteTimeout": "10s",
     "IdleTimeout": "10s"
