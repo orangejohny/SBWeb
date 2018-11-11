@@ -28,3 +28,5 @@ curl -v -X DELETE -H "Content-Type: application/x-www-form-urlencoded; charset=u
 
 go install -i ./internal/service-main.go
 /home/orangejohny/workspace/go/bin/service-main -cfg ./internal/config.json
+
+try to trigger gitlab-ci
