@@ -1,5 +1,8 @@
 image: registry.bmstu.codes/developers34/sbweb:latest
 
+variables:
+  REPO_NAME: bmstu.codes/developers34/SBWeb
+
 cache:
   paths:
     - /apt-cache
@@ -14,9 +17,9 @@ stages:
 
 before_script:
   - export CC=clang
-#  - mkdir -p /go/src/gitlab.com/pantomath-io /go/src/_/builds
-#  - cp -r $CI_PROJECT_DIR /go/src/gitlab.com/pantomath-io/pantomath
-#  - ln -s /go/src/gitlab.com/pantomath-io /go/src/_/builds/pantomath-io
+  - mkdir -p /go/src/$(dirname $REPO_NAME)
+  - ln -svf $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
+  - cd $GOPATH/src/$REPO_NAME
   - make dep
 
 unit_tests:
@@ -43,3 +46,6 @@ build:
   stage: build
   script:
     - make
+  artifacts:
+    paths:
+      - SBWeb
