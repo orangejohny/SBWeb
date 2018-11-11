@@ -5,6 +5,7 @@ package model
 type db interface {
 	GetAd(adID int64) (*AdItem, error)
 	GetAds(limit int, offset int) ([]*AdItem, error)
+	GetAdsOfUser(userID int64) ([]*AdItem, error)
 	GetUserWithID(userID int64) (*User, error)
 	GetUserWithEmail(email string) (*User, error)
 	NewUser(user *User) (int64, error)

@@ -120,7 +120,7 @@ func readOneAd(m *model.Model) http.Handler {
 }
 
 // readUserWithID handles */users/{id:[0-9]+} with method GET. Returns one user struct with ID provided from URL
-// TODO implement parameter show_ads
+// if parameter show_ads == true it return list of ads of such user
 func readUserWithID(m *model.Model) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "application/json")
@@ -143,6 +143,27 @@ func readUserWithID(m *model.Model) http.Handler {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(apiErrorHandle("Can't encode JSON", "JSONerror", err))
+			return
+		}
+
+		showAds := r.FormValue("show_ads")
+		if showAds == "true" {
+			ads, err := m.GetAdsOfUser(id)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write(apiErrorHandle("Can't take information from database", "DatabaseError", err))
+				return
+			}
+
+			adsData, err := json.Marshal(ads)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write(apiErrorHandle("Can't encode JSON", "JSONerror", err))
+				return
+			}
+
+			w.WriteHeader(http.StatusOK)
+			w.Write(adsData)
 			return
 		}
 

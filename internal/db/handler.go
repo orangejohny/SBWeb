@@ -14,6 +14,7 @@ type Handler struct {
 	UpdateUser        *sqlx.NamedStmt
 	UpdateAd          *sqlx.NamedStmt
 	ReadAds           *sqlx.Stmt
+	ReadAdsOfUser     *sqlx.Stmt
 	ReadAd            *sqlx.Stmt
 	ReadUserWithID    *sqlx.Stmt
 	ReadUserWithEmail *sqlx.Stmt

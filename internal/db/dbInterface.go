@@ -25,6 +25,23 @@ func (h *Handler) prepareStatements() (err error) {
 		return err
 	}
 
+	if h.ReadAdsOfUser, err = h.DB.Preparex( // return list of ads of such user
+		`SELECT
+		 ads.id "id_", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
+		 users.id, first_name, last_name, email, telephone, about, reg_time
+		 FROM
+		 ads
+		 INNER JOIN
+		 users 
+		 ON
+		 users.id = ads.owner_ad
+		 AND ads.owner_ad = $1`,
+	); err != nil {
+		log.Println(err.Error())
+
+		return err
+	}
+
 	if h.ReadAd, err = h.DB.Preparex( // return ad with such id
 		`SELECT
 		ads.id "id_", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
@@ -132,6 +149,13 @@ func (h *Handler) prepareStatements() (err error) {
 func (h *Handler) GetAds(limit int, offset int) ([]*model.AdItem, error) {
 	ads := make([]*model.AdItem, 0)
 	err := h.ReadAds.Select(&ads, limit, offset) // will sqlx manage with foreign keys?
+	return ads, err
+}
+
+// GetAdsOfUser returns slice of AdItem with such user from database
+func (h *Handler) GetAdsOfUser(userID int64) ([]*model.AdItem, error) {
+	ads := make([]*model.AdItem, 0)
+	err := h.ReadAdsOfUser.Select(&ads, userID) // will sqlx manage with foreign keys?
 	return ads, err
 }
 
