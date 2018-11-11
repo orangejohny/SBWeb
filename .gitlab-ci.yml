@@ -18,7 +18,7 @@ stages:
 before_script:
   - export CC=clang
   - mkdir -p /go/src/$(dirname $REPO_NAME)
-  - ln -svf $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
+  - mount -o bind $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
   - cd $GOPATH/src/$REPO_NAME
   - make dep
 
