@@ -57,6 +57,7 @@ build:
     - laptop-runner
   script:
     - make
+    - ls .
   artifacts:
     paths:
       - SBWeb
