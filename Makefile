@@ -1,6 +1,6 @@
 PROJECT_NAME := "SBWeb"
 PKG := "bmstu.codes/developers34/SBWeb"
-PKG_LIST := $(shell go list ${PKG}/internal/... | grep -v /vendor/)
+PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
 
 # TODO cover and coverhtml
