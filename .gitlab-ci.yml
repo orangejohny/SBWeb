@@ -19,7 +19,7 @@ stages:
 before_script:
   - export CC=clang
   - mkdir -p $PROJECT_PATH
-  - sudo mount -o bind `pwd` $PROJECT_PATH
+  - sudo mount --bind `pwd` $PROJECT_PATH
   - cd $PROJECT_PATH
   - make dep
 
