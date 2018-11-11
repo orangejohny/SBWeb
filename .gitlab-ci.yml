@@ -18,9 +18,9 @@ stages:
 
 before_script:
   - export CC=clang
-  - mkdir -p $PROJECT_PATH
-  - sudo mount --bind `pwd` $PROJECT_PATH
-  - cd $PROJECT_PATH
+  - mkdir -p $GOPATH/src/$(dirname $REPO_NAME)
+  - cp $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
+  - cd $GOPATH/src/$REPO_NAME
   - make dep
 
 unit_tests:
