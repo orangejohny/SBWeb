@@ -3,17 +3,19 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"strconv"
 	"time"
 
 	"bmstu.codes/developers34/SBWeb/internal/model"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // StartServer creates and runs API server
@@ -244,6 +246,9 @@ func userCreatePage(m *model.Model) http.Handler {
 // userLoginPage handles */users/login with method POST
 func userLoginPage(m *model.Model) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		byts, _ := httputil.DumpRequest(r, true)
+		fmt.Println(string(byts))
+
 		w.Header().Set("Content-type", "application/json")
 
 		// trying to parse form
@@ -287,8 +292,9 @@ func userLoginPage(m *model.Model) http.Handler {
 		}
 
 		// check if password is valid
-
 		if err = bcrypt.CompareHashAndPassword([]byte(userFromDB.Password), []byte(user.Password)); err != nil {
+			log.Println(err)
+			log.Println(err)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle("Login or password is incorrect", "BadAuth", errors.New("Login or password is incorrect")))
 			return
@@ -314,7 +320,7 @@ func userLoginPage(m *model.Model) http.Handler {
 		}
 
 		http.SetCookie(w, &cookie)
-		w.WriteHeader(http.StatusFound)
+		w.WriteHeader(http.StatusOK)
 	})
 }
 

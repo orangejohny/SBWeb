@@ -1,5 +1,3 @@
---SET NAMES utf8;
-
 --DROP TABLE IF EXISTS users;
 --DROP TABLE IF EXISTS ads;
 CREATE TABLE IF NOT EXISTS users
@@ -8,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users
     first_name        varchar(80) NOT NULL,
     last_name         varchar(80) NOT NULL,
     email             varchar(80) UNIQUE NOT NULL,
-    password_hash     text        NOT NULL,
+    password_hash     varchar(128)        NOT NULL,
     telephone         varchar(80),
     about             text,
     reg_time timestamp   DEFAULT CURRENT_TIMESTAMP NOT NULL

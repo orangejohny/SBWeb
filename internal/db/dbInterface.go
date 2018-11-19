@@ -67,7 +67,7 @@ func (h *Handler) prepareStatements() (err error) {
 	}
 
 	if h.ReadUserWithEmail, err = h.DB.Preparex( // return user with such email
-		"SELECT id, first_name, last_name, email, telephone, about, reg_time FROM users WHERE email=$1",
+		"SELECT id, first_name, last_name, email, telephone, about, reg_time, password_hash FROM users WHERE email=$1",
 	); err != nil {
 		log.Println(err.Error())
 
