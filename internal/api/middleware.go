@@ -1,7 +1,9 @@
 package api
 
 import (
+	"log"
 	"net/http"
+	"net/http/httputil"
 
 	"bmstu.codes/developers34/SBWeb/internal/model"
 )
@@ -26,6 +28,15 @@ func checkCookieMiddleware(m *model.Model, next http.Handler) http.Handler {
 			w.Write(apiErrorHandle("Can't update profile", "No such session", err))
 			return
 		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func logRequest(m *model.Model, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		byts, _ := httputil.DumpRequest(r, true)
+		log.Println(string(byts))
 
 		next.ServeHTTP(w, r)
 	})

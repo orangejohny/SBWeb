@@ -3,10 +3,8 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"strconv"
 	"time"
 
@@ -246,9 +244,6 @@ func userCreatePage(m *model.Model) http.Handler {
 // userLoginPage handles */users/login with method POST
 func userLoginPage(m *model.Model) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		byts, _ := httputil.DumpRequest(r, true)
-		fmt.Println(string(byts))
-
 		w.Header().Set("Content-type", "application/json")
 
 		// trying to parse form
@@ -300,27 +295,51 @@ func userLoginPage(m *model.Model) http.Handler {
 			return
 		}
 
+		isExpires := true
+		if r.UserAgent() == "Android_app" {
+			isExpires = false
+		}
+
 		// create new session for user
 		sess, err := m.CreateSession(&model.Session{
 			ID:        userFromDB.ID,
 			Login:     user.Email,
 			UserAgent: r.UserAgent(),
-		})
+		}, isExpires)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(apiErrorHandle("Can't create new session", "SessionCreateError", err))
 			return
 		}
 
-		// set cookie with session ID
-		cookie := http.Cookie{
-			Name:    "session_id",
-			Value:   sess.ID,
-			Expires: time.Now().Add(1 * time.Hour), // should be configureable
-		}
+		if isExpires {
+			// set cookie with session ID
+			cookie := http.Cookie{
+				Name:     "session_id",
+				Value:    sess.ID,
+				Expires:  time.Now().Add(24 * time.Hour), // should be configureable
+				HttpOnly: true,
+			}
 
-		http.SetCookie(w, &cookie)
-		w.WriteHeader(http.StatusOK)
+			http.SetCookie(w, &cookie)
+		} else {
+			cookieData, err := json.Marshal(struct {
+				Name  string
+				Value string `json:"session_id,"`
+				ID    int64  `json:"id,"`
+			}{
+				Name:  "session_id",
+				Value: sess.ID,
+				ID:    userFromDB.ID,
+			})
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write(apiErrorHandle("Can't encode JSON", "JSONerror", err))
+				return
+			}
+
+			w.Write(cookieData)
+		}
 	})
 }
 

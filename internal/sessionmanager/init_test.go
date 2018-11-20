@@ -35,5 +35,5 @@ func TestInitSM(t *testing.T) {
 		t.Error("SM must have been initiated")
 	}
 
-	SM.CreateSession(nil)
+	SM.CreateSession(nil, true)
 }

@@ -10,9 +10,9 @@ curl -v -X POST -H "Content-Type: application/x-www-form-urlencoded; charset=utf
 
 curl -v 127.0.0.1:8000/users/profile
 
-curl -v --cookie "session_id=Wb8jMSneczBuOF7N54l3kAtOgNoMIkS3ms0P0hE4leU=; Expires=Mon, 05 Nov 2018 19:35:00 GMT" 127.0.0.1:8000/users/profile
+curl -v --cookie "session_id=RzBgl-VlTcFOTZF5zq1JtN9tOiCnbtCHzNDGk6Yxa6I=; Expires=Mon, 05 Nov 2019 19:35:00 GMT" 127.0.0.1:8080/users/profile
 
-curl -v -X POST --data "first_name=dmitry&last_name=kargashin&tel_number=892157655&about=heh ehehh eeh&id=5" --cookie "session_id=Wb8jMSneczBuOF7N54l3kAtOgNoMIkS3ms0P0hE4leU=; Expires=Mon, 05 Nov 2018 19:35:00 GMT" 127.0.0.1:8000/users/profile
+curl -v -X POST --data "first_name=dmitry&last_name=kargashin&tel_number=892157655&about=heh ehehh eeh&id=5" --cookie "session_id=; Expires=Mon, 05 Nov 2018 19:35:00 GMT" 127.0.0.1:8000/users/profile
 
 curl -v -X POST --data "first_name=dmitry&last_name=kargashin&tel_number=892157655&about=heh ehehh eeh&id=5" --cookie "session_id=Wb8jMSneczBuOF7N54l3kAtOgNoMIkS3ms0P0hE4leU=; Expires=Mon, 05 Nov 2018 19:35:00 GMT" 127.0.0.1:8000/users/profile
 

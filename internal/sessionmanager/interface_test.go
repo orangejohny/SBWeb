@@ -30,7 +30,7 @@ func TestInterfaceSession(t *testing.T) {
 		ID:        15,
 		Login:     "aaa@eee.ru",
 		UserAgent: "ieieie",
-	})
+	}, true)
 
 	_, err = SM.CheckSession(sID)
 	if err != nil {
@@ -49,7 +49,7 @@ func TestInterfaceSession(t *testing.T) {
 		ID:        15,
 		Login:     "aaa@eee.ru",
 		UserAgent: "ieieie",
-	})
+	}, true)
 
 	_, err = SM.CheckSession(sID)
 	if err != nil {
