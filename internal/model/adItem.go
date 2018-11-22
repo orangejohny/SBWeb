@@ -12,7 +12,7 @@ type AdItem struct {
 	Title         string      `db:"title" json:"title" schema:"title,required" valid:",required"`
 	Price         null.Int    `db:"price" json:"price,omitempty" schema:"price,optional" valid:"-"`
 	Country       null.String `db:"country" json:"country,omitempty" schema:"country,optional" valid:"alpha,optional"`
-	City          null.String `db:"city" json:"city,omitempty" schema:"city,required" valid:"alpha,optional"`
+	City          string      `db:"city" json:"city,omitempty" schema:"city,required" valid:"alpha,optional"`
 	SubwayStation null.String `db:"subway_station" json:"subway_station,omitempty" schema:"subway_station,optional" valid:"alpha,optional"`
 	ImagesFolder  null.String `db:"images_folder" json:"images_folder,omitempty" schema:"-" valid:"-"`
 	UserID        int64       `db:"owner_ad" json:"-" schema:"-" valid:"-"`

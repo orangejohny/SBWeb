@@ -288,8 +288,6 @@ func userLoginPage(m *model.Model) http.Handler {
 
 		// check if password is valid
 		if err = bcrypt.CompareHashAndPassword([]byte(userFromDB.Password), []byte(user.Password)); err != nil {
-			log.Println(err)
-			log.Println(err)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle("Login or password is incorrect", "BadAuth", errors.New("Login or password is incorrect")))
 			return
