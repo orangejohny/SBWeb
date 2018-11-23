@@ -121,9 +121,12 @@
   revision = "e4dc69e5b2fd71dcaf8bd5d054eb936deb78d1fa"
 
 [[projects]]
-  digest = "1:a4b04b5314d49a67ad022fa7693453ee2b823ab99314f52fa3930ed31085dfef"
+  digest = "1:b17c162f7c833b05d20f549e1636edb19bf7b845a907d331a87b71f06d826a13"
   name = "gopkg.in/guregu/null.v3"
-  packages = ["."]
+  packages = [
+    ".",
+    "zero",
+  ]
   pruneopts = "UT"
   revision = "80515d440932108546bcade467bb7d6968e812e2"
   version = "v3.4.0"
@@ -141,6 +144,7 @@
     "github.com/lib/pq",
     "golang.org/x/crypto/bcrypt",
     "gopkg.in/guregu/null.v3",
+    "gopkg.in/guregu/null.v3/zero",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
