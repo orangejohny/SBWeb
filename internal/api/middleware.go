@@ -35,7 +35,7 @@ func checkCookieMiddleware(m *model.Model, next http.Handler) http.Handler {
 	})
 }
 
-func logRequest(m *model.Model, next http.Handler) http.Handler {
+func logRequestMiddleware(m *model.Model, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		byts, _ := httputil.DumpRequest(r, true)
 		log.Println(string(byts))

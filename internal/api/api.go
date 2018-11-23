@@ -403,16 +403,23 @@ func userLoginPage(m *model.Model) http.Handler {
 
 			http.SetCookie(w, &cookie)
 		} else {
+			cookie := http.Cookie{
+				Name:     "session_id",
+				Value:    sess.ID,
+				HttpOnly: true,
+			}
+			http.SetCookie(w, &cookie)
+
 			// send cookie to android app as JSON
 			cookieData, err := json.Marshal(struct {
-				Name      string
-				Value     string `json:"session_id,"`
+				// Name      string
+				// Value     string `json:"session_id,"`
 				ID        int64  `json:"id,"`
 				FirstName string `json:"first_name,"`
 				LastName  string `json:"last_name,"`
 			}{
-				Name:      "session_id",
-				Value:     sess.ID,
+				// Name:      "session_id",
+				// Value:     sess.ID,
 				ID:        userFromDB.ID,
 				FirstName: userFromDB.FirstName,
 				LastName:  userFromDB.LastName,
