@@ -400,9 +400,10 @@ func userLoginPage(m *model.Model) http.Handler {
 				Expires:  time.Now().Add(24 * time.Hour), // TODO: should be configureable
 				HttpOnly: true,
 			}
-
 			http.SetCookie(w, &cookie)
+
 		} else {
+			// set cookie  without expiration time
 			cookie := http.Cookie{
 				Name:     "session_id",
 				Value:    sess.ID,
@@ -410,8 +411,8 @@ func userLoginPage(m *model.Model) http.Handler {
 			}
 			http.SetCookie(w, &cookie)
 
-			// send cookie to android app as JSON
-			cookieData, err := json.Marshal(struct {
+			// send needed information to android app in JSON format
+			appData, err := json.Marshal(struct {
 				// Name      string
 				// Value     string `json:"session_id,"`
 				ID        int64  `json:"id,"`
@@ -430,7 +431,7 @@ func userLoginPage(m *model.Model) http.Handler {
 				return
 			}
 
-			w.Write(cookieData)
+			w.Write(appData)
 		}
 	})
 }
@@ -734,7 +735,8 @@ func adUpdatePage(m *model.Model) http.Handler {
 		_, err = m.EditAd(&ad)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(apiErrorHandle(connectProvider, updateAdDBErr, err, updateAdDBMsg))
+			w.Write(apiErrorHandle(connectProvider, updateAdDBErr, err,
+				updateAdDBMsg))
 			return
 		}
 
@@ -783,7 +785,8 @@ func adDeletePage(m *model.Model) http.Handler {
 		_, err = m.RemoveAd(id)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(apiErrorHandle(connectProvider, removeAdDBErr, err, removeAdDBMsg))
+			w.Write(apiErrorHandle(connectProvider, removeAdDBErr, err,
+				removeAdDBMsg))
 			return
 		}
 

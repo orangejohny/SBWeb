@@ -9,7 +9,7 @@ services:
     volumes:
       - ./:/go/src/bmstu.codes/developers34/SBWeb
     working_dir: /go/src/bmstu.codes/developers34/SBWeb
-    command: go run bmstu.codes/developers34/SBWeb -cfg ./internal/config.json
+    command: go run bmstu.codes/developers34/SBWeb -cfg ./internal/configForDocker.json
     links:
       - redis
       - postgres
