@@ -2,6 +2,7 @@ package daemon
 
 import (
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -39,16 +40,27 @@ func RunService(cfg *Config) error {
 	m := model.New(db, sm)
 
 	log.Println("Starting API server...")
-	go api.StartServer(cfg.API, m)
+	srv, ch := api.StartServer(cfg.API, m)
 
-	waitForSignal()
+	waitForSignal(srv, ch)
 
 	return nil
 }
 
-func waitForSignal() {
+func waitForSignal(srv *http.Server, chSrv chan error) {
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-	s := <-ch
-	log.Printf("Got signal: %v, exiting.", s)
+
+LOOP:
+	for {
+		select {
+		case s := <-ch:
+			srv.Shutdown(nil)
+			log.Printf("Got signal: %v, exiting.", s)
+			<-chSrv
+			break LOOP
+		case err := <-chSrv:
+			log.Fatalln(err)
+		}
+	}
 }

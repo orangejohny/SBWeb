@@ -199,7 +199,7 @@ func (h *Handler) NewUser(user *model.User) (int64, error) {
 	var lastInserted int64
 
 	err := h.CreateUser.Get(&lastInserted, user)
-	if err.Error() == notUniqueEmail {
+	if err != nil && err.Error() == notUniqueEmail {
 		lastInserted = -1
 	}
 

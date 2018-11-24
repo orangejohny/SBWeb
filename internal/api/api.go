@@ -17,7 +17,7 @@ import (
 )
 
 // StartServer creates and runs API server
-func StartServer(cfg Config, m *model.Model) {
+func StartServer(cfg Config, m *model.Model) (*http.Server, chan error) {
 	r := mux.NewRouter()
 	//r.Host(cfg.Address)
 
@@ -44,11 +44,14 @@ func StartServer(cfg Config, m *model.Model) {
 	r.Handle("/ads/delete/{id:[0-9]+}",
 		checkCookieMiddleware(m, adDeletePage(m))).Methods("DELETE")
 
+	ch := make(chan error, 1)
+
 	RT, err1 := time.ParseDuration(cfg.ReadTimeout)
 	WT, err2 := time.ParseDuration(cfg.WriteTimeout)
 	IT, err3 := time.ParseDuration(cfg.IdleTimeout)
 	if err1 != nil || err2 != nil || err3 != nil {
-		log.Fatalln("Can't parse API config")
+		ch <- errors.New("Can't parse API config")
+		log.Println("Can't parse API config")
 	}
 
 	server := http.Server{
@@ -59,10 +62,14 @@ func StartServer(cfg Config, m *model.Model) {
 		IdleTimeout:  IT,
 	}
 
-	err := server.ListenAndServe()
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
+	go func() {
+		if err := server.ListenAndServe(); err != nil {
+			ch <- err
+			log.Println(err.Error())
+		}
+	}()
+
+	return &server, ch
 }
 
 // readMultipleAds handles */ads. It responses with list of Ads. Method is GET.

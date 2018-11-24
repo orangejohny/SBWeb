@@ -1,8 +1,8 @@
 package model
 
-// db describes interface of database needed by API
+// DB describes interface of database needed by API
 // to communicate with it
-type db interface {
+type DB interface {
 	GetAd(adID int64) (*AdItem, error)
 	GetAds(limit int, offset int) ([]*AdItem, error)
 	GetAdsOfUser(userID int64) ([]*AdItem, error)
