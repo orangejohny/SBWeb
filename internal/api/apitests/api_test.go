@@ -1,4 +1,4 @@
-package api_test
+package apitests
 
 import (
 	"encoding/json"
@@ -41,9 +41,8 @@ type dbTestCase struct {
 }
 
 func (db *dbTestCase) GetAd(adID int64) (*model.AdItem, error) {
-	if adID != 15 {
-		fmt.Println(adID)
-		return nil, errors.New("No ad with such id")
+	if adID != db.ad.ID {
+		return &db.ad, errors.New("No ad with such id")
 	}
 	return &db.ad, db.err
 }

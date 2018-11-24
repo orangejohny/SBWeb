@@ -1,9 +1,14 @@
 package db
 
 import (
+	"database/sql"
 	"log"
 
 	"bmstu.codes/developers34/SBWeb/internal/model"
+)
+
+const (
+	notUniqueEmail = `pq: duplicate key value violates unique constraint "users_email_key"`
 )
 
 // prepareStateents just preapares SQL requests
@@ -163,6 +168,9 @@ func (h *Handler) GetAdsOfUser(userID int64) ([]*model.AdItem, error) {
 func (h *Handler) GetAd(adID int64) (*model.AdItem, error) {
 	ad := &model.AdItem{}
 	err := h.ReadAd.Get(ad, adID) // will sqlx manage with foreign keys?
+	if err == sql.ErrNoRows {     // is 'false' possible?
+		ad.ID = -1
+	}
 	return ad, err
 }
 
@@ -170,6 +178,9 @@ func (h *Handler) GetAd(adID int64) (*model.AdItem, error) {
 func (h *Handler) GetUserWithID(userID int64) (*model.User, error) {
 	user := &model.User{}
 	err := h.ReadUserWithID.Get(user, userID)
+	if err == sql.ErrNoRows { // is 'false' possible?
+		user.ID = -1
+	}
 	return user, err
 }
 
@@ -177,6 +188,9 @@ func (h *Handler) GetUserWithID(userID int64) (*model.User, error) {
 func (h *Handler) GetUserWithEmail(email string) (*model.User, error) {
 	user := &model.User{}
 	err := h.ReadUserWithEmail.Get(user, email)
+	if err == sql.ErrNoRows { // is 'false' possible?
+		user.ID = -1
+	}
 	return user, err
 }
 
@@ -185,11 +199,11 @@ func (h *Handler) NewUser(user *model.User) (int64, error) {
 	var lastInserted int64
 
 	err := h.CreateUser.Get(&lastInserted, user)
-	if err != nil {
-		return -1, err
+	if err.Error() == notUniqueEmail {
+		lastInserted = -1
 	}
 
-	return lastInserted, nil
+	return lastInserted, err
 }
 
 // NewAd adds AdItem to database
@@ -197,11 +211,8 @@ func (h *Handler) NewAd(ad *model.AdItem) (int64, error) {
 	var lastInserted int64
 
 	err := h.CreateAd.Get(&lastInserted, ad)
-	if err != nil {
-		return -1, err
-	}
 
-	return lastInserted, nil
+	return lastInserted, err
 }
 
 // EditUser updates User with ID provided from function argument

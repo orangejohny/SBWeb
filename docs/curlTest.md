@@ -4,9 +4,9 @@
 
 ### User interaction
 
-curl -v -X POST -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" --data "email=karg@gmail.com&password=123456&first_name=dmitry&last_name=kargashin" 192.168.99.100:8080/users/new
+curl -v -X POST -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" --data "email=karg@gmail.com&password=123456&first_name=dmitry&last_name=kargashin" 127.0.0.1:8080/users/new
 
-curl -v -X POST -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" --data "email=karg@gmail.com&password=123456" 192.168.99.100:8080/users/login
+curl -v -X POST -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" --data "email=karg@gmail.com&password=123456" 127.0.0.1:8080/users/login
 
 curl -v 127.0.0.1:8000/users/profile
 

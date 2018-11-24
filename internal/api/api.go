@@ -27,7 +27,7 @@ func StartServer(cfg Config, m *model.Model) {
 	r.Handle("/users/{id:[0-9]+}", readUserWithID(m)).Methods("GET")
 
 	r.Handle("/users/new", userCreatePage(m)).Methods("POST")
-	r.Handle("/users/login", userLoginPage(m)).Methods("POST")
+	r.Handle("/users/login", logRequestMiddleware(m, userLoginPage(m))).Methods("POST")
 	r.Handle("/users/logout", userLogoutPage(m)).Methods("POST")
 
 	r.Handle("/users/profile",
@@ -113,8 +113,8 @@ func readOneAd(m *model.Model) http.Handler {
 		ad, err := m.GetAd(id)
 
 		// check if ad exists
-		empty := model.AdItem{}
-		if *ad == empty {
+		// empty := model.AdItem{}
+		if ad.ID == -1 {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(enterExID, adIDErr,
 				errors.New("Client has entered wrong ID"), badIDMsg))
@@ -182,8 +182,8 @@ func readUserWithID(m *model.Model) http.Handler {
 		user, err := m.GetUserWithID(id)
 
 		// check if user exists
-		empty := model.User{}
-		if *user == empty {
+		// empty := model.User{}
+		if user.ID == -1 {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(enterExID, userIDErr,
 				errors.New("Client entered wrong ID"), badIDMsg))
@@ -350,8 +350,8 @@ func userLoginPage(m *model.Model) http.Handler {
 		userFromDB, err := m.GetUserWithEmail(user.Email)
 
 		// check if user exists
-		empty := model.User{}
-		if *userFromDB == empty {
+		// empty := model.User{}
+		if userFromDB.ID == -1 {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(enterValidAuth, badAuthErr,
 				errors.New("Client has entered non-existing email"), badAuthMsg))
@@ -708,8 +708,8 @@ func adUpdatePage(m *model.Model) http.Handler {
 		adFromDatabase, err := m.GetAd(id)
 
 		// check if ad exists
-		empty := model.AdItem{}
-		if *adFromDatabase == empty {
+		// empty := model.AdItem{}
+		if adFromDatabase.ID == -1 {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(enterExID, adIDErr,
 				errors.New("Client entered wrong ID of ad"), badIDMsg))
@@ -758,8 +758,8 @@ func adDeletePage(m *model.Model) http.Handler {
 		adFromDatabase, err := m.GetAd(id)
 
 		// check if ad exists
-		empty := model.AdItem{}
-		if *adFromDatabase == empty {
+		// empty := model.AdItem{}
+		if adFromDatabase.ID == -1 {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(enterExID, adIDErr,
 				errors.New("Client entered wrong ID of ad"), badIDMsg))

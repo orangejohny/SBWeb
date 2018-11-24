@@ -1,18 +1,21 @@
+SET NAMES utf8;
+SET lc_messages TO 'en_US.UTF-8';
+
 --DROP TABLE IF EXISTS users;
 --DROP TABLE IF EXISTS ads;
-CREATE TABLE IF NOT EXISTS users
+CREATE TABLE users
 (
     id                SERIAL      PRIMARY KEY,
     first_name        varchar(80) NOT NULL,
     last_name         varchar(80) NOT NULL,
     email             varchar(80) UNIQUE NOT NULL,
-    password_hash     varchar(128)        NOT NULL,
+    password_hash     text        NOT NULL,
     telephone         varchar(80),
     about             text,
     reg_time timestamp   DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS ads
+CREATE TABLE ads
 (
     id             SERIAL       PRIMARY KEY,
     title          varchar(80)  NOT NULL,
@@ -27,5 +30,4 @@ CREATE TABLE IF NOT EXISTS ads
     -- do we need this tocken if there is id already?
     -- tocken         varchar(16) UNIQUE NOT NULL,
     creation_time  timestamp    DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-
+); 
