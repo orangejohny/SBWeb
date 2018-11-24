@@ -1,15 +1,7 @@
 package apitests
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"testing"
-	"time"
-
-	"bmstu.codes/developers34/SBWeb/internal/api"
 
 	"bmstu.codes/developers34/SBWeb/internal/model"
 )
@@ -90,69 +82,4 @@ func (db *dbTestCase) RemoveAd(adID int64) (int64, error) {
 type testCase struct {
 	smTestCase
 	dbTestCase
-}
-
-func TestApi(t *testing.T) {
-	testDB := dbTestCase{
-		ad: model.AdItem{
-			ID:    15,
-			Title: "Building",
-			City:  "Moscow",
-			User: model.User{
-				ID:        12,
-				FirstName: "Ivan",
-				LastName:  "Ivanov",
-				Email:     "Ivan@ivanov.iva",
-			},
-			Description: "Awesome",
-		},
-		err: nil,
-	}
-
-	testSM := smTestCase{
-		sessionID: model.SessionID{ID: "dwedqf1234ewdw"},
-		err:       nil,
-	}
-
-	m := model.New(&testDB, &testSM)
-
-	go api.StartServer(api.Config{
-		Address:      "localhost:54000",
-		ReadTimeout:  "10s",
-		WriteTimeout: "10s",
-		IdleTimeout:  "10s",
-	}, m)
-
-	client := http.Client{
-		Timeout: time.Second * 5,
-	}
-	result, err := client.Get("http://localhost:54000/ads/15")
-
-	if err != nil {
-		t.Fatal("Expected no error while request\nGot: ", err.Error())
-	}
-
-	fmt.Println("eeeeeeeeee")
-
-	adData, _ := json.Marshal(model.AdItem{
-		ID:    15,
-		Title: "Building",
-		City:  "Moscow",
-		User: model.User{
-			ID:        12,
-			FirstName: "Ivan",
-			LastName:  "Ivanov",
-			Email:     "Ivan@ivanov.iva",
-		},
-		Description: "Awesome"})
-
-	defer result.Body.Close()
-	body, err := ioutil.ReadAll(result.Body)
-	if err != nil {
-		t.Fatal("Expected no error while reading body")
-	}
-
-	if string(body) != string(adData) {
-		t.Error("Expected equal ads:\nExpected:\n", string(adData), "Received:\n", string(body))
-	}
 }
