@@ -28,7 +28,7 @@ func StartServer(cfg Config, m *model.Model) (*http.Server, chan error) {
 
 	r.Handle("/users/new", userCreatePage(m)).Methods("POST")
 	r.Handle("/users/login", logRequestMiddleware(m, userLoginPage(m))).Methods("POST")
-	r.Handle("/users/logout", userLogoutPage(m)).Methods("POST")
+	r.Handle("/users/logout", userLogoutPage(m)).Methods("POST", "DELETE")
 
 	r.Handle("/users/profile",
 		checkCookieMiddleware(m, userProfilePage(m))).Methods("GET")
@@ -328,8 +328,8 @@ func userLoginPage(m *model.Model) http.Handler {
 		decoder := schema.NewDecoder()
 		err = decoder.Decode(&user, r.Form)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(apiErrorHandle(connectProvider, decodeFormErr, err,
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle(checkReq, decodeFormErr, err,
 				decodeFormMsg))
 			return
 		}
@@ -486,9 +486,8 @@ func userUpdatePage(m *model.Model) http.Handler {
 		decoder := schema.NewDecoder()
 		err = decoder.Decode(&user, r.Form)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(apiErrorHandle(connectProvider, decodeFormErr, err,
-				decodeFormMsg))
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle(checkReq, decodeFormErr, err, decodeFormMsg))
 			return
 		}
 
@@ -573,6 +572,16 @@ func userDeletePage(m *model.Model) http.Handler {
 				removeUserDBMsg))
 			return
 		}
+
+		// delete session
+		session, _ := r.Cookie("session_id")
+		m.DeleteSession(&model.SessionID{
+			ID: session.Value,
+		})
+
+		// delete cookie
+		session.Expires = time.Now().AddDate(0, 0, -1)
+		http.SetCookie(w, session)
 
 		w.WriteHeader(http.StatusOK)
 	})
