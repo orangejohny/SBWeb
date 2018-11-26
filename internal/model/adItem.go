@@ -9,7 +9,7 @@ import (
 // AdItem struct describes ad that users supposed to add
 type AdItem struct {
 	ID            int64       `db:"id_" json:"id" schema:"id,optional" valid:"-"`
-	Title         string      `db:"title" json:"title" schema:"title,optional" valid:"utfletternum,optional"` // required in DB
+	Title         string      `db:"title" json:"title" schema:"title,optional" valid:"printableascii,optional"` // required in DB
 	Price         zero.Int    `db:"price" json:"price,omitempty" schema:"price,optional" valid:"-"`
 	Country       zero.String `db:"country" json:"country,omitempty" schema:"country,optional" valid:"-"`                      // consists of utf letter
 	City          string      `db:"city" json:"city,omitempty" schema:"city,optional" valid:"utfletter,optional"`              // required in DB
