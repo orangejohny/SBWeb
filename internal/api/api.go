@@ -236,8 +236,8 @@ func userCreatePage(m *model.Model) http.Handler {
 		decoder := schema.NewDecoder()
 		err = decoder.Decode(&user, r.Form)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(apiErrorHandle(connectProvider, decodeFormErr, err,
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle(checkReq, decodeFormErr, err,
 				decodeFormMsg))
 			return
 		}
