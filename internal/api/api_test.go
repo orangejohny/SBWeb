@@ -350,7 +350,8 @@ var testCases = []testCase{
 		isNewUser:   true,
 		isPrepareDB: true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/new", strings.NewReader("email=pet@animal.com&first_name=Ivan&last_name=Ivanov&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/new",
+				strings.NewReader("email=pet@animal.com&first_name=Ivan&last_name=Ivanov&password=123456"))
 			return r
 		}(),
 		db: &mockDataDB{
@@ -366,7 +367,8 @@ var testCases = []testCase{
 	testCase{
 		isNewUser: true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/new", strings.NewReader("%email=pet@animal.com&first_name=Ivan&last_name=Ivanov&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/new",
+				strings.NewReader("%email=pet@animal.com&first_name=Ivan&last_name=Ivanov&password=123456"))
 			return r
 		}(),
 		expectedStatusCode: http.StatusBadRequest,
@@ -374,7 +376,8 @@ var testCases = []testCase{
 	testCase{
 		isNewUser: true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/new", strings.NewReader("script=bad&email=pet@animal.com&first_name=Ivan&last_name=Ivanov&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/new",
+				strings.NewReader("script=bad&email=pet@animal.com&first_name=Ivan&last_name=Ivanov&password=123456"))
 			return r
 		}(),
 		expectedStatusCode: http.StatusBadRequest,
@@ -382,7 +385,8 @@ var testCases = []testCase{
 	testCase{
 		isNewUser: true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/new", strings.NewReader("email=pet@animal.com&first_name=&last_name=Ivanov&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/new",
+				strings.NewReader("email=pet@animal.com&first_name=&last_name=Ivanov&password=123456"))
 			return r
 		}(),
 		expectedStatusCode: http.StatusBadRequest,
@@ -390,7 +394,8 @@ var testCases = []testCase{
 	testCase{
 		isNewUser: true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/new", strings.NewReader("email=pet@animal.om&first_name=Ivan&last_name=Ivanov&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/new",
+				strings.NewReader("email=pet@animal.om&first_name=Ivan&last_name=Ivanov&password=123456"))
 			return r
 		}(),
 		expectedStatusCode: http.StatusBadRequest,
@@ -399,7 +404,8 @@ var testCases = []testCase{
 		isNewUser:   true,
 		isPrepareDB: true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/new", strings.NewReader("email=pet@animal.com&first_name=Ivan&last_name=Ivanov&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/new",
+				strings.NewReader("email=pet@animal.com&first_name=Ivan&last_name=Ivanov&password=123456"))
 			return r
 		}(),
 		db: &mockDataDB{
@@ -412,7 +418,8 @@ var testCases = []testCase{
 		isNewUser:   true,
 		isPrepareDB: true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/new", strings.NewReader("email=pet@animal.com&first_name=Ivan&last_name=Ivanov&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/new",
+				strings.NewReader("email=pet@animal.com&first_name=Ivan&last_name=Ivanov&password=123456"))
 			return r
 		}(),
 		db: &mockDataDB{
@@ -427,7 +434,8 @@ var testCases = []testCase{
 		isPrepareDB:        true,
 		isPrepareSM:        true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/login", strings.NewReader("email=pet@animal.com&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/login",
+				strings.NewReader("email=pet@animal.com&password=123456"))
 			return r
 		}(),
 		db: &mockDataDB{
@@ -453,7 +461,8 @@ var testCases = []testCase{
 		isPrepareDB:        true,
 		isPrepareSM:        true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/login", strings.NewReader("email=pet@animal.com&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/login",
+				strings.NewReader("email=pet@animal.com&password=123456"))
 			r.Header.Set("User-Agent", "Android_app")
 			return r
 		}(),
@@ -483,7 +492,8 @@ var testCases = []testCase{
 		isGetUserWithEmail: true,
 		isCreateSession:    true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/login", strings.NewReader("%email=pet@animal.com&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/login",
+				strings.NewReader("%email=pet@animal.com&password=123456"))
 			return r
 		}(),
 		expectedStatusCode: 400,
@@ -492,7 +502,8 @@ var testCases = []testCase{
 		isGetUserWithEmail: true,
 		isCreateSession:    true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/login", strings.NewReader("email=pet@animal.cv&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/login",
+				strings.NewReader("email=pet@animal.cv&password=123456"))
 			return r
 		}(),
 		expectedStatusCode: 400,
@@ -501,7 +512,8 @@ var testCases = []testCase{
 		isGetUserWithEmail: true,
 		isCreateSession:    true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/login", strings.NewReader("script=vvvv&email=pet@animal.com&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/login",
+				strings.NewReader("script=vvvv&email=pet@animal.com&password=123456"))
 			return r
 		}(),
 		expectedStatusCode: 400,
@@ -510,7 +522,8 @@ var testCases = []testCase{
 		isGetUserWithEmail: true,
 		isCreateSession:    true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/login", strings.NewReader("email=pet@animal.com&password="))
+			r, _ := http.NewRequest("POST", domain+"/users/login",
+				strings.NewReader("email=pet@animal.com&password="))
 			return r
 		}(),
 		expectedStatusCode: 400,
@@ -520,7 +533,8 @@ var testCases = []testCase{
 		isCreateSession:    true,
 		isPrepareDB:        true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/login", strings.NewReader("email=pet@animal.com&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/login",
+				strings.NewReader("email=pet@animal.com&password=123456"))
 			return r
 		}(),
 		db: &mockDataDB{
@@ -535,7 +549,8 @@ var testCases = []testCase{
 		isCreateSession:    true,
 		isPrepareDB:        true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/login", strings.NewReader("email=pet@animal.com&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/login",
+				strings.NewReader("email=pet@animal.com&password=123456"))
 			return r
 		}(),
 		db: &mockDataDB{
@@ -550,7 +565,8 @@ var testCases = []testCase{
 		isCreateSession:    true,
 		isPrepareDB:        true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/login", strings.NewReader("email=pet@animal.com&password=12456"))
+			r, _ := http.NewRequest("POST", domain+"/users/login",
+				strings.NewReader("email=pet@animal.com&password=12456"))
 			return r
 		}(),
 		db: &mockDataDB{
@@ -566,7 +582,8 @@ var testCases = []testCase{
 		isPrepareDB:        true,
 		isPrepareSM:        true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/login", strings.NewReader("email=pet@animal.com&password=123456"))
+			r, _ := http.NewRequest("POST", domain+"/users/login",
+				strings.NewReader("email=pet@animal.com&password=123456"))
 			return r
 		}(),
 		db: &mockDataDB{
@@ -629,7 +646,8 @@ var testCases = []testCase{
 		isPrepareDB:          true,
 		isPrepareSM:          true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/profile", strings.NewReader("first_name=Alex&last_name=Ivanov"))
+			r, _ := http.NewRequest("POST", domain+"/users/profile",
+				strings.NewReader("first_name=Alex&last_name=Ivanov"))
 			r.Header.Set("Cookie", "session_id=123abc")
 			return r
 		}(),
@@ -657,7 +675,8 @@ var testCases = []testCase{
 		isCheckSession: true,
 		isPrepareSM:    true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/profile", strings.NewReader("%first_name=Alex&last_name=Ivanov"))
+			r, _ := http.NewRequest("POST", domain+"/users/profile",
+				strings.NewReader("%first_name=Alex&last_name=Ivanov"))
 			r.Header.Set("Cookie", "session_id=123abc")
 			return r
 		}(),
@@ -676,7 +695,8 @@ var testCases = []testCase{
 		isCheckSession: true,
 		isPrepareSM:    true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/profile", strings.NewReader("script=bbb&first_name=Alex&last_name=Ivanov"))
+			r, _ := http.NewRequest("POST", domain+"/users/profile",
+				strings.NewReader("script=bbb&first_name=Alex&last_name=Ivanov"))
 			r.Header.Set("Cookie", "session_id=123abc")
 			return r
 		}(),
@@ -695,7 +715,8 @@ var testCases = []testCase{
 		isCheckSession: true,
 		isPrepareSM:    true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/profile", strings.NewReader("first_name=&last_name=Ivanov"))
+			r, _ := http.NewRequest("POST", domain+"/users/profile",
+				strings.NewReader("first_name=&last_name=Ivanov"))
 			r.Header.Set("Cookie", "session_id=123abc")
 			return r
 		}(),
@@ -714,7 +735,8 @@ var testCases = []testCase{
 		isCheckSession: true,
 		isPrepareSM:    true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/profile", strings.NewReader("first_name=efv45&last_name=Ivanov"))
+			r, _ := http.NewRequest("POST", domain+"/users/profile",
+				strings.NewReader("first_name=efv45&last_name=Ivanov"))
 			r.Header.Set("Cookie", "session_id=123abc")
 			return r
 		}(),
@@ -733,7 +755,8 @@ var testCases = []testCase{
 		isCheckSession: true,
 		isPrepareSM:    true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/profile", strings.NewReader("first_name=Alex&last_name=Ivanov&tel_number=dwdww"))
+			r, _ := http.NewRequest("POST", domain+"/users/profile",
+				strings.NewReader("first_name=Alex&last_name=Ivanov&tel_number=dwdww"))
 			r.Header.Set("Cookie", "session_id=123abc")
 			return r
 		}(),
@@ -755,7 +778,8 @@ var testCases = []testCase{
 		isPrepareDB:          true,
 		isPrepareSM:          true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/profile", strings.NewReader("first_name=Alex&last_name=Ivanov"))
+			r, _ := http.NewRequest("POST", domain+"/users/profile",
+				strings.NewReader("first_name=Alex&last_name=Ivanov"))
 			r.Header.Set("Cookie", "session_id=123abc")
 			return r
 		}(),
@@ -781,7 +805,8 @@ var testCases = []testCase{
 	},
 	testCase{
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/profile", strings.NewReader("first_name=Alex&last_name=Ivanov"))
+			r, _ := http.NewRequest("POST", domain+"/users/profile",
+				strings.NewReader("first_name=Alex&last_name=Ivanov"))
 			return r
 		}(),
 		expectedStatusCode: 401,
@@ -790,7 +815,8 @@ var testCases = []testCase{
 		isCheckSession: true,
 		isPrepareSM:    true,
 		request: func() *http.Request {
-			r, _ := http.NewRequest("POST", domain+"/users/profile", strings.NewReader("first_name=Alex&last_name=Ivanov"))
+			r, _ := http.NewRequest("POST", domain+"/users/profile",
+				strings.NewReader("first_name=Alex&last_name=Ivanov"))
 			r.Header.Set("Cookie", "session_id=123abc")
 			return r
 		}(),
@@ -925,64 +951,76 @@ func TestThis(t *testing.T) {
 
 			// need GetAd
 			if tCase.isGetAd && tCase.isPrepareDB {
-				mockDB.EXPECT().GetAd(tCase.db.inputID).Return(tCase.db.outputAd, tCase.db.outputError)
+				mockDB.EXPECT().GetAd(tCase.db.inputID).
+					Return(tCase.db.outputAd, tCase.db.outputError)
 			}
 
 			// need GetAds
 			if tCase.isGetAds && tCase.isPrepareDB {
-				mockDB.EXPECT().GetAds(tCase.db.inputLimit, tCase.db.inputOffset).Return(tCase.db.outputAds, tCase.db.outputError)
+				mockDB.EXPECT().GetAds(tCase.db.inputLimit, tCase.db.inputOffset).
+					Return(tCase.db.outputAds, tCase.db.outputError)
 			}
 
 			// need GetUserWithID
 			if tCase.isGetUserWithID && tCase.isPrepareDB {
-				mockDB.EXPECT().GetUserWithID(tCase.db.inputID).Return(tCase.db.outputUser, tCase.db.outputError)
+				mockDB.EXPECT().GetUserWithID(tCase.db.inputID).
+					Return(tCase.db.outputUser, tCase.db.outputError)
 			}
 
 			// need GetAdsOfUser
 			if tCase.isGetAdsOfUser && tCase.isPrepareDB {
-				mockDB.EXPECT().GetAdsOfUser(tCase.db.inputID).Return(tCase.db.outputAds, tCase.db.outputError)
+				mockDB.EXPECT().GetAdsOfUser(tCase.db.inputID).
+					Return(tCase.db.outputAds, tCase.db.outputError)
 			}
 
 			// need NewUser
 			if tCase.isNewUser && tCase.isPrepareDB {
-				mockDB.EXPECT().NewUser(gomock.Any()).Return(tCase.db.outputID, tCase.db.outputError)
+				mockDB.EXPECT().NewUser(gomock.Any()).
+					Return(tCase.db.outputID, tCase.db.outputError)
 			}
 
 			// need GetUserWithEmail
 			if tCase.isGetUserWithEmail && tCase.isPrepareDB {
-				mockDB.EXPECT().GetUserWithEmail(tCase.db.inputEmail).Return(tCase.db.outputUser, tCase.db.outputError)
+				mockDB.EXPECT().GetUserWithEmail(tCase.db.inputEmail).
+					Return(tCase.db.outputUser, tCase.db.outputError)
 			}
 
 			// need EditUser
 			if tCase.isEditUser && tCase.isPrepareDB {
-				mockDB.EXPECT().EditUser(tCase.db.inputUser).Return(tCase.db.outputID, tCase.db.outputError)
+				mockDB.EXPECT().EditUser(tCase.db.inputUser).
+					Return(tCase.db.outputID, tCase.db.outputError)
 			}
 
 			// need DeleteUser
 			if tCase.isRemoveUser && tCase.isPrepareDB {
-				mockDB.EXPECT().RemoveUser(tCase.db.inputID).Return(tCase.db.outputID, tCase.db.outputError)
+				mockDB.EXPECT().RemoveUser(tCase.db.inputID).
+					Return(tCase.db.outputID, tCase.db.outputError)
 			}
 
 			mockSM := mock_model.NewMockSM(ctrl)
 
 			// need CreateSession
 			if tCase.isCreateSession && tCase.isPrepareSM {
-				mockSM.EXPECT().CreateSession(tCase.sm.inputSession, tCase.sm.inputExpires).Return(tCase.sm.outputSessionID, tCase.sm.outputError)
+				mockSM.EXPECT().CreateSession(tCase.sm.inputSession, tCase.sm.inputExpires).
+					Return(tCase.sm.outputSessionID, tCase.sm.outputError)
 			}
 
 			// need CheckSession
 			if tCase.isCheckSession && tCase.isPrepareSM {
-				mockSM.EXPECT().CheckSession(tCase.sm.inputSessionID).Return(tCase.sm.outputSession, tCase.sm.outputError)
+				mockSM.EXPECT().CheckSession(tCase.sm.inputSessionID).
+					Return(tCase.sm.outputSession, tCase.sm.outputError)
 			}
 
 			// need CheckSession second
 			if tCase.isSecondCheckSession && tCase.isPrepareSM {
-				mockSM.EXPECT().CheckSession(tCase.sm.inputSessionID).Return(tCase.sm.outputSession, tCase.sm.outputError)
+				mockSM.EXPECT().CheckSession(tCase.sm.inputSessionID).
+					Return(tCase.sm.outputSession, tCase.sm.outputError)
 			}
 
 			// need DeleteSession
 			if tCase.isDeleteSession && tCase.isPrepareSM {
-				mockSM.EXPECT().DeleteSession(tCase.sm.inputSessionID).Return(tCase.sm.outputError)
+				mockSM.EXPECT().DeleteSession(tCase.sm.inputSessionID).
+					Return(tCase.sm.outputError)
 			}
 
 			tModel := model.New(mockDB, mockSM)
@@ -1047,7 +1085,8 @@ func TestThis(t *testing.T) {
 				if len(cookies) == 0 {
 					t.Error("Expected set-cookie")
 				} else if cookies[0].Value != tCase.expectedCookieValue {
-					t.Errorf("Expected equal:\nExpected:%s\nReceived:%s", tCase.expectedCookieValue, cookies[0].Value)
+					t.Errorf("Expected equal:\nExpected:%s\nReceived:%s",
+						tCase.expectedCookieValue, cookies[0].Value)
 				}
 			}
 

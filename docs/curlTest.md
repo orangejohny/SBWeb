@@ -20,7 +20,7 @@ curl -v -X POST --cookie "session_id=Wb8jMSneczBuOF7N54l3kAtOgNoMIkS3ms0P0hE4leU
 
 ### Ad intercation
 
-curl -v -X POST -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" --data 'title=House Building&description_ad=I can build any house that you want!' --cookie "session_id=0bfcGYzlTjgQydcSAnIWftr-bZAwa5Ki02ZDh_v3wco=; Expires=Sat, 10 Nov 2018 13:21:48 GMT" 127.0.0.1:8000/ads/new
+curl -v -X POST -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" --data 'city=London&title=House Building&description_ad=I can build any house that you want!' --cookie "session_id=a_ArmtPH3YzqBp8ZHxSab3H2ovQ2378hibe_jN1BHzY=; Expires=Sat, 10 Nov 2018 13:21:48 GMT" 127.0.0.1:8080/ads/1
 
 curl -v -X DELETE -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" --cookie "session_id=0bfcGYzlTjgQydcSAnIWftr-bZAwa5Ki02ZDh_v3wco=; Expires=Sat, 10 Nov 2018 13:21:48 GMT" 127.0.0.1:8000/ads/delete/3
 

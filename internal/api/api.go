@@ -747,6 +747,8 @@ func adUpdatePage(m *model.Model) http.Handler {
 			return
 		}
 
+		// log.Printf("ad from DB: %v\nad from req:%v", adFromDatabase, ad)
+
 		// update ad
 		_, err = m.EditAd(&ad)
 		if err != nil {

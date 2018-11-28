@@ -15,7 +15,7 @@ const (
 func (h *Handler) prepareStatements() (err error) {
 	if h.ReadAds, err = h.DB.Preparex( // return list of ads
 		`SELECT
-		 ads.id "id_", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
+		 ads.id "idad", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
 		 users.id, first_name, last_name, email, telephone, about, reg_time
 		 FROM
 		 ads
@@ -32,7 +32,7 @@ func (h *Handler) prepareStatements() (err error) {
 
 	if h.ReadAdsOfUser, err = h.DB.Preparex( // return list of ads of such user
 		`SELECT
-		 ads.id "id_", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
+		 ads.id "idad", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
 		 users.id, first_name, last_name, email, telephone, about, reg_time
 		 FROM
 		 ads
@@ -49,7 +49,7 @@ func (h *Handler) prepareStatements() (err error) {
 
 	if h.ReadAd, err = h.DB.Preparex( // return ad with such id
 		`SELECT
-		ads.id "id_", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
+		ads.id "idad", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
 		users.id, first_name, last_name, email, telephone, about, reg_time
 		FROM
 		ads
@@ -124,7 +124,7 @@ func (h *Handler) prepareStatements() (err error) {
 			country=:country,
 			city=:city,
 			subway_station=:subway_station
-			WHERE id=:id`,
+			WHERE id=:idad`,
 	); err != nil {
 		log.Println(err.Error())
 
