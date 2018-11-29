@@ -1044,6 +1044,7 @@ func TestThis(t *testing.T) {
 			client := http.DefaultClient
 			tCase.request.Header.Set("Content-Type",
 				"application/x-www-form-urlencoded; charset=utf-8")
+			client.Timeout = time.Second * 25
 			result, err := client.Do(tCase.request)
 
 			if err != nil {
