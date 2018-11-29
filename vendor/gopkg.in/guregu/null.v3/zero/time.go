@@ -1,4 +1,4 @@
-package null
+package zero
 
 import (
 	"database/sql/driver"
@@ -8,14 +8,15 @@ import (
 	"time"
 )
 
-// Time is a nullable time.Time. It supports SQL and JSON serialization.
-// It will marshal to null if null.
+// Time is a nullable time.Time.
+// JSON marshals to the zero value for time.Time if null.
+// Considered to be null to SQL if zero.
 type Time struct {
 	Time  time.Time
 	Valid bool
 }
 
-// Scan implements the Scanner interface.
+// Scan implements Scanner interface.
 func (t *Time) Scan(value interface{}) error {
 	var err error
 	switch x := value.(type) {
@@ -47,32 +48,27 @@ func NewTime(t time.Time, valid bool) Time {
 	}
 }
 
-// TimeFrom creates a new Time that will always be valid.
+// TimeFrom creates a new Time that will
+// be null if t is the zero value.
 func TimeFrom(t time.Time) Time {
-	return NewTime(t, true)
+	return NewTime(t, !t.IsZero())
 }
 
-// TimeFromPtr creates a new Time that will be null if t is nil.
+// TimeFromPtr creates a new Time that will
+// be null if t is nil or *t is the zero value.
 func TimeFromPtr(t *time.Time) Time {
 	if t == nil {
 		return NewTime(time.Time{}, false)
 	}
-	return NewTime(*t, true)
-}
-
-// ValueOrZero returns the inner value if valid, otherwise zero.
-func (t Time) ValueOrZero() time.Time {
-	if !t.Valid {
-		return time.Time{}
-	}
-	return t.Time
+	return TimeFrom(*t)
 }
 
 // MarshalJSON implements json.Marshaler.
-// It will encode null if this time is null.
+// It will encode the zero value of time.Time
+// if this time is invalid.
 func (t Time) MarshalJSON() ([]byte, error) {
 	if !t.Valid {
-		return []byte("null"), nil
+		return (time.Time{}).MarshalJSON()
 	}
 	return t.Time.MarshalJSON()
 }
@@ -88,7 +84,12 @@ func (t *Time) UnmarshalJSON(data []byte) error {
 	}
 	switch x := v.(type) {
 	case string:
-		err = t.Time.UnmarshalJSON(data)
+		var ti time.Time
+		if err = ti.UnmarshalJSON(data); err != nil {
+			return err
+		}
+		*t = TimeFrom(ti)
+		return nil
 	case map[string]interface{}:
 		ti, tiOK := x["Time"].(string)
 		valid, validOK := x["Valid"].(bool)
@@ -102,17 +103,16 @@ func (t *Time) UnmarshalJSON(data []byte) error {
 		t.Valid = false
 		return nil
 	default:
-		err = fmt.Errorf("json: cannot unmarshal %v into Go value of type null.Time", reflect.TypeOf(v).Name())
+		return fmt.Errorf("json: cannot unmarshal %v into Go value of type null.Time", reflect.TypeOf(v).Name())
 	}
-	t.Valid = err == nil
-	return err
 }
 
 func (t Time) MarshalText() ([]byte, error) {
+	ti := t.Time
 	if !t.Valid {
-		return []byte("null"), nil
+		ti = time.Time{}
 	}
-	return t.Time.MarshalText()
+	return ti.MarshalText()
 }
 
 func (t *Time) UnmarshalText(text []byte) error {
@@ -128,13 +128,15 @@ func (t *Time) UnmarshalText(text []byte) error {
 	return nil
 }
 
-// SetValid changes this Time's value and sets it to be non-null.
+// SetValid changes this Time's value and
+// sets it to be non-null.
 func (t *Time) SetValid(v time.Time) {
 	t.Time = v
 	t.Valid = true
 }
 
-// Ptr returns a pointer to this Time's value, or a nil pointer if this Time is null.
+// Ptr returns a pointer to this Time's value,
+// or a nil pointer if this Time is zero.
 func (t Time) Ptr() *time.Time {
 	if !t.Valid {
 		return nil
@@ -142,8 +144,7 @@ func (t Time) Ptr() *time.Time {
 	return &t.Time
 }
 
-// IsZero returns true for invalid Times, hopefully for future omitempty support.
-// A non-null Time with a zero value will not be considered zero.
+// IsZero returns true for null or zero Times, for potential future omitempty support.
 func (t Time) IsZero() bool {
-	return !t.Valid
+	return !t.Valid || t.Time.IsZero()
 }

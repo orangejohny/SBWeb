@@ -1,8 +1,8 @@
 package model
 
-// sm describes interface of session manager
-type sm interface {
-	CreateSession(in *Session) (*SessionID, error)
+// SM describes interface of session manager
+type SM interface {
+	CreateSession(in *Session, expires bool) (*SessionID, error)
 	CheckSession(in *SessionID) (*Session, error)
 	DeleteSession(in *SessionID) error
 }

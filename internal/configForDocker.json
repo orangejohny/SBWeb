@@ -1,10 +1,10 @@
 {
   "DB": {
-    "DBAddress": "postgresql://127.0.0.1:5432/data?sslmode=disable",
+    "DBAddress": "postgresql://dataUSER:dataPASSWORD@postgres/data?sslmode=disable",
     "MaxOpenConns": 10
   },
   "SM": {
-    "DBAddress": "redis://127.0.0.1:6379/0",
+    "DBAddress": "redis://redis:6379/0",
     "TockenLength": 32,
     "ExpirationTime": 86400
   },

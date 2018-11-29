@@ -1,0 +1,63 @@
+image: registry.bmstu.codes/developers34/sbweb:latest
+
+variables:
+  REPO_NAME: bmstu.codes/developers34/SBWeb
+  PROJECT_PATH: $GOPATH/src/$REPO_NAME
+
+cache:
+  paths:
+    - /apt-cache
+    - /go/src/github.com
+    - /go/src/golang.org
+    - /go/src/google.golang.org
+    - /go/src/gopkg.in
+
+stages:
+  - test
+  - build
+
+before_script:
+  - export CC=clang
+  - mkdir -p $GOPATH/src/$(dirname $REPO_NAME)
+  - cp -r $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
+  - cd $GOPATH/src/$REPO_NAME
+  - make dep
+
+unit_tests:
+  stage: test
+  tags:
+    - laptop-runner
+  script:
+    - make test
+
+race_detector:
+  stage: test
+  tags:
+    - laptop-runner
+  script:
+    - make race
+
+memory_sanitizer:
+  stage: test
+  tags:
+    - laptop-runner
+  script:
+    - make msan
+
+lint_code:
+  stage: test
+  tags:
+    - laptop-runner
+  script:
+    - make lint
+
+build:
+  stage: build
+  tags:
+    - laptop-runner
+  script:
+    - make
+    - mv ./SBWeb $CI_PROJECT_DIR
+  artifacts:
+    paths:
+      - SBWeb

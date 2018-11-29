@@ -1,8 +1,8 @@
-// Package null contains SQL types that consider zero input and null input as separate values,
+// Package zero contains SQL types that consider zero input and null input to be equivalent
 // with convenient support for JSON and text marshaling.
-// Types in this package will always encode to their null value if null.
-// Use the zero subpackage if you want zero values and null to be treated the same.
-package null
+// Types in this package will JSON marshal to their zero value, even if null.
+// Use the null parent package if you don't want this.
+package zero
 
 import (
 	"database/sql"
@@ -11,31 +11,11 @@ import (
 	"reflect"
 )
 
-// String is a nullable string. It supports SQL and JSON serialization.
-// It will marshal to null if null. Blank string input will be considered null.
+// String is a nullable string.
+// JSON marshals to a blank string if null.
+// Considered null to SQL if zero.
 type String struct {
 	sql.NullString
-}
-
-// StringFrom creates a new String that will never be blank.
-func StringFrom(s string) String {
-	return NewString(s, true)
-}
-
-// StringFromPtr creates a new String that be null if s is nil.
-func StringFromPtr(s *string) String {
-	if s == nil {
-		return NewString("", false)
-	}
-	return NewString(*s, true)
-}
-
-// ValueOrZero returns the inner value if valid, otherwise zero.
-func (s String) ValueOrZero() string {
-	if !s.Valid {
-		return ""
-	}
-	return s.String
 }
 
 // NewString creates a new String
@@ -48,8 +28,22 @@ func NewString(s string, valid bool) String {
 	}
 }
 
+// StringFrom creates a new String that will be null if s is blank.
+func StringFrom(s string) String {
+	return NewString(s, s != "")
+}
+
+// StringFromPtr creates a new String that be null if s is nil or blank.
+// It will make s point to the String's value.
+func StringFromPtr(s *string) String {
+	if s == nil {
+		return NewString("", false)
+	}
+	return NewString(*s, *s != "")
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
-// It supports string and null input. Blank string input does not produce a null String.
+// It supports string and null input. Blank string input produces a null String.
 // It also supports unmarshalling a sql.NullString.
 func (s *String) UnmarshalJSON(data []byte) error {
 	var err error
@@ -66,19 +60,10 @@ func (s *String) UnmarshalJSON(data []byte) error {
 		s.Valid = false
 		return nil
 	default:
-		err = fmt.Errorf("json: cannot unmarshal %v into Go value of type null.String", reflect.TypeOf(v).Name())
+		err = fmt.Errorf("json: cannot unmarshal %v into Go value of type zero.String", reflect.TypeOf(v).Name())
 	}
-	s.Valid = err == nil
+	s.Valid = (err == nil) && (s.String != "")
 	return err
-}
-
-// MarshalJSON implements json.Marshaler.
-// It will encode null if this String is null.
-func (s String) MarshalJSON() ([]byte, error) {
-	if !s.Valid {
-		return []byte("null"), nil
-	}
-	return json.Marshal(s.String)
 }
 
 // MarshalText implements encoding.TextMarshaler.
@@ -112,7 +97,7 @@ func (s String) Ptr() *string {
 	return &s.String
 }
 
-// IsZero returns true for null strings, for potential future omitempty support.
+// IsZero returns true for null or empty strings, for potential future omitempty support.
 func (s String) IsZero() bool {
-	return !s.Valid
+	return !s.Valid || s.String == ""
 }
