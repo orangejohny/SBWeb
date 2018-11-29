@@ -1030,9 +1030,9 @@ func TestThis(t *testing.T) {
 
 			srv, ch := api.StartServer(api.Config{
 				Address:      "localhost:49123",
-				ReadTimeout:  "10s",
-				WriteTimeout: "10s",
-				IdleTimeout:  "10s",
+				ReadTimeout:  "25s",
+				WriteTimeout: "25s",
+				IdleTimeout:  "25s",
 			}, tModel)
 
 			time.Sleep(time.Millisecond * 10) // time to start the server
