@@ -605,8 +605,8 @@ func adCreatePage(m *model.Model) http.Handler {
 		decoder := schema.NewDecoder()
 		err = decoder.Decode(&ad, r.Form)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(apiErrorHandle(connectProvider, decodeFormErr, err,
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle(checkReq, decodeFormErr, err,
 				decodeFormMsg))
 			return
 		}
@@ -688,8 +688,8 @@ func adUpdatePage(m *model.Model) http.Handler {
 		decoder := schema.NewDecoder()
 		err = decoder.Decode(&ad, r.Form)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(apiErrorHandle(connectProvider, decodeFormErr, err,
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle(checkReq, decodeFormErr, err,
 				decodeFormMsg))
 			return
 		}
