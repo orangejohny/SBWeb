@@ -40,6 +40,14 @@
   version = "v1.6.0"
 
 [[projects]]
+  digest = "1:bc38c7c481812e178d85160472e231c5e1c9a7f5845d67e23ee4e706933c10d8"
+  name = "github.com/golang/mock"
+  packages = ["gomock"]
+  pruneopts = "UT"
+  revision = "c34cdb4725f4c3844d095133c6e40e448b86589b"
+  version = "v1.1.1"
+
+[[projects]]
   digest = "1:38ec74012390146c45af1f92d46e5382b50531247929ff3a685d2b2be65155ac"
   name = "github.com/gomodule/redigo"
   packages = [
@@ -121,9 +129,17 @@
   revision = "e4dc69e5b2fd71dcaf8bd5d054eb936deb78d1fa"
 
 [[projects]]
-  digest = "1:a4b04b5314d49a67ad022fa7693453ee2b823ab99314f52fa3930ed31085dfef"
+  branch = "master"
+  digest = "1:76ee51c3f468493aff39dbacc401e8831fbb765104cbf613b89bef01cf4bad70"
+  name = "golang.org/x/net"
+  packages = ["context"]
+  pruneopts = "UT"
+  revision = "adae6a3d119ae4890b46832a2e88a95adc62b8e7"
+
+[[projects]]
+  digest = "1:d7258ee0bc1258f9cca20a8cacefee059127fa51b2399ee6bc2320f4428757f8"
   name = "gopkg.in/guregu/null.v3"
-  packages = ["."]
+  packages = ["zero"]
   pruneopts = "UT"
   revision = "80515d440932108546bcade467bb7d6968e812e2"
   version = "v3.4.0"
@@ -135,12 +151,13 @@
     "github.com/alicebob/miniredis",
     "github.com/asaskevich/govalidator",
     "github.com/garyburd/redigo/redis",
+    "github.com/golang/mock/gomock",
     "github.com/gorilla/mux",
     "github.com/gorilla/schema",
     "github.com/jmoiron/sqlx",
     "github.com/lib/pq",
     "golang.org/x/crypto/bcrypt",
-    "gopkg.in/guregu/null.v3",
+    "gopkg.in/guregu/null.v3/zero",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -2,13 +2,15 @@ package daemon
 
 import (
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"bmstu.codes/developers34/SBWeb/internal/model"
+
 	"bmstu.codes/developers34/SBWeb/internal/api"
 	"bmstu.codes/developers34/SBWeb/internal/db"
-	"bmstu.codes/developers34/SBWeb/internal/model"
 	sm "bmstu.codes/developers34/SBWeb/internal/sessionmanager"
 )
 
@@ -26,26 +28,39 @@ func RunService(cfg *Config) error {
 		log.Fatalln("Can't connect to database", err.Error())
 		return err
 	}
+	log.Println("Connected to DB")
 
 	sm, err := sm.InitConnSM(cfg.SM)
 	if err != nil {
 		log.Fatalln("Can't start session manager", err.Error())
 		return err
 	}
+	log.Println("Connected to SM")
 
 	m := model.New(db, sm)
 
 	log.Println("Starting API server...")
-	go api.StartServer(cfg.API, m)
+	srv, ch := api.StartServer(cfg.API, m)
 
-	waitForSignal()
+	waitForSignal(srv, ch)
 
 	return nil
 }
 
-func waitForSignal() {
+func waitForSignal(srv *http.Server, chSrv chan error) {
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-	s := <-ch
-	log.Printf("Got signal: %v, exiting.", s)
+
+LOOP:
+	for {
+		select {
+		case s := <-ch:
+			srv.Shutdown(nil)
+			log.Printf("Got signal: %v, exiting.", s)
+			<-chSrv
+			break LOOP
+		case err := <-chSrv:
+			log.Fatalln(err)
+		}
+	}
 }

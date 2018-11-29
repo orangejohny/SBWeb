@@ -14,6 +14,5 @@ func getIDfromCookie(m *model.Model, r *http.Request) int64 {
 	session, _ := m.CheckSession(&model.SessionID{
 		ID: cookieSession.Value,
 	})
-
 	return session.ID
 }

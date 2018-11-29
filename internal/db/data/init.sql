@@ -1,4 +1,5 @@
 SET NAMES utf8;
+SET lc_messages TO 'en_US.UTF-8';
 
 --DROP TABLE IF EXISTS users;
 --DROP TABLE IF EXISTS ads;
@@ -29,5 +30,4 @@ CREATE TABLE ads
     -- do we need this tocken if there is id already?
     -- tocken         varchar(16) UNIQUE NOT NULL,
     creation_time  timestamp    DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-
+); 

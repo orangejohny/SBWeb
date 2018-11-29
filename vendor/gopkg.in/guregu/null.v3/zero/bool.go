@@ -1,4 +1,4 @@
-package null
+package zero
 
 import (
 	"database/sql"
@@ -8,9 +8,9 @@ import (
 	"reflect"
 )
 
-// Bool is a nullable bool.
-// It does not consider false values to be null.
-// It will decode to null, not false, if null.
+// Bool is a nullable bool. False input is considered null.
+// JSON marshals to false if null.
+// Considered null to SQL unmarshaled from a false value.
 type Bool struct {
 	sql.NullBool
 }
@@ -25,12 +25,12 @@ func NewBool(b bool, valid bool) Bool {
 	}
 }
 
-// BoolFrom creates a new Bool that will always be valid.
+// BoolFrom creates a new Bool that will be null if false.
 func BoolFrom(b bool) Bool {
-	return NewBool(b, true)
+	return NewBool(b, b)
 }
 
-// BoolFromPtr creates a new Bool that will be null if f is nil.
+// BoolFromPtr creates a new Bool that be null if b is nil.
 func BoolFromPtr(b *bool) Bool {
 	if b == nil {
 		return NewBool(false, false)
@@ -38,14 +38,8 @@ func BoolFromPtr(b *bool) Bool {
 	return NewBool(*b, true)
 }
 
-// ValueOrZero returns the inner value if valid, otherwise false.
-func (b Bool) ValueOrZero() bool {
-	return b.Valid && b.Bool
-}
-
 // UnmarshalJSON implements json.Unmarshaler.
-// It supports number and null input.
-// 0 will not be considered a null Bool.
+// "false" will be considered a null Bool.
 // It also supports unmarshalling a sql.NullBool.
 func (b *Bool) UnmarshalJSON(data []byte) error {
 	var err error
@@ -62,15 +56,15 @@ func (b *Bool) UnmarshalJSON(data []byte) error {
 		b.Valid = false
 		return nil
 	default:
-		err = fmt.Errorf("json: cannot unmarshal %v into Go value of type null.Bool", reflect.TypeOf(v).Name())
+		err = fmt.Errorf("json: cannot unmarshal %v into Go value of type zero.Bool", reflect.TypeOf(v).Name())
 	}
-	b.Valid = err == nil
+	b.Valid = (err == nil) && b.Bool
 	return err
 }
 
 // UnmarshalText implements encoding.TextUnmarshaler.
-// It will unmarshal to a null Bool if the input is a blank or not an integer.
-// It will return an error if the input is not an integer, blank, or "null".
+// It will unmarshal to a null Bool if the input is a false or not a bool.
+// It will return an error if the input is not a float, blank, or "null".
 func (b *Bool) UnmarshalText(text []byte) error {
 	str := string(text)
 	switch str {
@@ -85,29 +79,23 @@ func (b *Bool) UnmarshalText(text []byte) error {
 		b.Valid = false
 		return errors.New("invalid input:" + str)
 	}
-	b.Valid = true
+	b.Valid = b.Bool
 	return nil
 }
 
 // MarshalJSON implements json.Marshaler.
 // It will encode null if this Bool is null.
 func (b Bool) MarshalJSON() ([]byte, error) {
-	if !b.Valid {
-		return []byte("null"), nil
-	}
-	if !b.Bool {
+	if !b.Valid || !b.Bool {
 		return []byte("false"), nil
 	}
 	return []byte("true"), nil
 }
 
 // MarshalText implements encoding.TextMarshaler.
-// It will encode a blank string if this Bool is null.
+// It will encode a zero if this Bool is null.
 func (b Bool) MarshalText() ([]byte, error) {
-	if !b.Valid {
-		return []byte{}, nil
-	}
-	if !b.Bool {
+	if !b.Valid || !b.Bool {
 		return []byte("false"), nil
 	}
 	return []byte("true"), nil
@@ -119,7 +107,7 @@ func (b *Bool) SetValid(v bool) {
 	b.Valid = true
 }
 
-// Ptr returns a pointer to this Bool's value, or a nil pointer if this Bool is null.
+// Ptr returns a poBooler to this Bool's value, or a nil poBooler if this Bool is null.
 func (b Bool) Ptr() *bool {
 	if !b.Valid {
 		return nil
@@ -127,8 +115,7 @@ func (b Bool) Ptr() *bool {
 	return &b.Bool
 }
 
-// IsZero returns true for invalid Bools, for future omitempty support (Go 1.4?)
-// A non-null Bool with a 0 value will not be considered zero.
+// IsZero returns true for null or zero Bools, for future omitempty support (Go 1.4?)
 func (b Bool) IsZero() bool {
-	return !b.Valid
+	return !b.Valid || !b.Bool
 }

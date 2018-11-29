@@ -8,7 +8,7 @@ import (
 )
 
 // CreateSession creates new session
-func (sm *SessionManager) CreateSession(in *model.Session) (*model.SessionID, error) {
+func (sm *SessionManager) CreateSession(in *model.Session, expires bool) (*model.SessionID, error) {
 	tocken, err := generateRandomString(sm.tockenLength)
 	if err != nil {
 		return nil, err
@@ -17,7 +17,11 @@ func (sm *SessionManager) CreateSession(in *model.Session) (*model.SessionID, er
 	id := model.SessionID{ID: tocken}
 	dataSerialized, _ := json.Marshal(in)
 	mkey := "sessions:" + id.ID
-	_, err = redis.String(sm.redisConn.Do("SET", mkey, dataSerialized, "EX", sm.expirationTime))
+	if expires {
+		_, err = redis.String(sm.redisConn.Do("SET", mkey, dataSerialized, "EX", sm.expirationTime))
+	} else {
+		_, err = redis.String(sm.redisConn.Do("SET", mkey, dataSerialized))
+	}
 	if err != nil {
 		return nil, err
 	}
