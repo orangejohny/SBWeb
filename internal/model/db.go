@@ -4,7 +4,7 @@ package model
 // to communicate with it
 type DB interface {
 	GetAd(adID int64) (*AdItem, error)
-	GetAds(limit int, offset int) ([]*AdItem, error)
+	GetAds(sp *SearchParams) ([]*AdItem, error)
 	GetAdsOfUser(userID int64) ([]*AdItem, error)
 	GetUserWithID(userID int64) (*User, error)
 	GetUserWithEmail(email string) (*User, error)

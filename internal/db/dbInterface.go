@@ -13,7 +13,7 @@ const (
 
 // prepareStateents just preapares SQL requests
 func (h *Handler) prepareStatements() (err error) {
-	if h.ReadAds, err = h.DB.Preparex( // return list of ads
+	if h.ReadAds, err = h.DB.PrepareNamed( // return list of ads
 		`SELECT
 		 ads.id "idad", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
 		 users.id, first_name, last_name, email, telephone, about, reg_time
@@ -23,7 +23,25 @@ func (h *Handler) prepareStatements() (err error) {
 		 users 
 		 ON
 		 users.id = ads.owner_ad
-		 LIMIT $1 OFFSET $2`,
+		 LIMIT :limit OFFSET :offset`,
+	); err != nil {
+		log.Println(err.Error())
+
+		return err
+	}
+
+	if h.SearchAds, err = h.DB.PrepareNamed(
+		`SELECT
+		ads.id "idad", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
+		users.id, first_name, last_name, email, telephone, about, reg_time
+		FROM
+		ads
+		INNER JOIN
+		users 
+		ON
+		users.id = ads.owner_ad
+		WHERE ads.title ILIKE '%' || :query || '%'
+		LIMIT :limit OFFSET :offset`,
 	); err != nil {
 		log.Println(err.Error())
 
@@ -151,9 +169,15 @@ func (h *Handler) prepareStatements() (err error) {
 }
 
 // GetAds returns slice of AdItem from database
-func (h *Handler) GetAds(limit int, offset int) ([]*model.AdItem, error) {
+func (h *Handler) GetAds(sp *model.SearchParams) ([]*model.AdItem, error) {
 	ads := make([]*model.AdItem, 0)
-	err := h.ReadAds.Select(&ads, limit, offset) // will sqlx manage with foreign keys?
+	var err error
+	if sp.Query == "" {
+		err = h.ReadAds.Select(&ads, sp) // will sqlx manage with foreign keys?
+	} else {
+		err = h.SearchAds.Select(&ads, sp)
+	}
+
 	return ads, err
 }
 
