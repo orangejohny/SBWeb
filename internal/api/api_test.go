@@ -248,6 +248,30 @@ var testCases = []testCase{
 		isGetAds:    true,
 		isPrepareDB: true,
 		request: func() *http.Request {
+			r, _ := http.NewRequest("GET", domain+"/ads?offset=-1&limit=12", nil)
+			return r
+		}(),
+		db: &mockDataDB{
+			inputLimit:  12,
+			inputOffset: 0,
+			outputAds:   []*model.AdItem{adsInDB[15], adsInDB[21]},
+			outputError: nil,
+		},
+		expectedAds:        []*model.AdItem{adsInDB[15], adsInDB[21]},
+		expectedStatusCode: 200,
+	},
+	testCase{
+		isGetAds: true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("GET", domain+"/ads?offset=1&limit=12&query=\003", nil)
+			return r
+		}(),
+		expectedStatusCode: 400,
+	},
+	testCase{
+		isGetAds:    true,
+		isPrepareDB: true,
+		request: func() *http.Request {
 			r, _ := http.NewRequest("GET", domain+"/ads?offset=1&limit=de12", nil)
 			return r
 		}(),
