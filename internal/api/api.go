@@ -78,15 +78,31 @@ func readMultipleAds(m *model.Model) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "application/json")
 
-		// parse parameters of request
-		offset, _ := strconv.Atoi(r.FormValue("offset"))
-		limit, err := strconv.Atoi(r.FormValue("limit"))
-		if err != nil {
-			limit = 15 // TODO: should be configurable
+		// take params from request
+		// if there are some errors, then it will be handled while validation
+		var params model.SearchParams
+		r.ParseForm()
+		decoder := schema.NewDecoder()
+		decoder.Decode(&params, r.Form)
+
+		// check if parameters are valid
+		if params.Limit <= 0 {
+			params.Limit = 15
+		}
+		if params.Offset < 0 {
+			params.Offset = 0
+		}
+
+		// check if query is valid
+		if !govalidator.IsPrintableASCII(params.Query) {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle(checkReq, decodeFormErr, errors.New("Bad query"),
+				decodeFormMsg))
+			return
 		}
 
 		// get list of ads from DB. If there are no ads, send an empty JSON array
-		ads, err := m.GetAds(limit, offset)
+		ads, err := m.GetAds(&params)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(apiErrorHandle(connectProvider, getInfoDBErr, err, getInfoDBMsg))

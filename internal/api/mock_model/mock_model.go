@@ -134,16 +134,16 @@ func (mr *MockDBMockRecorder) GetAd(arg0 interface{}) *gomock.Call {
 }
 
 // GetAds mocks base method
-func (m *MockDB) GetAds(arg0, arg1 int) ([]*model.AdItem, error) {
-	ret := m.ctrl.Call(m, "GetAds", arg0, arg1)
+func (m *MockDB) GetAds(arg0 *model.SearchParams) ([]*model.AdItem, error) {
+	ret := m.ctrl.Call(m, "GetAds", arg0)
 	ret0, _ := ret[0].([]*model.AdItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAds indicates an expected call of GetAds
-func (mr *MockDBMockRecorder) GetAds(arg0, arg1 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAds", reflect.TypeOf((*MockDB)(nil).GetAds), arg0, arg1)
+func (mr *MockDBMockRecorder) GetAds(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAds", reflect.TypeOf((*MockDB)(nil).GetAds), arg0)
 }
 
 // GetAdsOfUser mocks base method

@@ -120,6 +120,7 @@ type mockDataDB struct {
 	inputID     int64
 	inputLimit  int
 	inputOffset int
+	inputQuery  string
 	inputEmail  string
 	inputUser   *model.User
 	inputAd     *model.User
@@ -957,8 +958,10 @@ func TestThis(t *testing.T) {
 
 			// need GetAds
 			if tCase.isGetAds && tCase.isPrepareDB {
-				mockDB.EXPECT().GetAds(tCase.db.inputLimit, tCase.db.inputOffset).
-					Return(tCase.db.outputAds, tCase.db.outputError)
+				mockDB.EXPECT().GetAds(&model.SearchParams{
+					Limit:  tCase.db.inputLimit,
+					Offset: tCase.db.inputOffset,
+				}).Return(tCase.db.outputAds, tCase.db.outputError)
 			}
 
 			// need GetUserWithID
