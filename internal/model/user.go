@@ -15,6 +15,6 @@ type User struct {
 	Password      string      `db:"password_hash" json:"-" schema:"password,optional" valid:"printableascii,optional"`    // required in DB
 	TelNumber     zero.String `db:"telephone" json:"tel_number,omitempty" schema:"tel_number,optional" valid:"-"`         // consists of digits 1-9
 	About         zero.String `db:"about" json:"about,omitempty" schema:"about,optional" valid:"-"`                       // consists of ASII
-	AvatarAddress zero.String `db:"avatar_address" json:"avatar_address,omitempty" schema:"-" valid:"-"`
+	AvatarAddress zero.String `db:"avatar_address" json:"avatar_address,omitempty" schema:"avatar_address,optional" valid:"-"`
 	RegTime       time.Time   `db:"reg_time" json:"reg_time" schema:"-" valid:"-"`
 }

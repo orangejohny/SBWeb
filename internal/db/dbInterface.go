@@ -125,7 +125,8 @@ func (h *Handler) prepareStatements() (err error) {
 			first_name=:first_name,
 			last_name=:last_name,
 			telephone=:telephone,
-			about=:about
+			about=:about,
+			avatar_address=:avatar_address
 			WHERE id=:id`,
 	); err != nil {
 		log.Println(err.Error())
