@@ -12,6 +12,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/nfnt/resize"
@@ -90,6 +91,11 @@ func loadImages(r *http.Request) ([]string, error) {
 		}
 
 		filenames = append(filenames, "/images/"+filename+".png")
+
+		// if we create or update user we need only one file
+		if strings.Contains(r.URL.Path, "/users/") {
+			break
+		}
 	}
 
 	return filenames, nil
@@ -97,6 +103,9 @@ func loadImages(r *http.Request) ([]string, error) {
 
 func deleteImages(filenames []string) error {
 	for _, filename := range filenames {
+		if filename == "" {
+			break
+		}
 		err := os.Remove("." + filename)
 		if err != nil {
 			return err
