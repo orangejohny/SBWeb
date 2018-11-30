@@ -16,7 +16,7 @@ func (h *Handler) prepareStatements() (err error) {
 	if h.ReadAds, err = h.DB.PrepareNamed( // return list of ads
 		`SELECT
 		 ads.id "idad", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
-		 users.id, first_name, last_name, email, telephone, about, reg_time
+		 users.id, first_name, last_name, email, telephone, about, reg_time, avatar_address
 		 FROM
 		 ads
 		 INNER JOIN
@@ -33,15 +33,14 @@ func (h *Handler) prepareStatements() (err error) {
 	if h.SearchAds, err = h.DB.PrepareNamed(
 		`SELECT
 		ads.id "idad", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
-		users.id, first_name, last_name, email, telephone, about, reg_time
+		users.id, first_name, last_name, email, telephone, about, reg_time, avatar_address
 		FROM
 		ads
 		INNER JOIN
 		users 
 		ON
 		users.id = ads.owner_ad
-		WHERE ads.title ILIKE '%' || :query || '%'
-		LIMIT :limit OFFSET :offset`,
+		WHERE ads.title ILIKE '%' || :query || '%'`,
 	); err != nil {
 		log.Println(err.Error())
 
@@ -51,7 +50,7 @@ func (h *Handler) prepareStatements() (err error) {
 	if h.ReadAdsOfUser, err = h.DB.Preparex( // return list of ads of such user
 		`SELECT
 		 ads.id "idad", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
-		 users.id, first_name, last_name, email, telephone, about, reg_time
+		 users.id, first_name, last_name, email, telephone, about, reg_time, avatar_address
 		 FROM
 		 ads
 		 INNER JOIN
@@ -68,7 +67,7 @@ func (h *Handler) prepareStatements() (err error) {
 	if h.ReadAd, err = h.DB.Preparex( // return ad with such id
 		`SELECT
 		ads.id "idad", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
-		users.id, first_name, last_name, email, telephone, about, reg_time
+		users.id, first_name, last_name, email, telephone, about, reg_time, avatar_address
 		FROM
 		ads
 		INNER JOIN
@@ -82,7 +81,7 @@ func (h *Handler) prepareStatements() (err error) {
 	}
 
 	if h.ReadUserWithID, err = h.DB.Preparex( // return user with such id
-		"SELECT id, first_name, last_name, email, telephone, about, reg_time FROM users WHERE id=$1",
+		"SELECT id, first_name, last_name, email, telephone, about, reg_time, avatar_address FROM users WHERE id=$1",
 	); err != nil {
 		log.Println(err.Error())
 
@@ -90,7 +89,7 @@ func (h *Handler) prepareStatements() (err error) {
 	}
 
 	if h.ReadUserWithEmail, err = h.DB.Preparex( // return user with such email
-		"SELECT id, first_name, last_name, email, telephone, about, reg_time, password_hash FROM users WHERE email=$1",
+		"SELECT id, first_name, last_name, email, telephone, about, reg_time, password_hash, avatar_address FROM users WHERE email=$1",
 	); err != nil {
 		log.Println(err.Error())
 
@@ -99,9 +98,9 @@ func (h *Handler) prepareStatements() (err error) {
 
 	if h.CreateUser, err = h.DB.PrepareNamed( // create new user
 		`INSERT INTO users
-			(first_name, last_name, email, password_hash, telephone, about)
+			(first_name, last_name, email, password_hash, telephone, about, avatar_address)
 			VALUES
-			(:first_name, :last_name, :email, :password_hash, :telephone, :about)
+			(:first_name, :last_name, :email, :password_hash, :telephone, :about, :avatar_address)
 			RETURNING id`,
 	); err != nil {
 		log.Println(err.Error())

@@ -30,3 +30,7 @@ go install -i ./internal/service-main.go
 /home/orangejohny/workspace/go/bin/service-main -cfg ./internal/config.json
 
 try to trigger gitlab-ci
+
+## Create user with avatar
+
+curl -v -F "avatar=/home/orangejohny/Downloads/PNG_transparency_demonstration_1.png" --data "email=karg@gmail.com&password=123456&first_name=dmitry&last_name=kargashin" 127.0.0.1:8080/users/new

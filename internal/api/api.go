@@ -5,7 +5,9 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"bmstu.codes/developers34/SBWeb/internal/model"
@@ -44,6 +46,8 @@ func StartServer(cfg Config, m *model.Model) (*http.Server, chan error) {
 	r.Handle("/ads/delete/{id:[0-9]+}",
 		checkCookieMiddleware(m, adDeletePage(m))).Methods("DELETE")
 
+	r.Handle("/images/{filename}", sendImage(m)).Methods("GET")
+
 	ch := make(chan error, 1)
 
 	RT, err1 := time.ParseDuration(cfg.ReadTimeout)
@@ -52,6 +56,7 @@ func StartServer(cfg Config, m *model.Model) (*http.Server, chan error) {
 	if err1 != nil || err2 != nil || err3 != nil {
 		ch <- errors.New("Can't parse API config")
 		log.Println("Can't parse API config")
+		return nil, ch
 	}
 
 	server := http.Server{
@@ -61,6 +66,13 @@ func StartServer(cfg Config, m *model.Model) (*http.Server, chan error) {
 		WriteTimeout: WT,
 		IdleTimeout:  IT,
 	}
+
+	_ = os.Mkdir("images", 0777)
+	/* if err != nil && err != os.PathError {
+		ch <- err
+		log.Println(err)
+		return nil, ch
+	} */
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
@@ -239,8 +251,18 @@ func userCreatePage(m *model.Model) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "application/json")
 
+		var isMultipartForm bool
+		if strings.Contains(r.Header.Get("Content-Type"), "multipart/form-data") {
+			isMultipartForm = true
+		}
+
 		// trying to parse form
-		err := r.ParseForm()
+		var err error
+		if isMultipartForm {
+			err = r.ParseMultipartForm(10 * 1024 * 1024)
+		} else {
+			err = r.ParseForm()
+		}
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(checkReq, parseFormErr, err, parseFormMsg))
@@ -250,7 +272,12 @@ func userCreatePage(m *model.Model) http.Handler {
 		// get info about user from request
 		var user model.User
 		decoder := schema.NewDecoder()
-		err = decoder.Decode(&user, r.Form)
+		if isMultipartForm {
+			err = decoder.Decode(&user, r.MultipartForm.Value)
+
+		} else {
+			err = decoder.Decode(&user, r.Form)
+		}
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(checkReq, decodeFormErr, err,
@@ -283,6 +310,20 @@ func userCreatePage(m *model.Model) http.Handler {
 		hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password),
 			bcrypt.DefaultCost)
 		user.Password = string(hash)
+
+		// load images from request if it is possible
+		if isMultipartForm {
+			filenames, err := loadImages(r)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write(apiErrorHandle(checkImage, imgCreErr, err,
+					imgCreMsg))
+				return
+			}
+			if len(filenames) != 0 {
+				user.AvatarAddress.SetValid(filenames[0])
+			}
+		}
 
 		// add user to database
 		id, err := m.NewUser(&user)
@@ -825,5 +866,20 @@ func adDeletePage(m *model.Model) http.Handler {
 		}
 
 		w.WriteHeader(http.StatusOK)
+	})
+}
+
+func sendImage(m *model.Model) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		filename, _ := mux.Vars(r)["filename"]
+		_, err := os.Stat("./images/" + filename)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(apiErrorHandle(checkImage, noImgErr, err,
+				noImgMsg))
+			return
+		}
+
+		http.ServeFile(w, r, "./images/"+filename)
 	})
 }

@@ -12,6 +12,7 @@ CREATE TABLE users
     password_hash     text        NOT NULL,
     telephone         varchar(80),
     about             text,
+    avatar_address    text,
     reg_time timestamp   DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
