@@ -24,13 +24,12 @@ const (
 
 func TestStartWithBadConfig(t *testing.T) {
 	log.SetOutput(ioutil.Discard)
-	srv, ch := api.StartServer(api.Config{
+	_, ch := api.StartServer(api.Config{
 		Address:      "localhost:54000",
 		ReadTimeout:  "10eregeurgi",
 		WriteTimeout: "10s",
 		IdleTimeout:  "10s",
 	}, nil)
-	defer srv.Shutdown(nil)
 	err := <-ch
 	if err == http.ErrServerClosed {
 		t.Error("Expected other error")
