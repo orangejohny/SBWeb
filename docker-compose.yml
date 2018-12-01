@@ -9,7 +9,7 @@ services:
     volumes:
       - ./:/go/src/bmstu.codes/developers34/SBWeb
     working_dir: /go/src/bmstu.codes/developers34/SBWeb
-    command: go run bmstu.codes/developers34/SBWeb -cfg ./internal/configForDocker.json
+    command: go run bmstu.codes/developers34/SBWeb -cfg ./pkg/configForDocker.json
     links:
       - redis
       - postgres
@@ -24,7 +24,7 @@ services:
 
   postgres:
     volumes:
-      - ./internal/db/data/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./pkg/db/data/init.sql:/docker-entrypoint-initdb.d/init.sql
       # - /var/lib/postgresql/data:/var/lib/postgresql/data/pgdata
     environment:
       POSTGRES_DB: data

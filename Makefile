@@ -14,6 +14,14 @@ lint:
 test:
 	@go test ${PKG_LIST}
 
+coverage:
+	go test -cover ${PKG_LIST}
+
+coverage_html:
+	@mkdir coverage
+	@go test -coverprofile=./coverage/coverage.cov ${PKG_LIST}
+	@go tool cover -html=./coverage/coverage.cov -o ./coverage/coverage.html
+
 race: dep
 	@go test -race ${PKG_LIST}
 
