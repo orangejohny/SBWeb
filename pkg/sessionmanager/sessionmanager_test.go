@@ -60,7 +60,7 @@ func TestInterfaceSession(t *testing.T) {
 		t.Error(err)
 	}
 
-	sID, err := SM.CreateSession(&model.Session{
+	sID, _ := SM.CreateSession(&model.Session{
 		ID:        15,
 		Login:     "aaa@eee.ru",
 		UserAgent: "ieieie",
@@ -73,12 +73,12 @@ func TestInterfaceSession(t *testing.T) {
 
 	s.FastForward(5 * time.Second)
 
-	res, err := SM.CheckSession(sID)
+	res, _ := SM.CheckSession(sID)
 	if res != nil {
 		t.Error("Key mustn't exist")
 	}
 
-	sID, err = SM.CreateSession(&model.Session{
+	sID, _ = SM.CreateSession(&model.Session{
 		ID:        15,
 		Login:     "aaa@eee.ru",
 		UserAgent: "ieieie",
@@ -91,12 +91,12 @@ func TestInterfaceSession(t *testing.T) {
 
 	SM.DeleteSession(sID)
 
-	res, err = SM.CheckSession(sID)
+	res, _ = SM.CheckSession(sID)
 	if res != nil {
 		t.Error("Key mustn't exist")
 	}
 
-	sID, err = SM.CreateSession(&model.Session{
+	sID, _ = SM.CreateSession(&model.Session{
 		ID:        15,
 		Login:     "aaa@eee.ru",
 		UserAgent: "ieieie",

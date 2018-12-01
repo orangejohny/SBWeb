@@ -26,5 +26,5 @@ type AdItem struct {
 	CreationTime  time.Time `db:"creation_time" json:"creation_time" schema:"-" valid:"-"`
 }
 
-// TODO country, city, subway station should be UTF letters with some charachters
+// TODO country, city, subway station should be UTF letters with some characters
 // description should be valid UTF-8
