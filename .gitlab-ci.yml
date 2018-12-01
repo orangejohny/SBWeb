@@ -23,6 +23,36 @@ before_script:
   - cd $GOPATH/src/$REPO_NAME
   - make dep
 
+coverage:
+  stage: test
+  tags:
+    - laptop-runner
+  script:
+    - make coverage
+
+coverage_html:
+  stage: test
+  tags:
+    - laptop-runner
+  script:
+    - make coverage_html
+    - mv coverage/ $CI_PROJECT_DIR
+  artifacts:
+    paths:
+      - coverage/
+
+pages:
+  stage: build
+  dependencies:
+    - coverage_html
+  tags:
+    - laptop-runner
+  script:
+    - mv coverage/ $CI_PROJECT_DIR/public/
+  artifacts:
+    paths:
+      - public
+
 unit_tests:
   stage: test
   tags:
