@@ -43,7 +43,7 @@ func TestStartWithBadConfig(t *testing.T) {
 }
 
 var adsInDB = map[int64]*model.AdItem{
-	15: &model.AdItem{
+	15: {
 		ID:    15,
 		Title: "Building",
 		City:  "Moscow",
@@ -55,7 +55,7 @@ var adsInDB = map[int64]*model.AdItem{
 		},
 		Description: "Awesome",
 	},
-	21: &model.AdItem{
+	21: {
 		ID:    21,
 		Title: "Broking",
 		City:  "Vegas",
@@ -67,7 +67,7 @@ var adsInDB = map[int64]*model.AdItem{
 		},
 		Description: "can broke everything",
 	},
-	54: &model.AdItem{
+	54: {
 		ID:    54,
 		Title: "House",
 		City:  "New York",
@@ -82,21 +82,21 @@ var adsInDB = map[int64]*model.AdItem{
 }
 
 var usersInDB = map[int64]*model.User{
-	12: &model.User{
+	12: {
 		ID:        12,
 		FirstName: "Ivan",
 		LastName:  "Ivanov",
 		Email:     "Ivan@ivanov.com",
 		Password:  "$2a$10$kCw55AyZuzo3u6GicdIjg.RKscZZ0IxvZMSKIiuY.fQ7R2F9OPbba",
 	},
-	17: &model.User{
+	17: {
 		ID:        17,
 		FirstName: "Ivan",
 		LastName:  "Ivanov",
 		Email:     "pet@animal.com",
 		Password:  "$2a$10$kCw55AyZuzo3u6GicdIjg.RKscZZ0IxvZMSKIiuY.fQ7R2F9OPbba",
 	},
-	18: &model.User{
+	18: {
 		ID:        18,
 		FirstName: "John",
 		LastName:  "Johnov",
@@ -207,7 +207,7 @@ type testCase struct {
 }
 
 var testCases = []testCase{
-	testCase{
+	{
 		isGetAd:     true,
 		isPrepareDB: true,
 		request: func() *http.Request {
@@ -222,7 +222,7 @@ var testCases = []testCase{
 		expectedAd:         adsInDB[15],
 		expectedStatusCode: 200,
 	},
-	testCase{
+	{
 		isGetAd:     true,
 		isPrepareDB: true,
 		request: func() *http.Request {
@@ -236,7 +236,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 400,
 	},
-	testCase{
+	{
 		isGetAd:     true,
 		isPrepareDB: true,
 		request: func() *http.Request {
@@ -250,7 +250,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 500,
 	},
-	testCase{
+	{
 		isGetAds:    true,
 		isPrepareDB: true,
 		request: func() *http.Request {
@@ -266,7 +266,7 @@ var testCases = []testCase{
 		expectedAds:        []*model.AdItem{adsInDB[15], adsInDB[21]},
 		expectedStatusCode: 200,
 	},
-	testCase{
+	{
 		isGetAds:    true,
 		isPrepareDB: true,
 		request: func() *http.Request {
@@ -282,7 +282,7 @@ var testCases = []testCase{
 		expectedAds:        []*model.AdItem{adsInDB[15], adsInDB[21]},
 		expectedStatusCode: 200,
 	},
-	testCase{
+	{
 		isGetAds: true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("GET", domain+"/ads?offset=1&limit=12&query=\003", nil)
@@ -290,7 +290,7 @@ var testCases = []testCase{
 		}(),
 		expectedStatusCode: 400,
 	},
-	testCase{
+	{
 		isGetAds:    true,
 		isPrepareDB: true,
 		request: func() *http.Request {
@@ -306,7 +306,7 @@ var testCases = []testCase{
 		expectedAds:        []*model.AdItem{adsInDB[15], adsInDB[21]},
 		expectedStatusCode: 200,
 	},
-	testCase{
+	{
 		isGetAds:    true,
 		isPrepareDB: true,
 		request: func() *http.Request {
@@ -321,7 +321,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 500,
 	},
-	testCase{
+	{
 		isGetAdsOfUser: true,
 		isPrepareDB:    true,
 		request: func() *http.Request {
@@ -336,7 +336,7 @@ var testCases = []testCase{
 		expectedAds:        []*model.AdItem{adsInDB[15], adsInDB[21]},
 		expectedStatusCode: 200,
 	},
-	testCase{
+	{
 		isGetAdsOfUser: true,
 		isPrepareDB:    true,
 		request: func() *http.Request {
@@ -350,7 +350,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 500,
 	},
-	testCase{
+	{
 		isGetUserWithID: true,
 		isPrepareDB:     true,
 		request: func() *http.Request {
@@ -365,7 +365,7 @@ var testCases = []testCase{
 		expectedUser:       usersInDB[18],
 		expectedStatusCode: 200,
 	},
-	testCase{
+	{
 		isGetUserWithID: true,
 		isPrepareDB:     true,
 		request: func() *http.Request {
@@ -379,7 +379,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 400,
 	},
-	testCase{
+	{
 		isGetUserWithID: true,
 		isPrepareDB:     true,
 		request: func() *http.Request {
@@ -393,7 +393,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 500,
 	},
-	testCase{
+	{
 		isNewUser:   true,
 		isPrepareDB: true,
 		request: func() *http.Request {
@@ -411,7 +411,7 @@ var testCases = []testCase{
 			Ref: "/users/17",
 		},
 	},
-	testCase{
+	{
 		isNewUser: true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/new",
@@ -420,7 +420,7 @@ var testCases = []testCase{
 		}(),
 		expectedStatusCode: http.StatusBadRequest,
 	},
-	testCase{
+	{
 		isNewUser: true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/new",
@@ -429,7 +429,7 @@ var testCases = []testCase{
 		}(),
 		expectedStatusCode: http.StatusBadRequest,
 	},
-	testCase{
+	{
 		isNewUser: true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/new",
@@ -438,7 +438,7 @@ var testCases = []testCase{
 		}(),
 		expectedStatusCode: http.StatusBadRequest,
 	},
-	testCase{
+	{
 		isNewUser: true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/new",
@@ -447,7 +447,7 @@ var testCases = []testCase{
 		}(),
 		expectedStatusCode: http.StatusBadRequest,
 	},
-	testCase{
+	{
 		isNewUser:   true,
 		isPrepareDB: true,
 		request: func() *http.Request {
@@ -461,7 +461,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: http.StatusBadRequest,
 	},
-	testCase{
+	{
 		isNewUser:   true,
 		isPrepareDB: true,
 		request: func() *http.Request {
@@ -475,7 +475,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: http.StatusInternalServerError,
 	},
-	testCase{
+	{
 		isGetUserWithEmail: true,
 		isCreateSession:    true,
 		isPrepareDB:        true,
@@ -502,7 +502,7 @@ var testCases = []testCase{
 		expectedStatusCode:  200,
 		expectedCookieValue: "id",
 	},
-	testCase{
+	{
 		isGetUserWithEmail: true,
 		isCreateSession:    true,
 		isPrepareDB:        true,
@@ -535,7 +535,7 @@ var testCases = []testCase{
 		expectedStatusCode:  200,
 		expectedCookieValue: "id",
 	},
-	testCase{
+	{
 		isGetUserWithEmail: true,
 		isCreateSession:    true,
 		request: func() *http.Request {
@@ -545,7 +545,7 @@ var testCases = []testCase{
 		}(),
 		expectedStatusCode: 400,
 	},
-	testCase{
+	{
 		isGetUserWithEmail: true,
 		isCreateSession:    true,
 		request: func() *http.Request {
@@ -555,7 +555,7 @@ var testCases = []testCase{
 		}(),
 		expectedStatusCode: 400,
 	},
-	testCase{
+	{
 		isGetUserWithEmail: true,
 		isCreateSession:    true,
 		request: func() *http.Request {
@@ -565,7 +565,7 @@ var testCases = []testCase{
 		}(),
 		expectedStatusCode: 400,
 	},
-	testCase{
+	{
 		isGetUserWithEmail: true,
 		isCreateSession:    true,
 		request: func() *http.Request {
@@ -575,7 +575,7 @@ var testCases = []testCase{
 		}(),
 		expectedStatusCode: 400,
 	},
-	testCase{
+	{
 		isGetUserWithEmail: true,
 		isCreateSession:    true,
 		isPrepareDB:        true,
@@ -591,7 +591,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 400,
 	},
-	testCase{
+	{
 		isGetUserWithEmail: true,
 		isCreateSession:    true,
 		isPrepareDB:        true,
@@ -607,7 +607,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 500,
 	},
-	testCase{
+	{
 		isGetUserWithEmail: true,
 		isCreateSession:    true,
 		isPrepareDB:        true,
@@ -623,7 +623,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 400,
 	},
-	testCase{
+	{
 		isGetUserWithEmail: true,
 		isCreateSession:    true,
 		isPrepareDB:        true,
@@ -650,7 +650,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 500,
 	},
-	testCase{
+	{
 		isDeleteSession: true,
 		isPrepareSM:     true,
 		request: func() *http.Request {
@@ -664,7 +664,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 200,
 	},
-	testCase{
+	{
 		isDeleteSession: true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/logout", nil)
@@ -672,7 +672,7 @@ var testCases = []testCase{
 		}(),
 		expectedStatusCode: 200,
 	},
-	testCase{
+	{
 		isDeleteSession: true,
 		isPrepareSM:     true,
 		request: func() *http.Request {
@@ -686,7 +686,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 200,
 	},
-	testCase{
+	{
 		isEditUser:           true,
 		isSecondCheckSession: true,
 		isCheckSession:       true,
@@ -722,7 +722,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 200,
 	},
-	testCase{
+	{
 		isCheckSession: true,
 		isPrepareSM:    true,
 		request: func() *http.Request {
@@ -742,7 +742,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 400,
 	},
-	testCase{
+	{
 		isCheckSession: true,
 		isPrepareSM:    true,
 		request: func() *http.Request {
@@ -762,7 +762,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 400,
 	},
-	testCase{
+	{
 		isCheckSession: true,
 		isPrepareSM:    true,
 		request: func() *http.Request {
@@ -782,7 +782,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 400,
 	},
-	testCase{
+	{
 		isCheckSession: true,
 		isPrepareSM:    true,
 		request: func() *http.Request {
@@ -802,7 +802,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 400,
 	},
-	testCase{
+	{
 		isCheckSession: true,
 		isPrepareSM:    true,
 		request: func() *http.Request {
@@ -822,7 +822,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 400,
 	},
-	testCase{
+	{
 		isEditUser:           true,
 		isSecondCheckSession: true,
 		isCheckSession:       true,
@@ -858,7 +858,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 500,
 	},
-	testCase{
+	{
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/profile",
 				strings.NewReader("first_name=Alex&last_name=Ivanov"))
@@ -866,7 +866,7 @@ var testCases = []testCase{
 		}(),
 		expectedStatusCode: 401,
 	},
-	testCase{
+	{
 		isCheckSession: true,
 		isPrepareSM:    true,
 		request: func() *http.Request {
@@ -882,7 +882,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 401,
 	},
-	testCase{
+	{
 		isGetUserWithID:      true,
 		isPrepareDB:          true,
 		isPrepareSM:          true,
@@ -910,7 +910,7 @@ var testCases = []testCase{
 		expectedUser:       usersInDB[17],
 		expectedStatusCode: 200,
 	},
-	testCase{
+	{
 		isGetUserWithID:      true,
 		isPrepareDB:          true,
 		isPrepareSM:          true,
@@ -937,7 +937,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 500,
 	},
-	testCase{
+	{
 		isDeleteSession:      true,
 		isRemoveUser:         true,
 		isPrepareDB:          true,
@@ -969,7 +969,7 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 200,
 	},
-	testCase{
+	{
 		isRemoveUser:         true,
 		isPrepareDB:          true,
 		isPrepareSM:          true,

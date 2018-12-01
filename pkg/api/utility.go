@@ -91,7 +91,7 @@ func loadImages(r *http.Request) ([]string, error) {
 		io.Copy(hasher, bytes.NewReader(dataTime))
 		io.Copy(hasher, bytes.NewReader(randBuf))
 		filename := hex.EncodeToString(hasher.Sum(nil))
-		dst, err := os.Create("./images/" + filename + ".png")
+		dst, _ := os.Create("./images/" + filename + ".png")
 		defer dst.Close()
 
 		// save image
