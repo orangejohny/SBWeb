@@ -21,6 +21,7 @@ coverage_html:
 	@mkdir coverage
 	@go test -coverprofile=./coverage/coverage.cov ${PKG_LIST}
 	@go tool cover -html=./coverage/coverage.cov -o ./coverage/coverage.html
+	@rm ./coverage/coverage.cov
 
 race: dep
 	@go test -race ${PKG_LIST}
