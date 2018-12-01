@@ -1,3 +1,5 @@
+// Copyright Dmitry Kargashin <dkargashin3@gmail.com>
+// License can be found in LICENSE file.
 package api
 
 import (

@@ -39,7 +39,7 @@ to clients:
 * Title
 * Price (can be omited)
 * Country (can be omited)
-* City (can be omited)
+* City
 * Subway station (can be omited)
 * Images (can be omited)
 * Information about agent (just some fields from user structure)
