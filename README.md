@@ -1,5 +1,10 @@
 # Search&Build project
 
+[![pipeline status](https://bmstu.codes/developers34/SBWeb/badges/master/pipeline.svg)](https://bmstu.codes/developers34/SBWeb/commits/master)
+[![coverage report](https://bmstu.codes/developers34/SBWeb/badges/master/coverage.svg)](https://bmstu.codes/developers34/SBWeb/commits/master)
+[![Go Report Card](https://goreportcard.com/badge/bmstu.codes/developers34/SBWeb)](https://goreportcard.com/report/bmstu.codes/developers34/SBWeb)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+
 ## General overview of architecture
 
 ![Overview](/docs/GeneralOverview.png "Overview")
@@ -39,7 +44,7 @@ to clients:
 * Title
 * Price (can be omited)
 * Country (can be omited)
-* City (can be omited)
+* City
 * Subway station (can be omited)
 * Images (can be omited)
 * Information about agent (just some fields from user structure)
