@@ -1,3 +1,9 @@
+// Copyright 2018 Dmitry Kargashin <dkargashin3@gmail.com>
+// Use of this source code is governed by GNU LGPL
+// license that can be found in the LICENSE file.
+
+// SBWeb is the web-service for course work of developers34 team.
+// It's supposed to search and hire specialists of building industry.
 package main
 
 import (
@@ -9,6 +15,7 @@ import (
 	"bmstu.codes/developers34/SBWeb/pkg/daemon"
 )
 
+// setConfig parses the config provided in command options
 func setConfig() *daemon.Config {
 	cfg := daemon.Config{}
 
