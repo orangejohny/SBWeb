@@ -311,7 +311,8 @@ func userCreatePage(m *model.Model) http.Handler {
 			bcrypt.DefaultCost)
 		user.Password = string(hash)
 
-		// user.AvatarAddress.SetValid("")
+		user.AvatarAddress.String = ""
+		user.AvatarAddress.Valid = false
 		// load images from request if it is possible
 		if isMultipartForm {
 			filenames, err := loadImages(r)
@@ -596,6 +597,7 @@ func userUpdatePage(m *model.Model) http.Handler {
 				w.WriteHeader(http.StatusBadRequest)
 				w.Write(apiErrorHandle(checkImage, imgExErr, err,
 					imgExMsg))
+				return
 			}
 		} else {
 			userFromDB, err := m.GetUserWithID(user.ID)
@@ -682,6 +684,8 @@ func userDeletePage(m *model.Model) http.Handler {
 		}
 		deleteImages([]string{userFromDB.AvatarAddress.String})
 
+		// TODO removing images of ads which were created by user
+
 		// remove user from DB
 		_, err = m.RemoveUser(id)
 		if err != nil {
@@ -710,8 +714,18 @@ func adCreatePage(m *model.Model) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "application/json")
 
+		var isMultipartForm bool
+		if strings.Contains(r.Header.Get("Content-Type"), "multipart/form-data") {
+			isMultipartForm = true
+		}
+
 		// trying to parse form
-		err := r.ParseForm()
+		var err error
+		if isMultipartForm {
+			err = r.ParseMultipartForm(10 * 1024 * 1024)
+		} else {
+			err = r.ParseForm()
+		}
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(checkReq, parseFormErr, err, parseFormMsg))
@@ -721,7 +735,12 @@ func adCreatePage(m *model.Model) http.Handler {
 		// get info about ad from request
 		var ad model.AdItem
 		decoder := schema.NewDecoder()
-		err = decoder.Decode(&ad, r.Form)
+		if isMultipartForm {
+			err = decoder.Decode(&ad, r.MultipartForm.Value)
+
+		} else {
+			err = decoder.Decode(&ad, r.Form)
+		}
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(checkReq, decodeFormErr, err,
@@ -749,6 +768,22 @@ func adCreatePage(m *model.Model) http.Handler {
 			w.Write(apiErrorHandle(validRequiredCreateAd, reqValidErr, err,
 				reqValidMsg))
 			return
+		}
+
+		// prevent client from passing this parameter
+		ad.AdImages = nil
+		// load images from request if it is possible
+		if isMultipartForm {
+			filenames, err := loadImages(r)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write(apiErrorHandle(checkImage, imgCreErr, err,
+					imgCreMsg))
+				return
+			}
+			if len(filenames) != 0 {
+				ad.AdImages = filenames
+			}
 		}
 
 		// set id from cookie
@@ -793,8 +828,18 @@ func adUpdatePage(m *model.Model) http.Handler {
 		idStr, _ := mux.Vars(r)["id"]
 		id, _ := strconv.ParseInt(idStr, 10, 64)
 
+		var isMultipartForm bool
+		if strings.Contains(r.Header.Get("Content-Type"), "multipart/form-data") {
+			isMultipartForm = true
+		}
+
 		// trying to parse form
-		err := r.ParseForm()
+		var err error
+		if isMultipartForm {
+			err = r.ParseMultipartForm(10 * 1024 * 1024)
+		} else {
+			err = r.ParseForm()
+		}
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(checkReq, parseFormErr, err, parseFormMsg))
@@ -804,7 +849,12 @@ func adUpdatePage(m *model.Model) http.Handler {
 		// get info about ad from request
 		var ad model.AdItem
 		decoder := schema.NewDecoder()
-		err = decoder.Decode(&ad, r.Form)
+		if isMultipartForm {
+			err = decoder.Decode(&ad, r.MultipartForm.Value)
+
+		} else {
+			err = decoder.Decode(&ad, r.Form)
+		}
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(checkReq, decodeFormErr, err,
@@ -865,7 +915,38 @@ func adUpdatePage(m *model.Model) http.Handler {
 			return
 		}
 
-		// log.Printf("ad from DB: %v\nad from req:%v", adFromDatabase, ad)
+		// check if images are not null and exist
+		if ad.AdImages != nil {
+			for _, image := range ad.AdImages {
+				_, err = os.Stat("." + image)
+				if os.IsNotExist(err) {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write(apiErrorHandle(checkImage, imgExErr, err,
+						imgExMsg))
+					return
+				}
+			}
+		} else {
+			// TODO delete particular images of ad
+			deleteImages(adFromDatabase.AdImages)
+		}
+
+		// load images from request if existing images array is null and
+		// content-type is multipart/form-data
+		if isMultipartForm {
+			filenames, err := loadImages(r)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write(apiErrorHandle(checkImage, imgCreErr, err,
+					imgCreMsg))
+				return
+			}
+			if len(filenames) != 0 {
+				for _, img := range filenames {
+					ad.AdImages = append(ad.AdImages, img)
+				}
+			}
+		}
 
 		// update ad
 		_, err = m.EditAd(&ad)
@@ -916,6 +997,9 @@ func adDeletePage(m *model.Model) http.Handler {
 				errors.New("Client tried to delete ad of other user"), onlyYourAdMsg))
 			return
 		}
+
+		// delete images of such ad
+		deleteImages(adFromDatabase.AdImages)
 
 		// remove ad from DB
 		_, err = m.RemoveAd(id)

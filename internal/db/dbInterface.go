@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"log"
+	"strings"
 
 	"bmstu.codes/developers34/SBWeb/internal/model"
 )
@@ -15,7 +16,7 @@ const (
 func (h *Handler) prepareStatements() (err error) {
 	if h.ReadAds, err = h.DB.PrepareNamed( // return list of ads
 		`SELECT
-		 ads.id "idad", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
+		 ads.id "idad", title, description_ad, price, country, city, subway_station, array_to_string(ad_images,',') "ad_images", creation_time, owner_ad,
 		 users.id, first_name, last_name, email, telephone, about, reg_time, avatar_address
 		 FROM
 		 ads
@@ -32,7 +33,7 @@ func (h *Handler) prepareStatements() (err error) {
 
 	if h.SearchAds, err = h.DB.PrepareNamed(
 		`SELECT
-		ads.id "idad", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
+		ads.id "idad", title, description_ad, price, country, city, subway_station, array_to_string(ad_images,',') "ad_images", creation_time, owner_ad,
 		users.id, first_name, last_name, email, telephone, about, reg_time, avatar_address
 		FROM
 		ads
@@ -49,7 +50,7 @@ func (h *Handler) prepareStatements() (err error) {
 
 	if h.ReadAdsOfUser, err = h.DB.Preparex( // return list of ads of such user
 		`SELECT
-		 ads.id "idad", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
+		 ads.id "idad", title, description_ad, price, country, city, subway_station, array_to_string(ad_images,',') "ad_images", creation_time, owner_ad,
 		 users.id, first_name, last_name, email, telephone, about, reg_time, avatar_address
 		 FROM
 		 ads
@@ -66,7 +67,7 @@ func (h *Handler) prepareStatements() (err error) {
 
 	if h.ReadAd, err = h.DB.Preparex( // return ad with such id
 		`SELECT
-		ads.id "idad", title, description_ad, price, country, city, subway_station, images_folder, creation_time, owner_ad,
+		ads.id "idad", title, description_ad, price, country, city, subway_station, array_to_string(ad_images,',') "ad_images", creation_time, owner_ad,
 		users.id, first_name, last_name, email, telephone, about, reg_time, avatar_address
 		FROM
 		ads
@@ -110,9 +111,9 @@ func (h *Handler) prepareStatements() (err error) {
 
 	if h.CreateAd, err = h.DB.PrepareNamed( // create new ad
 		`INSERT INTO ads
-			(title, owner_ad, description_ad, price, country, city, subway_station, images_folder)
+			(title, owner_ad, description_ad, price, country, city, subway_station, ad_images)
 			VALUES
-			(:title, :owner_ad, :description_ad, :price, :country, :city, :subway_station, :images_folder)
+			(:title, :owner_ad, :description_ad, :price, :country, :city, :subway_station, string_to_array(:ad_images, ','))
 			RETURNING id`,
 	); err != nil {
 		log.Println(err.Error())
@@ -141,7 +142,8 @@ func (h *Handler) prepareStatements() (err error) {
 			price=:price,
 			country=:country,
 			city=:city,
-			subway_station=:subway_station
+			subway_station=:subway_station,
+			ad_images=string_to_array(:ad_images, ',')
 			WHERE id=:idad`,
 	); err != nil {
 		log.Println(err.Error())
@@ -192,7 +194,8 @@ func (h *Handler) GetAdsOfUser(userID int64) ([]*model.AdItem, error) {
 func (h *Handler) GetAd(adID int64) (*model.AdItem, error) {
 	ad := &model.AdItem{}
 	err := h.ReadAd.Get(ad, adID) // will sqlx manage with foreign keys?
-	if err == sql.ErrNoRows {     // is 'false' possible?
+	ad.AdImages = strings.Split(ad.AdImagesStr.String, ",")
+	if err == sql.ErrNoRows { // is 'false' possible?
 		ad.ID = -1
 	}
 	return ad, err
@@ -233,7 +236,7 @@ func (h *Handler) NewUser(user *model.User) (int64, error) {
 // NewAd adds AdItem to database
 func (h *Handler) NewAd(ad *model.AdItem) (int64, error) {
 	var lastInserted int64
-
+	ad.AdImagesStr.SetValid(strings.Join(ad.AdImages, ","))
 	err := h.CreateAd.Get(&lastInserted, ad)
 
 	return lastInserted, err
@@ -256,6 +259,8 @@ func (h *Handler) EditUser(user *model.User) (int64, error) {
 
 // EditAd updates information about ad with ID provided from function argument
 func (h *Handler) EditAd(ad *model.AdItem) (int64, error) {
+	ad.AdImagesStr.SetValid(strings.Join(ad.AdImages, ","))
+
 	res, err := h.UpdateAd.Exec(ad)
 	if err != nil {
 		return -1, err

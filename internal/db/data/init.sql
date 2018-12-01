@@ -3,7 +3,7 @@ SET lc_messages TO 'en_US.UTF-8';
 
 --DROP TABLE IF EXISTS users;
 --DROP TABLE IF EXISTS ads;
-CREATE TABLE users
+CREATE TABLE IF NOT EXISTS users
 (
     id                SERIAL      PRIMARY KEY,
     first_name        varchar(80) NOT NULL,
@@ -13,10 +13,10 @@ CREATE TABLE users
     telephone         varchar(80),
     about             text,
     avatar_address    text,
-    reg_time timestamp   DEFAULT CURRENT_TIMESTAMP NOT NULL
+    reg_time          timestamp   DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE TABLE ads
+CREATE TABLE IF NOT EXISTS ads
 (
     id             SERIAL       PRIMARY KEY,
     title          varchar(80)  NOT NULL,
@@ -24,11 +24,9 @@ CREATE TABLE ads
     country        varchar(80),
     city           varchar(80),
     subway_station varchar(80),
-    images_folder  varchar(256),
+    ad_images      varchar(256)[],
     -- when deleting user we should delete his ads
     owner_ad       integer      REFERENCES users (id) ON DELETE CASCADE NOT NULL,
     description_ad text,
-    -- do we need this tocken if there is id already?
-    -- tocken         varchar(16) UNIQUE NOT NULL,
     creation_time  timestamp    DEFAULT CURRENT_TIMESTAMP NOT NULL
 ); 
