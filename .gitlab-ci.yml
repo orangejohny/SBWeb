@@ -36,7 +36,7 @@ coverage_html:
     - laptop-runner
   script:
     - make coverage_html
-    - mv ./coverage $CI_PROJECT_DIR
+    - mv ./coverage/coverage.html $CI_PROJECT_DIR/coverage/coverage.html
   artifacts:
     paths:
       - coverage/
