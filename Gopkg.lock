@@ -106,6 +106,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:34534b73e925d20cc72cf202f8b482fdcbe3a1b113e19375f31aadabd0f0f97d"
+  name = "github.com/nfnt/resize"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "83c6a9932646f83e3267f353373d47347b6036b2"
+
+[[projects]]
+  branch = "master"
   digest = "1:8ae7ee611e7317a88b14b088e84e4cd31ac8368d3e95b30668ebd26c33db3275"
   name = "github.com/yuin/gopher-lua"
   packages = [
@@ -156,6 +164,7 @@
     "github.com/gorilla/schema",
     "github.com/jmoiron/sqlx",
     "github.com/lib/pq",
+    "github.com/nfnt/resize",
     "golang.org/x/crypto/bcrypt",
     "gopkg.in/guregu/null.v3/zero",
   ]

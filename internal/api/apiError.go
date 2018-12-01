@@ -64,6 +64,13 @@ const (
 	badCookie               = "You must have valid cookie to access this address"
 	badCookieErr            = "BadCookieError"
 	badCookieMsg            = "Cookie didn't passed validation"
+	checkImage              = "Check your image"
+	imgCreErr               = "ImageCreateError"
+	imgCreMsg               = "Image must be PNG or JPEG format"
+	noImgErr                = "No such image"
+	noImgMsg                = "There is no image with such name"
+	imgExErr                = "Image doesn't exist"
+	imgExMsg                = "Updating requires providing existing image or null if you want to delete it or upload with multipart/form-data"
 )
 
 type apiError struct {

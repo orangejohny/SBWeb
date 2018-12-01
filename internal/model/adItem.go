@@ -12,9 +12,10 @@ type AdItem struct {
 	Title         string      `db:"title" json:"title" schema:"title,optional" valid:"printableascii,optional"` // required in DB
 	Price         zero.Int    `db:"price" json:"price,omitempty" schema:"price,optional" valid:"-"`
 	Country       zero.String `db:"country" json:"country,omitempty" schema:"country,optional" valid:"-"`                      // consists of utf letter
-	City          string      `db:"city" json:"city,omitempty" schema:"city,optional" valid:"utfletter,optional"`              // required in DB
+	City          string      `db:"city" json:"city,omitempty" schema:"city,optional" valid:"printableascii,optional"`         // required in DB
 	SubwayStation zero.String `db:"subway_station" json:"subway_station,omitempty" schema:"subway_station,optional" valid:"-"` // consists of utf letter
-	ImagesFolder  zero.String `db:"images_folder" json:"images_folder,omitempty" schema:"-" valid:"-"`                         // will be implemented (maybe)
+	AdImages      []string    `db:"-" json:"ad_images,omitempty" schema:"ad_images,optional" valid:"-"`                        // will be implemented (maybe)
+	AdImagesStr   zero.String `db:"ad_images" json:"-" schema:"-" valid:"-"`                                                   // for database
 	UserID        int64       `db:"owner_ad" json:"-" schema:"-" valid:"-"`
 	User          `json:"owner_ad" schema:"-" valid:"-"`
 	Description   string    `db:"description_ad" json:"description_ad" schema:"description_ad,optional" valid:"ascii,optional"` // requiered in DB

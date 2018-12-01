@@ -24,13 +24,12 @@ const (
 
 func TestStartWithBadConfig(t *testing.T) {
 	log.SetOutput(ioutil.Discard)
-	srv, ch := api.StartServer(api.Config{
+	_, ch := api.StartServer(api.Config{
 		Address:      "localhost:54000",
 		ReadTimeout:  "10eregeurgi",
 		WriteTimeout: "10s",
 		IdleTimeout:  "10s",
 	}, nil)
-	defer srv.Shutdown(nil)
 	err := <-ch
 	if err == http.ErrServerClosed {
 		t.Error("Expected other error")
@@ -125,6 +124,11 @@ type mockDataDB struct {
 	inputUser   *model.User
 	inputAd     *model.User
 
+	inputIDimg int64
+
+	outputErrorImg error
+	outputUserImg  *model.User
+
 	outputUser       *model.User
 	outputUserCreate *createUserResp
 	outputAd         *model.AdItem
@@ -153,6 +157,7 @@ type testCase struct {
 	isGetUserWithEmail bool
 	isEditUser         bool
 	isRemoveUser       bool
+	isGetUserWithIDImg bool
 
 	// flags of actions
 	isLoginPage bool
@@ -670,6 +675,7 @@ var testCases = []testCase{
 		isCheckSession:       true,
 		isPrepareDB:          true,
 		isPrepareSM:          true,
+		isGetUserWithIDImg:   true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/profile",
 				strings.NewReader("first_name=Alex&last_name=Ivanov"))
@@ -682,8 +688,11 @@ var testCases = []testCase{
 				FirstName: "Alex",
 				LastName:  "Ivanov",
 			},
-			outputID:    17,
-			outputError: nil,
+			inputIDimg:     17,
+			outputID:       17,
+			outputUserImg:  usersInDB[17],
+			outputError:    nil,
+			outputErrorImg: nil,
 		},
 		sm: &mockDataSM{
 			inputSessionID: &model.SessionID{ID: "123abc"},
@@ -802,6 +811,7 @@ var testCases = []testCase{
 		isCheckSession:       true,
 		isPrepareDB:          true,
 		isPrepareSM:          true,
+		isGetUserWithIDImg:   true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/profile",
 				strings.NewReader("first_name=Alex&last_name=Ivanov"))
@@ -814,8 +824,11 @@ var testCases = []testCase{
 				FirstName: "Alex",
 				LastName:  "Ivanov",
 			},
-			outputID:    0,
-			outputError: errors.New("e"),
+			inputIDimg:     17,
+			outputErrorImg: nil,
+			outputUserImg:  usersInDB[17],
+			outputID:       0,
+			outputError:    errors.New("e"),
 		},
 		sm: &mockDataSM{
 			inputSessionID: &model.SessionID{ID: "123abc"},
@@ -914,15 +927,19 @@ var testCases = []testCase{
 		isPrepareSM:          true,
 		isCheckSession:       true,
 		isSecondCheckSession: true,
+		isGetUserWithIDImg:   true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("DELETE", domain+"/users/profile", nil)
 			r.Header.Set("Cookie", "session_id=123abc")
 			return r
 		}(),
 		db: &mockDataDB{
-			inputID:     17,
-			outputID:    17,
-			outputError: nil,
+			inputID:        17,
+			outputID:       17,
+			outputError:    nil,
+			inputIDimg:     17,
+			outputUserImg:  usersInDB[17],
+			outputErrorImg: nil,
 		},
 		sm: &mockDataSM{
 			inputSessionID: &model.SessionID{ID: "123abc"},
@@ -941,15 +958,19 @@ var testCases = []testCase{
 		isPrepareSM:          true,
 		isCheckSession:       true,
 		isSecondCheckSession: true,
+		isGetUserWithIDImg:   true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("DELETE", domain+"/users/profile", nil)
 			r.Header.Set("Cookie", "session_id=123abc")
 			return r
 		}(),
 		db: &mockDataDB{
-			inputID:     17,
-			outputID:    0,
-			outputError: errors.New("e"),
+			inputID:        17,
+			outputID:       0,
+			outputError:    errors.New("e"),
+			inputIDimg:     17,
+			outputUserImg:  usersInDB[17],
+			outputErrorImg: nil,
 		},
 		sm: &mockDataSM{
 			inputSessionID: &model.SessionID{ID: "123abc"},
@@ -1022,6 +1043,12 @@ func TestThis(t *testing.T) {
 			if tCase.isRemoveUser && tCase.isPrepareDB {
 				mockDB.EXPECT().RemoveUser(tCase.db.inputID).
 					Return(tCase.db.outputID, tCase.db.outputError)
+			}
+
+			// need for image processing
+			if tCase.isGetUserWithIDImg {
+				mockDB.EXPECT().GetUserWithID(tCase.db.inputIDimg).
+					Return(tCase.db.outputUserImg, tCase.db.outputErrorImg)
 			}
 
 			mockSM := mock_model.NewMockSM(ctrl)
