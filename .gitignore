@@ -1,6 +1,8 @@
 SBWeb
 images/
 coverage/
+coverage.cov
+index.html
 
 # Binaries for programs and plugins
 *.exe

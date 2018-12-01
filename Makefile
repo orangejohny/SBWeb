@@ -15,7 +15,8 @@ test:
 	@go test ${PKG_LIST}
 
 coverage:
-	go test -cover ${PKG_LIST}
+	@go test -coverprofile=./coverage.cov ${PKG_LIST}
+	go tool cover -func=coverage.cov
 
 coverage_html:
 	@mkdir coverage
