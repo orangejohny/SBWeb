@@ -1,0 +1,1 @@
+web: service-main -cfg pkg/configHeroku.json

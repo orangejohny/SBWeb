@@ -1,0 +1,17 @@
+{
+  "DB": {
+    "DBAddress": "postgresql://dataUSER:dataPASSWORD@postgres/data?sslmode=disable",
+    "MaxOpenConns": 10
+  },
+  "SM": {
+    "DBAddress": "redis://redis:6379/0",
+    "TockenLength": 32,
+    "ExpirationTime": 86400
+  },
+  "API": {
+    "Address": "https://protected-bayou-62297.herokuapp.com",
+    "ReadTimeout": "10s",
+    "WriteTimeout": "10s",
+    "IdleTimeout": "10s"
+  }
+}
