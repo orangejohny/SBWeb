@@ -9,7 +9,7 @@ import (
 	"log"
 	"strings"
 
-	"bmstu.codes/developers34/SBWeb/pkg/model"
+	"github.com/orangejohny/SBWeb/pkg/model"
 )
 
 const (

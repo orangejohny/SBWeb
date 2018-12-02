@@ -7,9 +7,9 @@ services:
   api:
     image: golang:1.11
     volumes:
-      - ./:/go/src/bmstu.codes/developers34/SBWeb
-    working_dir: /go/src/bmstu.codes/developers34/SBWeb
-    command: go run bmstu.codes/developers34/SBWeb -cfg ./pkg/configForDocker.json
+      - ./:/go/src/github.com/orangejohny/SBWeb
+    working_dir: /go/src/github.com/orangejohny/SBWeb
+    command: go run github.com/orangejohny/SBWeb -cfg ./pkg/configForDocker.json
     links:
       - redis
       - postgres

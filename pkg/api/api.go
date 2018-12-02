@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"bmstu.codes/developers34/SBWeb/pkg/model"
+	"github.com/orangejohny/SBWeb/pkg/model"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/asaskevich/govalidator"

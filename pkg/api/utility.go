@@ -23,7 +23,7 @@ import (
 
 	"github.com/nfnt/resize"
 
-	"bmstu.codes/developers34/SBWeb/pkg/model"
+	"github.com/orangejohny/SBWeb/pkg/model"
 )
 
 // getIDfromCookie returns ID of user using cookie from request.

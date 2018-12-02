@@ -1,5 +1,5 @@
 PROJECT_NAME := "SBWeb"
-PKG := "bmstu.codes/developers34/SBWeb"
+PKG := "github.com/orangejohny/SBWeb"
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
 

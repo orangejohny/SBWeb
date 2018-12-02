@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 
-	"bmstu.codes/developers34/SBWeb/pkg/model"
+	"github.com/orangejohny/SBWeb/pkg/model"
 )
 
 // TODO: add middleware that checks connection to DB and SM
