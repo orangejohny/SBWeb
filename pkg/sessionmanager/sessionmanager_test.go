@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"bmstu.codes/developers34/SBWeb/pkg/model"
-	sm "bmstu.codes/developers34/SBWeb/pkg/sessionmanager"
 	"github.com/alicebob/miniredis"
+	"github.com/orangejohny/SBWeb/pkg/model"
+	sm "github.com/orangejohny/SBWeb/pkg/sessionmanager"
 )
 
 func TestInitSM(t *testing.T) {

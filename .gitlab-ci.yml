@@ -1,7 +1,7 @@
-image: registry.bmstu.codes/developers34/sbweb:latest
+image: registry.github.com/orangejohny/sbweb:latest
 
 variables:
-  REPO_NAME: bmstu.codes/developers34/SBWeb
+  REPO_NAME: github.com/orangejohny/SBWeb
   PROJECT_PATH: $GOPATH/src/$REPO_NAME
 
 cache:

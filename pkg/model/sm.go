@@ -9,4 +9,7 @@ type SM interface {
 	CreateSession(in *Session, expires bool) (*SessionID, error)
 	CheckSession(in *SessionID) (*Session, error)
 	DeleteSession(in *SessionID) error
+
+	TryReconnect() error
+	IsConnected() bool
 }

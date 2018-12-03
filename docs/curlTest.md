@@ -33,11 +33,11 @@ try to trigger gitlab-ci
 
 ## Create user with avatar
 
-curl -v -F "images=@/home/orangejohny/Downloads/simpsons_PNG88.png" -F "first_name=dmitry" -F "last_name=kargashin" -F "email=dkarg@gmail.com" -F "password=123456" 127.0.0.1:8080/users/new
+curl -v -F "images=@/home/orangejohny/Downloads/simpsons_PNG88.png" -F "first_name=dmitry" -F "last_name=kargashin" -F "email=dkarg@gmail.com" -F "password=123456" https://protected-bayou-62297.herokuapp.com/users/new
 
 ## Login user
 
-curl -v -X POST -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" --data "email=dkarg@gmail.com&password=123456" 127.0.0.1:8080/users/login
+curl -v -X POST -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" --data "email=dkarg@gmail.com&password=123456" https://protected-bayou-62297.herokuapp.com/users/login
 
 ## Create ad with multiple images
 

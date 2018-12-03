@@ -16,12 +16,12 @@ import (
 	"testing"
 	"time"
 
-	"bmstu.codes/developers34/SBWeb/pkg/api"
-	"bmstu.codes/developers34/SBWeb/pkg/api/mock_model"
+	"github.com/orangejohny/SBWeb/pkg/api"
+	"github.com/orangejohny/SBWeb/pkg/api/mock_model"
 
 	"github.com/golang/mock/gomock"
 
-	"bmstu.codes/developers34/SBWeb/pkg/model"
+	"github.com/orangejohny/SBWeb/pkg/model"
 )
 
 const (
@@ -184,6 +184,7 @@ type testCase struct {
 	isCheckSession       bool
 	isSecondCheckSession bool
 	isDeleteSession      bool
+	isPrepareCheckConnSM bool
 
 	// expect flags
 	isPrepareDB bool
@@ -282,14 +283,14 @@ var testCases = []testCase{
 		expectedAds:        []*model.AdItem{adsInDB[15], adsInDB[21]},
 		expectedStatusCode: 200,
 	},
-	{
+	/* {
 		isGetAds: true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("GET", domain+"/ads?offset=1&limit=12&query=\003", nil)
 			return r
 		}(),
 		expectedStatusCode: 400,
-	},
+	}, */
 	{
 		isGetAds:    true,
 		isPrepareDB: true,
@@ -476,10 +477,11 @@ var testCases = []testCase{
 		expectedStatusCode: http.StatusInternalServerError,
 	},
 	{
-		isGetUserWithEmail: true,
-		isCreateSession:    true,
-		isPrepareDB:        true,
-		isPrepareSM:        true,
+		isGetUserWithEmail:   true,
+		isCreateSession:      true,
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isPrepareCheckConnSM: true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/login",
 				strings.NewReader("email=pet@animal.com&password=123456"))
@@ -503,10 +505,11 @@ var testCases = []testCase{
 		expectedCookieValue: "id",
 	},
 	{
-		isGetUserWithEmail: true,
-		isCreateSession:    true,
-		isPrepareDB:        true,
-		isPrepareSM:        true,
+		isGetUserWithEmail:   true,
+		isCreateSession:      true,
+		isPrepareDB:          true,
+		isPrepareCheckConnSM: true,
+		isPrepareSM:          true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/login",
 				strings.NewReader("email=pet@animal.com&password=123456"))
@@ -536,8 +539,9 @@ var testCases = []testCase{
 		expectedCookieValue: "id",
 	},
 	{
-		isGetUserWithEmail: true,
-		isCreateSession:    true,
+		isGetUserWithEmail:   true,
+		isPrepareCheckConnSM: true,
+		isCreateSession:      true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/login",
 				strings.NewReader("%email=pet@animal.com&password=123456"))
@@ -546,8 +550,9 @@ var testCases = []testCase{
 		expectedStatusCode: 400,
 	},
 	{
-		isGetUserWithEmail: true,
-		isCreateSession:    true,
+		isGetUserWithEmail:   true,
+		isPrepareCheckConnSM: true,
+		isCreateSession:      true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/login",
 				strings.NewReader("email=pet@animal.cv&password=123456"))
@@ -556,8 +561,9 @@ var testCases = []testCase{
 		expectedStatusCode: 400,
 	},
 	{
-		isGetUserWithEmail: true,
-		isCreateSession:    true,
+		isGetUserWithEmail:   true,
+		isPrepareCheckConnSM: true,
+		isCreateSession:      true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/login",
 				strings.NewReader("script=vvvv&email=pet@animal.com&password=123456"))
@@ -566,8 +572,9 @@ var testCases = []testCase{
 		expectedStatusCode: 400,
 	},
 	{
-		isGetUserWithEmail: true,
-		isCreateSession:    true,
+		isPrepareCheckConnSM: true,
+		isGetUserWithEmail:   true,
+		isCreateSession:      true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/login",
 				strings.NewReader("email=pet@animal.com&password="))
@@ -576,9 +583,10 @@ var testCases = []testCase{
 		expectedStatusCode: 400,
 	},
 	{
-		isGetUserWithEmail: true,
-		isCreateSession:    true,
-		isPrepareDB:        true,
+		isGetUserWithEmail:   true,
+		isCreateSession:      true,
+		isPrepareCheckConnSM: true,
+		isPrepareDB:          true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/login",
 				strings.NewReader("email=pet@animal.com&password=123456"))
@@ -592,9 +600,10 @@ var testCases = []testCase{
 		expectedStatusCode: 400,
 	},
 	{
-		isGetUserWithEmail: true,
-		isCreateSession:    true,
-		isPrepareDB:        true,
+		isGetUserWithEmail:   true,
+		isCreateSession:      true,
+		isPrepareCheckConnSM: true,
+		isPrepareDB:          true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/login",
 				strings.NewReader("email=pet@animal.com&password=123456"))
@@ -608,9 +617,10 @@ var testCases = []testCase{
 		expectedStatusCode: 500,
 	},
 	{
-		isGetUserWithEmail: true,
-		isCreateSession:    true,
-		isPrepareDB:        true,
+		isGetUserWithEmail:   true,
+		isPrepareCheckConnSM: true,
+		isCreateSession:      true,
+		isPrepareDB:          true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/login",
 				strings.NewReader("email=pet@animal.com&password=12456"))
@@ -624,10 +634,11 @@ var testCases = []testCase{
 		expectedStatusCode: 400,
 	},
 	{
-		isGetUserWithEmail: true,
-		isCreateSession:    true,
-		isPrepareDB:        true,
-		isPrepareSM:        true,
+		isGetUserWithEmail:   true,
+		isCreateSession:      true,
+		isPrepareCheckConnSM: true,
+		isPrepareDB:          true,
+		isPrepareSM:          true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/login",
 				strings.NewReader("email=pet@animal.com&password=123456"))
@@ -651,8 +662,9 @@ var testCases = []testCase{
 		expectedStatusCode: 500,
 	},
 	{
-		isDeleteSession: true,
-		isPrepareSM:     true,
+		isDeleteSession:      true,
+		isPrepareCheckConnSM: true,
+		isPrepareSM:          true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/logout", nil)
 			r.Header.Set("Cookie", "session_id=123abc")
@@ -665,7 +677,8 @@ var testCases = []testCase{
 		expectedStatusCode: 200,
 	},
 	{
-		isDeleteSession: true,
+		isPrepareCheckConnSM: true,
+		isDeleteSession:      true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/logout", nil)
 			return r
@@ -673,8 +686,9 @@ var testCases = []testCase{
 		expectedStatusCode: 200,
 	},
 	{
-		isDeleteSession: true,
-		isPrepareSM:     true,
+		isPrepareCheckConnSM: true,
+		isDeleteSession:      true,
+		isPrepareSM:          true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/logout", nil)
 			r.Header.Set("Cookie", "session_id=123abc")
@@ -687,6 +701,7 @@ var testCases = []testCase{
 		expectedStatusCode: 200,
 	},
 	{
+		isPrepareCheckConnSM: true,
 		isEditUser:           true,
 		isSecondCheckSession: true,
 		isCheckSession:       true,
@@ -723,8 +738,9 @@ var testCases = []testCase{
 		expectedStatusCode: 200,
 	},
 	{
-		isCheckSession: true,
-		isPrepareSM:    true,
+		isCheckSession:       true,
+		isPrepareSM:          true,
+		isPrepareCheckConnSM: true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/profile",
 				strings.NewReader("%first_name=Alex&last_name=Ivanov"))
@@ -743,8 +759,9 @@ var testCases = []testCase{
 		expectedStatusCode: 400,
 	},
 	{
-		isCheckSession: true,
-		isPrepareSM:    true,
+		isCheckSession:       true,
+		isPrepareCheckConnSM: true,
+		isPrepareSM:          true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/profile",
 				strings.NewReader("script=bbb&first_name=Alex&last_name=Ivanov"))
@@ -763,8 +780,9 @@ var testCases = []testCase{
 		expectedStatusCode: 400,
 	},
 	{
-		isCheckSession: true,
-		isPrepareSM:    true,
+		isCheckSession:       true,
+		isPrepareCheckConnSM: true,
+		isPrepareSM:          true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/profile",
 				strings.NewReader("first_name=&last_name=Ivanov"))
@@ -783,8 +801,9 @@ var testCases = []testCase{
 		expectedStatusCode: 400,
 	},
 	{
-		isCheckSession: true,
-		isPrepareSM:    true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isPrepareSM:          true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/profile",
 				strings.NewReader("first_name=efv45&last_name=Ivanov"))
@@ -803,8 +822,9 @@ var testCases = []testCase{
 		expectedStatusCode: 400,
 	},
 	{
-		isCheckSession: true,
-		isPrepareSM:    true,
+		isCheckSession:       true,
+		isPrepareCheckConnSM: true,
+		isPrepareSM:          true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/profile",
 				strings.NewReader("first_name=Alex&last_name=Ivanov&tel_number=dwdww"))
@@ -824,6 +844,7 @@ var testCases = []testCase{
 	},
 	{
 		isEditUser:           true,
+		isPrepareCheckConnSM: true,
 		isSecondCheckSession: true,
 		isCheckSession:       true,
 		isPrepareDB:          true,
@@ -859,6 +880,7 @@ var testCases = []testCase{
 		expectedStatusCode: 500,
 	},
 	{
+		isPrepareCheckConnSM: true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/profile",
 				strings.NewReader("first_name=Alex&last_name=Ivanov"))
@@ -867,8 +889,9 @@ var testCases = []testCase{
 		expectedStatusCode: 401,
 	},
 	{
-		isCheckSession: true,
-		isPrepareSM:    true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isPrepareSM:          true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/profile",
 				strings.NewReader("first_name=Alex&last_name=Ivanov"))
@@ -886,6 +909,7 @@ var testCases = []testCase{
 		isGetUserWithID:      true,
 		isPrepareDB:          true,
 		isPrepareSM:          true,
+		isPrepareCheckConnSM: true,
 		isCheckSession:       true,
 		isSecondCheckSession: true,
 		request: func() *http.Request {
@@ -914,6 +938,7 @@ var testCases = []testCase{
 		isGetUserWithID:      true,
 		isPrepareDB:          true,
 		isPrepareSM:          true,
+		isPrepareCheckConnSM: true,
 		isCheckSession:       true,
 		isSecondCheckSession: true,
 		request: func() *http.Request {
@@ -941,6 +966,7 @@ var testCases = []testCase{
 		isDeleteSession:      true,
 		isRemoveUser:         true,
 		isPrepareDB:          true,
+		isPrepareCheckConnSM: true,
 		isPrepareSM:          true,
 		isCheckSession:       true,
 		isSecondCheckSession: true,
@@ -974,6 +1000,7 @@ var testCases = []testCase{
 		isPrepareDB:          true,
 		isPrepareSM:          true,
 		isCheckSession:       true,
+		isPrepareCheckConnSM: true,
 		isSecondCheckSession: true,
 		isGetUserWithIDImg:   true,
 		request: func() *http.Request {
@@ -1092,6 +1119,10 @@ func TestInterfaceOfAPI(t *testing.T) {
 			if tCase.isDeleteSession && tCase.isPrepareSM {
 				mockSM.EXPECT().DeleteSession(tCase.sm.inputSessionID).
 					Return(tCase.sm.outputError)
+			}
+
+			if tCase.isPrepareCheckConnSM {
+				mockSM.EXPECT().IsConnected().Return(true)
 			}
 
 			tModel := model.New(mockDB, mockSM)

@@ -11,4 +11,5 @@ type SessionManager struct {
 	redisConn      redis.Conn
 	tockenLength   int
 	expirationTime int
+	redisAddr      string
 }

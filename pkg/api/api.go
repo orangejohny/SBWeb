@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"bmstu.codes/developers34/SBWeb/pkg/model"
+	"github.com/orangejohny/SBWeb/pkg/model"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/asaskevich/govalidator"
@@ -38,22 +38,22 @@ func StartServer(cfg Config, m *model.Model) (*http.Server, chan error) {
 	r.Handle("/users/{id:[0-9]+}", readUserWithID(m)).Methods("GET")
 
 	r.Handle("/users/new", userCreatePage(m)).Methods("POST")
-	r.Handle("/users/login", logRequestMiddleware(m, userLoginPage(m))).Methods("POST")
-	r.Handle("/users/logout", userLogoutPage(m)).Methods("POST", "DELETE")
+	r.Handle("/users/login", checkConnSM(m, logRequestMiddleware(m, userLoginPage(m)))).Methods("POST")
+	r.Handle("/users/logout", checkConnSM(m, userLogoutPage(m))).Methods("POST", "DELETE")
 
 	r.Handle("/users/profile",
-		checkCookieMiddleware(m, userProfilePage(m))).Methods("GET")
+		checkConnSM(m, checkCookieMiddleware(m, userProfilePage(m)))).Methods("GET")
 	r.Handle("/users/profile",
-		checkCookieMiddleware(m, userUpdatePage(m))).Methods("POST")
+		checkConnSM(m, checkCookieMiddleware(m, userUpdatePage(m)))).Methods("POST")
 	r.Handle("/users/profile",
-		checkCookieMiddleware(m, userDeletePage(m))).Methods("DELETE")
+		checkConnSM(m, checkCookieMiddleware(m, userDeletePage(m)))).Methods("DELETE")
 
 	r.Handle("/ads/new",
-		checkCookieMiddleware(m, adCreatePage(m))).Methods("POST")
+		checkConnSM(m, checkCookieMiddleware(m, adCreatePage(m)))).Methods("POST")
 	r.Handle("/ads/edit/{id:[0-9]+}",
-		checkCookieMiddleware(m, adUpdatePage(m))).Methods("POST")
+		checkConnSM(m, checkCookieMiddleware(m, adUpdatePage(m)))).Methods("POST")
 	r.Handle("/ads/delete/{id:[0-9]+}",
-		checkCookieMiddleware(m, adDeletePage(m))).Methods("DELETE")
+		checkConnSM(m, checkCookieMiddleware(m, adDeletePage(m)))).Methods("DELETE")
 
 	r.Handle("/images/{filename}", sendImage(m)).Methods("GET")
 
@@ -119,12 +119,12 @@ func readMultipleAds(m *model.Model) http.Handler {
 		}
 
 		// check if query is valid
-		if !govalidator.IsPrintableASCII(params.Query) {
+		/* if !govalidator.IsPrintableASCII(params.Query) {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(checkReq, "QueryValidError", errors.New("Bad query"),
 				"Query must be printable ASCII"))
 			return
-		}
+		} */
 
 		// get list of ads from DB. If there are no ads, send an empty JSON array
 		ads, err := m.GetAds(&params)
@@ -313,8 +313,7 @@ func userCreatePage(m *model.Model) http.Handler {
 
 		// validate incoming data
 		_, err = govalidator.ValidateStruct(&user)
-		if err != nil || !govalidator.IsNumeric(user.TelNumber.String) ||
-			!govalidator.IsASCII(user.About.String) {
+		if err != nil || !govalidator.IsNumeric(user.TelNumber.String) {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(validRequired, reqValidErr, err, reqValidMsg)) // err will be nil if TelNumber or About didn't passed validation
 			return
@@ -600,8 +599,7 @@ func userUpdatePage(m *model.Model) http.Handler {
 
 		// validate incoming data
 		_, err = govalidator.ValidateStruct(&user)
-		if err != nil || !govalidator.IsNumeric(user.TelNumber.String) ||
-			!govalidator.IsASCII(user.About.String) {
+		if err != nil || !govalidator.IsNumeric(user.TelNumber.String) {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(validRequiredUpdate, reqValidErr, err,
 				reqValidMsg)) // err will be nil if TelNumber or About didn't passed validation
@@ -789,8 +787,7 @@ func adCreatePage(m *model.Model) http.Handler {
 
 		// validate incoming data
 		_, err = govalidator.ValidateStruct(&ad)
-		if err != nil || !govalidator.IsPrintableASCII(ad.Country.String) ||
-			!govalidator.IsPrintableASCII(ad.SubwayStation.String) {
+		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(validRequiredCreateAd, reqValidErr, err,
 				reqValidMsg))
@@ -904,8 +901,7 @@ func adUpdatePage(m *model.Model) http.Handler {
 
 		// validate incoming data
 		_, err = govalidator.ValidateStruct(&ad)
-		if err != nil || !govalidator.IsPrintableASCII(ad.Country.String) ||
-			!govalidator.IsPrintableASCII(ad.SubwayStation.String) {
+		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(validRequiredCreateAd, reqValidErr, err,
 				reqValidMsg))

@@ -1,8 +1,8 @@
 # Search&Build project
 
-[![pipeline status](https://bmstu.codes/developers34/SBWeb/badges/master/pipeline.svg)](https://bmstu.codes/developers34/SBWeb/commits/master)
-[![coverage report](https://bmstu.codes/developers34/SBWeb/badges/master/coverage.svg)](https://bmstu.codes/developers34/SBWeb/commits/master)
-[![Go Report Card](https://goreportcard.com/badge/bmstu.codes/developers34/SBWeb)](https://goreportcard.com/report/bmstu.codes/developers34/SBWeb)
+[![pipeline status](https://github.com/orangejohny/SBWeb/badges/master/pipeline.svg)](https://github.com/orangejohny/SBWeb/commits/master)
+[![coverage report](https://github.com/orangejohny/SBWeb/badges/master/coverage.svg)](https://github.com/orangejohny/SBWeb/commits/master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/orangejohny/SBWeb)](https://goreportcard.com/report/github.com/orangejohny/SBWeb)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![GoDoc](https://godoc.org/github.com/orangejohny/SBWeb?status.svg)](https://godoc.org/github.com/orangejohny/SBWeb)
 
