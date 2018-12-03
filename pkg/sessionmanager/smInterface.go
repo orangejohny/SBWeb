@@ -71,7 +71,8 @@ func (sm *SessionManager) TryReconnect() error {
 
 // IsConnected checks if connection is active
 func (sm *SessionManager) IsConnected() bool {
-	if sm.redisConn.Err() != nil {
+	_, err := sm.redisConn.Do("PING")
+	if err != nil {
 		return false
 	}
 	return true
