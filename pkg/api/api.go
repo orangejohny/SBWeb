@@ -119,12 +119,12 @@ func readMultipleAds(m *model.Model) http.Handler {
 		}
 
 		// check if query is valid
-		if !govalidator.IsPrintableASCII(params.Query) {
+		/* if !govalidator.IsPrintableASCII(params.Query) {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(checkReq, "QueryValidError", errors.New("Bad query"),
 				"Query must be printable ASCII"))
 			return
-		}
+		} */
 
 		// get list of ads from DB. If there are no ads, send an empty JSON array
 		ads, err := m.GetAds(&params)
