@@ -38,8 +38,8 @@ func StartServer(cfg Config, m *model.Model) (*http.Server, chan error) {
 	r.Handle("/users/{id:[0-9]+}", readUserWithID(m)).Methods("GET")
 
 	r.Handle("/users/new", userCreatePage(m)).Methods("POST")
-	r.Handle("/users/login", logRequestMiddleware(m, userLoginPage(m))).Methods("POST")
-	r.Handle("/users/logout", userLogoutPage(m)).Methods("POST", "DELETE")
+	r.Handle("/users/login", checkConnSM(m, logRequestMiddleware(m, userLoginPage(m)))).Methods("POST")
+	r.Handle("/users/logout", checkConnSM(m, userLogoutPage(m))).Methods("POST", "DELETE")
 
 	r.Handle("/users/profile",
 		checkConnSM(m, checkCookieMiddleware(m, userProfilePage(m)))).Methods("GET")

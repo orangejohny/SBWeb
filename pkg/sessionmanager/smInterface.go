@@ -60,6 +60,7 @@ func (sm *SessionManager) DeleteSession(in *model.SessionID) error {
 
 // TryReconnect reconnects to redis
 func (sm *SessionManager) TryReconnect() error {
+	// sm.redisConn.Close()
 	conn, err := redis.DialURL(sm.redisAddr)
 	if err != nil {
 		log.Println(err.Error())
