@@ -1,4 +1,4 @@
-image: registry.bmstu.codes/developers34/SBWeb:latest
+image: registry.bmstu.codes/developers34/sbweb:latest
 
 variables:
   REPO_NAME: bmstu.codes/developers34/SBWeb
