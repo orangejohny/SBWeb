@@ -1,1 +1,1 @@
-web: service-main -cfg pkg/configHeroku.json
+web: SBWeb -cfg pkg/configHeroku.json
