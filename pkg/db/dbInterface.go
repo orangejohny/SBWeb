@@ -45,7 +45,8 @@ func (h *Handler) prepareStatements() (err error) {
 		users 
 		ON
 		users.id = ads.owner_ad
-		WHERE ads.title ILIKE '%' || :query || '%'`,
+		WHERE ads.title ILIKE '%' || :query || '%'
+		LIMIT :limit OFFSET :offset`,
 	); err != nil {
 		log.Println(err.Error())
 
