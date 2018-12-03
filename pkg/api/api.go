@@ -313,8 +313,7 @@ func userCreatePage(m *model.Model) http.Handler {
 
 		// validate incoming data
 		_, err = govalidator.ValidateStruct(&user)
-		if err != nil || !govalidator.IsNumeric(user.TelNumber.String) ||
-			!govalidator.IsASCII(user.About.String) {
+		if err != nil || !govalidator.IsNumeric(user.TelNumber.String) {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(validRequired, reqValidErr, err, reqValidMsg)) // err will be nil if TelNumber or About didn't passed validation
 			return
@@ -600,8 +599,7 @@ func userUpdatePage(m *model.Model) http.Handler {
 
 		// validate incoming data
 		_, err = govalidator.ValidateStruct(&user)
-		if err != nil || !govalidator.IsNumeric(user.TelNumber.String) ||
-			!govalidator.IsASCII(user.About.String) {
+		if err != nil || !govalidator.IsNumeric(user.TelNumber.String) {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(validRequiredUpdate, reqValidErr, err,
 				reqValidMsg)) // err will be nil if TelNumber or About didn't passed validation
@@ -789,8 +787,7 @@ func adCreatePage(m *model.Model) http.Handler {
 
 		// validate incoming data
 		_, err = govalidator.ValidateStruct(&ad)
-		if err != nil || !govalidator.IsPrintableASCII(ad.Country.String) ||
-			!govalidator.IsPrintableASCII(ad.SubwayStation.String) {
+		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(validRequiredCreateAd, reqValidErr, err,
 				reqValidMsg))
@@ -904,8 +901,7 @@ func adUpdatePage(m *model.Model) http.Handler {
 
 		// validate incoming data
 		_, err = govalidator.ValidateStruct(&ad)
-		if err != nil || !govalidator.IsPrintableASCII(ad.Country.String) ||
-			!govalidator.IsPrintableASCII(ad.SubwayStation.String) {
+		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(validRequiredCreateAd, reqValidErr, err,
 				reqValidMsg))
