@@ -36,7 +36,7 @@ type Config struct {
 func RunService(cfg *Config) error {
 	// if deployed to Heroku
 	if os.Getenv("PORT") != "" {
-		cfg.API.Address += ":" + os.Getenv("PORT")
+		cfg.API.Address = ":" + os.Getenv("PORT")
 	}
 	if os.Getenv("DATABASE_URL") != "" {
 		cfg.DB.DBAddress = os.Getenv("DATABASE_URL")
