@@ -21,6 +21,7 @@ func InitConnSM(cfg Config) (*SessionManager, error) {
 	}
 
 	sessManager := &SessionManager{
+		redisAddr:      cfg.DBAddress,
 		redisConn:      redisConn,
 		tockenLength:   cfg.TockenLength,
 		expirationTime: cfg.ExpirationTime,

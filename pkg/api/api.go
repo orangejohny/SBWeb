@@ -42,18 +42,18 @@ func StartServer(cfg Config, m *model.Model) (*http.Server, chan error) {
 	r.Handle("/users/logout", userLogoutPage(m)).Methods("POST", "DELETE")
 
 	r.Handle("/users/profile",
-		checkCookieMiddleware(m, userProfilePage(m))).Methods("GET")
+		checkConnSM(m, checkCookieMiddleware(m, userProfilePage(m)))).Methods("GET")
 	r.Handle("/users/profile",
-		checkCookieMiddleware(m, userUpdatePage(m))).Methods("POST")
+		checkConnSM(m, checkCookieMiddleware(m, userUpdatePage(m)))).Methods("POST")
 	r.Handle("/users/profile",
-		checkCookieMiddleware(m, userDeletePage(m))).Methods("DELETE")
+		checkConnSM(m, checkCookieMiddleware(m, userDeletePage(m)))).Methods("DELETE")
 
 	r.Handle("/ads/new",
-		checkCookieMiddleware(m, adCreatePage(m))).Methods("POST")
+		checkConnSM(m, checkCookieMiddleware(m, adCreatePage(m)))).Methods("POST")
 	r.Handle("/ads/edit/{id:[0-9]+}",
-		checkCookieMiddleware(m, adUpdatePage(m))).Methods("POST")
+		checkConnSM(m, checkCookieMiddleware(m, adUpdatePage(m)))).Methods("POST")
 	r.Handle("/ads/delete/{id:[0-9]+}",
-		checkCookieMiddleware(m, adDeletePage(m))).Methods("DELETE")
+		checkConnSM(m, checkCookieMiddleware(m, adDeletePage(m)))).Methods("DELETE")
 
 	r.Handle("/images/{filename}", sendImage(m)).Methods("GET")
 
