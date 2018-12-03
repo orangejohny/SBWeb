@@ -12,7 +12,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/orangejohny/SBWeb/pkg/daemon"
+	"bmstu.codes/developers34/SBWeb/pkg/daemon"
 )
 
 // setConfig parses the config provided in command options

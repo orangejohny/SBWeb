@@ -16,12 +16,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/orangejohny/SBWeb/pkg/api"
-	"github.com/orangejohny/SBWeb/pkg/api/mock_model"
+	"bmstu.codes/developers34/SBWeb/pkg/api"
+	"bmstu.codes/developers34/SBWeb/pkg/api/mock_model"
 
 	"github.com/golang/mock/gomock"
 
-	"github.com/orangejohny/SBWeb/pkg/model"
+	"bmstu.codes/developers34/SBWeb/pkg/model"
 )
 
 const (

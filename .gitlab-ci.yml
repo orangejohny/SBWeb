@@ -1,7 +1,7 @@
-image: registry.github.com/orangejohny/sbweb:latest
+image: registry.bmstu.codes/developers34/SBWeb:latest
 
 variables:
-  REPO_NAME: github.com/orangejohny/SBWeb
+  REPO_NAME: bmstu.codes/developers34/SBWeb
   PROJECT_PATH: $GOPATH/src/$REPO_NAME
 
 cache:
@@ -15,6 +15,7 @@ cache:
 stages:
   - test
   - build
+  - deploy
 
 before_script:
   - export CC=clang
@@ -91,3 +92,13 @@ build:
   artifacts:
     paths:
       - SBWeb
+
+deploy_heroku:
+  stage: deploy
+  tags:
+    - laptop-runner
+  script:
+    - git push heroku master
+  only:
+    - master
+  when: manual

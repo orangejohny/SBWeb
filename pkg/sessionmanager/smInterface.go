@@ -8,8 +8,8 @@ import (
 	"encoding/json"
 	"log"
 
+	"bmstu.codes/developers34/SBWeb/pkg/model"
 	"github.com/garyburd/redigo/redis"
-	"github.com/orangejohny/SBWeb/pkg/model"
 )
 
 // CreateSession creates new session in database.
