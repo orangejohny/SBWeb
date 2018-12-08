@@ -20,7 +20,6 @@ cache:
     - /go/src/gopkg.in
 
 stages:
-  - connect
   - test
   - build
   - deploy
@@ -30,34 +29,20 @@ before_script:
   - mkdir -p $GOPATH/src/$(dirname $REPO_NAME)
   - cp -r $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
   - cd $GOPATH/src/$REPO_NAME
-
-connect_pq:
-  image: postgres:alpine
-  stage: connect
-  tags:
-    - laptop-runner
-  script:
-    - export PGPASSWORD=$POSTGRES_PASSWORD
-    - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f $CI_PROJECT_DIR/pkg/db/data/init.sql
+  - make dep
 
 coverage:
   stage: test
-  dependencies:
-    - connect_pq
   tags:
     - laptop-runner
   script:
-    - make dep
     - make coverage
 
 coverage_html:
   stage: test
-  dependencies:
-    - connect_pq
   tags:
     - laptop-runner
   script:
-    - make dep
     - make coverage_html
     - mv coverage/ $CI_PROJECT_DIR
   artifacts:
@@ -78,32 +63,23 @@ pages:
 
 unit_tests:
   stage: test
-  dependencies:
-    - connect_pq
   tags:
     - laptop-runner
   script:
-    - make dep
     - make test
 
 race_detector:
   stage: test
-  dependencies:
-    - connect_pq
   tags:
     - laptop-runner
   script:
-    - make dep
     - make race
 
 memory_sanitizer:
   stage: test
-  dependencies:
-    - connect_pq
   tags:
     - laptop-runner
   script:
-    - make dep
     - make msan
 
 lint_code:
@@ -111,7 +87,6 @@ lint_code:
   tags:
     - laptop-runner
   script:
-    - make dep
     - make lint
 
 build:
@@ -119,7 +94,6 @@ build:
   tags:
     - laptop-runner
   script:
-    - make dep
     - make
     - mv ./SBWeb $CI_PROJECT_DIR
   artifacts:
