@@ -30,11 +30,20 @@ before_script:
   - cp -r $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
   - cd $GOPATH/src/$REPO_NAME
   - make dep
-  - export PGPASSWORD=$POSTGRES_PASSWORD
-  - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f $CI_PROJECT_DIR/db/data/init.sql
+
+connect_pq:
+  image: postgres:alpine
+  stage: test
+  tags:
+    - laptop-runner
+  script:
+    - export PGPASSWORD=$POSTGRES_PASSWORD
+    - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f $CI_PROJECT_DIR/db/data/init.sql
 
 coverage:
   stage: test
+  dependencies:
+    - connect_pq
   tags:
     - laptop-runner
   script:
@@ -42,6 +51,8 @@ coverage:
 
 coverage_html:
   stage: test
+  dependencies:
+    - connect_pq
   tags:
     - laptop-runner
   script:
@@ -65,6 +76,8 @@ pages:
 
 unit_tests:
   stage: test
+  dependencies:
+    - connect_pq
   tags:
     - laptop-runner
   script:
@@ -72,6 +85,8 @@ unit_tests:
 
 race_detector:
   stage: test
+  dependencies:
+    - connect_pq
   tags:
     - laptop-runner
   script:
@@ -79,6 +94,8 @@ race_detector:
 
 memory_sanitizer:
   stage: test
+  dependencies:
+    - connect_pq
   tags:
     - laptop-runner
   script:
