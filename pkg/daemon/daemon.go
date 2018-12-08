@@ -34,17 +34,6 @@ type Config struct {
 // provided config. Every error that happens during this function
 // is fatal. So program can't run if any error happens.
 func RunService(cfg *Config) error {
-	// if deployed to Heroku
-	if os.Getenv("PORT") != "" {
-		cfg.API.Address = ":" + os.Getenv("PORT")
-	}
-	if os.Getenv("DATABASE_URL") != "" {
-		cfg.DB.DBAddress = os.Getenv("DATABASE_URL")
-	}
-	if os.Getenv("REDIS_URL") != "" {
-		cfg.SM.DBAddress = os.Getenv("REDIS_URL")
-	}
-
 	// init connection with database
 	db, err := db.InitConnDB(cfg.DB)
 	if err != nil {

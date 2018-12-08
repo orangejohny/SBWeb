@@ -8,7 +8,6 @@
 package api
 
 import (
-	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
@@ -23,7 +22,10 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
+	jsoniter "github.com/json-iterator/go"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // StartServer configures and runs API server. It's always returns channel with errors
 // to monitor state of server which is running in other goroutine.
@@ -118,6 +120,7 @@ func readMultipleAds(m *model.Model) http.Handler {
 			params.Offset = 0
 		}
 
+		// TODO query should have same restrictions like title
 		// check if query is valid
 		/* if !govalidator.IsPrintableASCII(params.Query) {
 			w.WriteHeader(http.StatusBadRequest)
@@ -135,12 +138,7 @@ func readMultipleAds(m *model.Model) http.Handler {
 		}
 
 		// marshall list of ads to JSON format
-		adsData, err := json.Marshal(ads)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(apiErrorHandle(connectProvider, respCreErr, err, respCreMsg))
-			return
-		}
+		adsData, _ := json.Marshal(ads)
 
 		// send data as a response
 		w.WriteHeader(http.StatusOK)
@@ -176,12 +174,7 @@ func readOneAd(m *model.Model) http.Handler {
 		}
 
 		// marshall data to JSON format
-		adData, err := json.Marshal(ad)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(apiErrorHandle(connectProvider, respCreErr, err, respCreMsg))
-			return
-		}
+		adData, _ := json.Marshal(ad)
 
 		// send data as a response
 		w.WriteHeader(http.StatusOK)
@@ -213,12 +206,7 @@ func readUserWithID(m *model.Model) http.Handler {
 			}
 
 			// marshall data to JSON format
-			adsData, err := json.Marshal(ads)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write(apiErrorHandle(connectProvider, respCreErr, err, respCreMsg))
-				return
-			}
+			adsData, _ := json.Marshal(ads)
 
 			// send ads as a response
 			w.WriteHeader(http.StatusOK)
@@ -245,12 +233,7 @@ func readUserWithID(m *model.Model) http.Handler {
 		}
 
 		// marshall data to JSON format
-		userData, err := json.Marshal(user)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(apiErrorHandle(connectProvider, respCreErr, err, respCreMsg))
-			return
-		}
+		userData, _ := json.Marshal(user)
 
 		// send user as a response
 		w.WriteHeader(http.StatusOK)
@@ -365,18 +348,13 @@ func userCreatePage(m *model.Model) http.Handler {
 		}
 
 		// marshall data to JSON format
-		userData, err := json.Marshal(struct {
+		userData, _ := json.Marshal(struct {
 			ID  int64
 			Ref string
 		}{
 			ID:  id,
 			Ref: "/users/" + strconv.FormatInt(id, 10),
 		})
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(apiErrorHandle(connectProvider, respCreErr, err, respCreMsg))
-			return
-		}
 
 		// send response
 		w.WriteHeader(http.StatusCreated)
@@ -495,7 +473,7 @@ func userLoginPage(m *model.Model) http.Handler {
 			http.SetCookie(w, &cookie)
 
 			// send needed information to android app in JSON format
-			appData, err := json.Marshal(struct {
+			appData, _ := json.Marshal(struct {
 				// Name      string
 				// Value     string `json:"session_id,"`
 				ID        int64  `json:"id,"`
@@ -508,11 +486,6 @@ func userLoginPage(m *model.Model) http.Handler {
 				FirstName: userFromDB.FirstName,
 				LastName:  userFromDB.LastName,
 			})
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write(apiErrorHandle(connectProvider, respCreErr, err, respCreMsg))
-				return
-			}
 
 			w.Write(appData)
 		}
@@ -677,12 +650,7 @@ func userProfilePage(m *model.Model) http.Handler {
 		}
 
 		// marshall data to JSON format
-		userData, err := json.Marshal(user)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(apiErrorHandle(connectProvider, respCreErr, err, respCreMsg))
-			return
-		}
+		userData, _ := json.Marshal(user)
 
 		// send response
 		w.WriteHeader(http.StatusOK)
@@ -785,14 +753,15 @@ func adCreatePage(m *model.Model) http.Handler {
 			return
 		}
 
+		// TODO custom validators for UTF-8 with some usual charachters
 		// validate incoming data
-		_, err = govalidator.ValidateStruct(&ad)
+		/* _, err = govalidator.ValidateStruct(&ad)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(validRequiredCreateAd, reqValidErr, err,
 				reqValidMsg))
 			return
-		}
+		} */
 
 		// prevent client from passing this parameter
 		ad.AdImages = nil
@@ -824,18 +793,13 @@ func adCreatePage(m *model.Model) http.Handler {
 		}
 
 		// marshall data to JSON format
-		adData, err := json.Marshal(struct {
+		adData, _ := json.Marshal(struct {
 			ID  int64
 			Ref string
 		}{
 			ID:  id,
 			Ref: "/ads/" + strconv.FormatInt(id, 10),
 		})
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(apiErrorHandle(connectProvider, respCreErr, err, respCreMsg))
-			return
-		}
 
 		// send response
 		w.WriteHeader(http.StatusCreated)
@@ -899,14 +863,15 @@ func adUpdatePage(m *model.Model) http.Handler {
 			return
 		}
 
+		// TODO custom validators for UTF-8 with some usual charachters
 		// validate incoming data
-		_, err = govalidator.ValidateStruct(&ad)
+		/* _, err = govalidator.ValidateStruct(&ad)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(validRequiredCreateAd, reqValidErr, err,
 				reqValidMsg))
 			return
-		}
+		} */
 
 		// set id to prevent updating add of other user
 		ad.User.ID = getIDfromCookie(m, r)
@@ -916,7 +881,6 @@ func adUpdatePage(m *model.Model) http.Handler {
 		adFromDatabase, err := m.GetAd(id)
 
 		// check if ad exists
-		// empty := model.AdItem{}
 		if adFromDatabase.ID == -1 {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(enterExID, adIDErr,
@@ -1001,7 +965,6 @@ func adDeletePage(m *model.Model) http.Handler {
 		adFromDatabase, err := m.GetAd(id)
 
 		// check if ad exists
-		// empty := model.AdItem{}
 		if adFromDatabase.ID == -1 {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(apiErrorHandle(enterExID, adIDErr,

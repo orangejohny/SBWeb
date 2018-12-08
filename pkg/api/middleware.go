@@ -1,5 +1,5 @@
 // Copyright 2018 Dmitry Kargashin <dkargashin3@gmail.com>
-// Use of this source code is governed by GNU LGPLL
+// Use of this source code is governed by GNU LGPL
 // license that can be found in the LICENSE file.
 
 // middleware.go contains different middlewares which can be used with API server.

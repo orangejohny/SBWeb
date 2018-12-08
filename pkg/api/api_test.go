@@ -7,11 +7,19 @@
 package api_test
 
 import (
-	"encoding/json"
+	"bytes"
 	"errors"
+	"fmt"
+	"image"
+	"image/color"
+	"image/png"
+	"io"
 	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -20,9 +28,12 @@ import (
 	"bmstu.codes/developers34/SBWeb/pkg/api/mock_model"
 
 	"github.com/golang/mock/gomock"
+	jsoniter "github.com/json-iterator/go"
 
 	"bmstu.codes/developers34/SBWeb/pkg/model"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 const (
 	domain = "http://localhost:49123"
@@ -44,9 +55,17 @@ func TestStartWithBadConfig(t *testing.T) {
 
 var adsInDB = map[int64]*model.AdItem{
 	15: {
-		ID:    15,
-		Title: "Building",
-		City:  "Moscow",
+		ID:          0,
+		Title:       "Building",
+		City:        "Moscow",
+		UserID:      12,
+		Description: "Awesome",
+	},
+	16: {
+		ID:     15,
+		Title:  "Building",
+		City:   "Moscow",
+		UserID: 12,
 		User: model.User{
 			ID:        12,
 			FirstName: "Ivan",
@@ -54,6 +73,15 @@ var adsInDB = map[int64]*model.AdItem{
 			Email:     "Ivan@ivanov.com",
 		},
 		Description: "Awesome",
+	},
+	17: {
+		ID:          15,
+		Title:       "Building",
+		City:        "Moscow",
+		Description: "Awesome",
+		User: model.User{
+			ID: 12,
+		},
 	},
 	21: {
 		ID:    21,
@@ -136,7 +164,7 @@ type mockDataDB struct {
 	inputQuery  string
 	inputEmail  string
 	inputUser   *model.User
-	inputAd     *model.User
+	inputAd     *model.AdItem
 
 	inputIDimg int64
 
@@ -149,6 +177,8 @@ type mockDataDB struct {
 	outputAds        []*model.AdItem
 	outputError      error
 	outputID         int64
+
+	outputErrorSec error
 }
 
 // mockDataSM is a struct that contains information to
@@ -175,6 +205,9 @@ type testCase struct {
 	isEditUser         bool
 	isRemoveUser       bool
 	isGetUserWithIDImg bool
+	isNewAd            bool
+	isEditAd           bool
+	isRemoveAd         bool
 
 	// flags of actions
 	isLoginPage bool
@@ -205,6 +238,7 @@ type testCase struct {
 	expectedUserCreate  *createUserResp
 	expectedLogin       *loginUserResp
 	expectedCookieValue string
+	expectedAdCreate    *createUserResp
 }
 
 var testCases = []testCase{
@@ -283,14 +317,6 @@ var testCases = []testCase{
 		expectedAds:        []*model.AdItem{adsInDB[15], adsInDB[21]},
 		expectedStatusCode: 200,
 	},
-	/* {
-		isGetAds: true,
-		request: func() *http.Request {
-			r, _ := http.NewRequest("GET", domain+"/ads?offset=1&limit=12&query=\003", nil)
-			return r
-		}(),
-		expectedStatusCode: 400,
-	}, */
 	{
 		isGetAds:    true,
 		isPrepareDB: true,
@@ -420,6 +446,94 @@ var testCases = []testCase{
 			return r
 		}(),
 		expectedStatusCode: http.StatusBadRequest,
+	},
+	{
+		isNewUser:   true,
+		isPrepareDB: true,
+		request: func() *http.Request {
+			body := &bytes.Buffer{}
+			writer := multipart.NewWriter(body)
+			writer.WriteField("email", "pet@animal.com")
+			writer.WriteField("first_name", "Ivan")
+			writer.WriteField("last_name", "Ivanov")
+			writer.WriteField("password", "123456")
+			writer.Close()
+			r, _ := http.NewRequest("POST", domain+"/users/new", body)
+			r.Header.Set("Content-Type", writer.FormDataContentType())
+			return r
+		}(),
+		db: &mockDataDB{
+			outputID:    17,
+			outputError: nil,
+		},
+		expectedStatusCode: http.StatusCreated,
+		expectedUserCreate: &createUserResp{
+			ID:  17,
+			Ref: "/users/17",
+		},
+	},
+	{
+		isNewUser:   true,
+		isPrepareDB: true,
+		request: func() *http.Request {
+			path := os.Getenv("CI_PROJECT_DIR") + "docs/AuthReq.PNG"
+			file, err := os.Open(path)
+			if err != nil {
+				log.Fatal("Can't open file")
+			}
+			body := &bytes.Buffer{}
+			writer := multipart.NewWriter(body)
+			part, err := writer.CreateFormFile("images", filepath.Base(path))
+			if err != nil {
+				log.Fatal("Can't read file")
+			}
+			io.Copy(part, file)
+			writer.WriteField("email", "pet@animal.com")
+			writer.WriteField("first_name", "Ivan")
+			writer.WriteField("last_name", "Ivanov")
+			writer.WriteField("password", "123456")
+			writer.Close()
+			file.Close()
+			r, _ := http.NewRequest("POST", domain+"/users/new", body)
+			r.Header.Set("Content-Type", writer.FormDataContentType())
+			return r
+		}(),
+		db: &mockDataDB{
+			outputID:    17,
+			outputError: nil,
+		},
+		expectedStatusCode: http.StatusCreated,
+		expectedUserCreate: &createUserResp{
+			ID:  17,
+			Ref: "/users/17",
+		},
+	},
+	{
+		isNewUser: true,
+		request: func() *http.Request {
+			path := os.Getenv("CI_PROJECT_DIR") + "docs/curlTest.md"
+			file, err := os.Open(path)
+			if err != nil {
+				log.Fatal("Can't open file")
+			}
+			body := &bytes.Buffer{}
+			writer := multipart.NewWriter(body)
+			part, err := writer.CreateFormFile("images", filepath.Base(path))
+			if err != nil {
+				log.Fatal("Can't read file")
+			}
+			io.Copy(part, file)
+			writer.WriteField("email", "pet@animal.com")
+			writer.WriteField("first_name", "Ivan")
+			writer.WriteField("last_name", "Ivanov")
+			writer.WriteField("password", "123456")
+			writer.Close()
+			file.Close()
+			r, _ := http.NewRequest("POST", domain+"/users/new", body)
+			r.Header.Set("Content-Type", writer.FormDataContentType())
+			return r
+		}(),
+		expectedStatusCode: http.StatusInternalServerError,
 	},
 	{
 		isNewUser: true,
@@ -906,6 +1020,150 @@ var testCases = []testCase{
 		expectedStatusCode: 401,
 	},
 	{
+		isPrepareCheckConnSM: true,
+		isEditUser:           true,
+		isSecondCheckSession: true,
+		isCheckSession:       true,
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isGetUserWithIDImg:   true,
+		request: func() *http.Request {
+			path := os.Getenv("CI_PROJECT_DIR") + "docs/GeneralOverview.png"
+			file, err := os.Open(path)
+			if err != nil {
+				log.Fatal("Can't open file")
+			}
+			body := &bytes.Buffer{}
+			writer := multipart.NewWriter(body)
+			part, err := writer.CreateFormFile("images", filepath.Base(path))
+			if err != nil {
+				log.Fatal("Can't read file")
+			}
+			io.Copy(part, file)
+			writer.WriteField("first_name", "Alex")
+			writer.WriteField("last_name", "Ivanov")
+			writer.Close()
+			file.Close()
+			r, _ := http.NewRequest("POST", domain+"/users/profile", body)
+			r.Header.Set("Content-Type", writer.FormDataContentType())
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputIDimg:     17,
+			outputID:       17,
+			outputUserImg:  usersInDB[17],
+			outputError:    nil,
+			outputErrorImg: nil,
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputError:    nil,
+			outputSession: &model.Session{
+				ID:        17,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+		},
+		expectedStatusCode: 200,
+	},
+	{
+		isPrepareCheckConnSM: true,
+		isSecondCheckSession: true,
+		isCheckSession:       true,
+		isPrepareSM:          true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/users/profile",
+				strings.NewReader("first_name=Alex&last_name=Ivanov&avatar_address=blbabalbal"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputError:    nil,
+			outputSession: &model.Session{
+				ID:        17,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+		},
+		expectedStatusCode: 400,
+	},
+	{
+		isPrepareCheckConnSM: true,
+		isSecondCheckSession: true,
+		isCheckSession:       true,
+		isPrepareSM:          true,
+		isGetUserWithIDImg:   true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/users/profile",
+				strings.NewReader("first_name=Alex&last_name=Ivanov"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputIDimg:     17,
+			outputUserImg:  &model.User{},
+			outputErrorImg: errors.New("e"),
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputError:    nil,
+			outputSession: &model.Session{
+				ID:        17,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+		},
+		expectedStatusCode: 500,
+	},
+	{
+		isPrepareCheckConnSM: true,
+		isSecondCheckSession: true,
+		isCheckSession:       true,
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isGetUserWithIDImg:   true,
+		request: func() *http.Request {
+			path := os.Getenv("CI_PROJECT_DIR") + "docs/curlTest.md"
+			file, err := os.Open(path)
+			if err != nil {
+				log.Fatal("Can't open file")
+			}
+			body := &bytes.Buffer{}
+			writer := multipart.NewWriter(body)
+			part, err := writer.CreateFormFile("images", filepath.Base(path))
+			if err != nil {
+				log.Fatal("Can't read file")
+			}
+			io.Copy(part, file)
+			writer.WriteField("first_name", "Alex")
+			writer.WriteField("last_name", "Ivanov")
+			writer.Close()
+			file.Close()
+			r, _ := http.NewRequest("POST", domain+"/users/profile", body)
+			r.Header.Set("Content-Type", writer.FormDataContentType())
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputIDimg:     17,
+			outputUserImg:  usersInDB[17],
+			outputError:    nil,
+			outputErrorImg: nil,
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputError:    nil,
+			outputSession: &model.Session{
+				ID:        17,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+		},
+		expectedStatusCode: 500,
+	},
+	{
 		isGetUserWithID:      true,
 		isPrepareDB:          true,
 		isPrepareSM:          true,
@@ -1027,6 +1285,749 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 500,
 	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isCheckSession:       true,
+		isPrepareCheckConnSM: true,
+		isSecondCheckSession: true,
+		isGetUserWithID:      true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("DELETE", domain+"/users/profile", nil)
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputID:     17,
+			outputID:    0,
+			outputError: errors.New("e"),
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        17,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 500,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isNewAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/ads/new",
+				strings.NewReader("title=Building&city=Moscow&description_ad=Awesome"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputAd:     adsInDB[15],
+			outputID:    15,
+			outputError: nil,
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 201,
+		expectedAdCreate:   &createUserResp{ID: 15, Ref: "/ads/15"},
+	},
+	{
+		isPrepareSM:          true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/ads/new",
+				strings.NewReader("t%itle=Building&city=Moscow&description_ad=Awesome"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 400,
+	},
+	{
+		isPrepareSM:          true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/ads/new",
+				strings.NewReader("title=Building&city=Moscow&description_ad=Awesome&script=bad"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 400,
+	},
+	{
+		isPrepareSM:          true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/ads/new",
+				strings.NewReader("title=Building&city=Moscow"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 400,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isNewAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/ads/new",
+				strings.NewReader("title=Building&city=Moscow&description_ad=Awesome"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputAd:     adsInDB[15],
+			outputID:    0,
+			outputError: errors.New("e"),
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 500,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isNewAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		request: func() *http.Request {
+			path := os.Getenv("CI_PROJECT_DIR") + "docs/AuthReq.PNG"
+			file, err := os.Open(path)
+			if err != nil {
+				log.Fatal("Can't open file")
+			}
+			body := &bytes.Buffer{}
+			writer := multipart.NewWriter(body)
+			part, err := writer.CreateFormFile("images", filepath.Base(path))
+			if err != nil {
+				log.Fatal("Can't read file")
+			}
+			io.Copy(part, file)
+			writer.WriteField("title", "Building")
+			writer.WriteField("city", "Moscow")
+			writer.WriteField("description_ad", "Awesome")
+			writer.Close()
+			file.Close()
+			r, _ := http.NewRequest("POST", domain+"/ads/new", body)
+			r.Header.Set("Content-Type", writer.FormDataContentType())
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputAd:     adsInDB[15],
+			outputID:    15,
+			outputError: nil,
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 201,
+		expectedAdCreate:   &createUserResp{ID: 15, Ref: "/ads/15"},
+	},
+	{
+		isPrepareSM:          true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		request: func() *http.Request {
+			path := os.Getenv("CI_PROJECT_DIR") + "docs/curlTest.md"
+			file, err := os.Open(path)
+			if err != nil {
+				log.Fatal("Can't open file")
+			}
+			body := &bytes.Buffer{}
+			writer := multipart.NewWriter(body)
+			part, err := writer.CreateFormFile("images", filepath.Base(path))
+			if err != nil {
+				log.Fatal("Can't read file")
+			}
+			io.Copy(part, file)
+			writer.WriteField("title", "Building")
+			writer.WriteField("city", "Moscow")
+			writer.WriteField("description_ad", "Awesome")
+			writer.Close()
+			file.Close()
+			r, _ := http.NewRequest("POST", domain+"/ads/new", body)
+			r.Header.Set("Content-Type", writer.FormDataContentType())
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 500,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isEditAd:             true,
+		isGetAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/ads/edit/15",
+				strings.NewReader("title=Building&city=Moscow&description_ad=Awesome"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputID:     15,
+			inputAd:     adsInDB[17],
+			outputID:    15,
+			outputAd:    adsInDB[16],
+			outputError: nil,
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 200,
+	},
+	{
+		isPrepareSM:          true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/ads/edit/15",
+				strings.NewReader("ti%tle=Building&city=Moscow&description_ad=Awesome"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 400,
+	},
+	{
+		isPrepareSM:          true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/ads/edit/15",
+				strings.NewReader("script=;DROP TABLE;&title=Building&city=Moscow&description_ad=Awesome"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 400,
+	},
+	{
+		isPrepareSM:          true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/ads/edit/15",
+				strings.NewReader("city=Moscow&description_ad=Awesome"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 400,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isGetAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/ads/edit/15",
+				strings.NewReader("title=Building&city=Moscow&description_ad=Awesome"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputID:     15,
+			outputAd:    &model.AdItem{ID: -1},
+			outputError: errors.New("e"),
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 400,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isGetAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/ads/edit/15",
+				strings.NewReader("title=Building&city=Moscow&description_ad=Awesome"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputID:     15,
+			outputAd:    &model.AdItem{},
+			outputError: errors.New("e"),
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 500,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isGetAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/ads/edit/15",
+				strings.NewReader("title=Building&city=Moscow&description_ad=Awesome"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputID:     15,
+			outputAd:    adsInDB[21],
+			outputError: nil,
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 403,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isEditAd:             true,
+		isGetAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/ads/edit/15",
+				strings.NewReader("title=Building&city=Moscow&description_ad=Awesome"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputID:        15,
+			inputAd:        adsInDB[17],
+			outputID:       15,
+			outputAd:       adsInDB[16],
+			outputError:    nil,
+			outputErrorSec: errors.New("e"),
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 500,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isEditAd:             true,
+		isGetAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		request: func() *http.Request {
+			path := os.Getenv("CI_PROJECT_DIR") + "docs/AuthReq.PNG"
+			file, err := os.Open(path)
+			if err != nil {
+				log.Fatal("Can't open file")
+			}
+			body := &bytes.Buffer{}
+			writer := multipart.NewWriter(body)
+			part, err := writer.CreateFormFile("images", filepath.Base(path))
+			if err != nil {
+				log.Fatal("Can't read file")
+			}
+			io.Copy(part, file)
+			writer.WriteField("title", "Building")
+			writer.WriteField("city", "Moscow")
+			writer.WriteField("description_ad", "Awesome")
+			writer.Close()
+			file.Close()
+			r, _ := http.NewRequest("POST", domain+"/ads/edit/15", body)
+			r.Header.Set("Content-Type", writer.FormDataContentType())
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputID:     15,
+			inputAd:     adsInDB[17],
+			outputID:    15,
+			outputAd:    adsInDB[16],
+			outputError: nil,
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 200,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isGetAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("POST", domain+"/ads/edit/15",
+				strings.NewReader("title=Building&city=Moscow&description_ad=Awesome&ad_images=/eee"))
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputID:     15,
+			outputAd:    adsInDB[16],
+			outputError: nil,
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 400,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isGetAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		request: func() *http.Request {
+			path := os.Getenv("CI_PROJECT_DIR") + "docs/curlTest.md"
+			file, err := os.Open(path)
+			if err != nil {
+				log.Fatal("Can't open file")
+			}
+			body := &bytes.Buffer{}
+			writer := multipart.NewWriter(body)
+			part, err := writer.CreateFormFile("images", filepath.Base(path))
+			if err != nil {
+				log.Fatal("Can't read file")
+			}
+			io.Copy(part, file)
+			writer.WriteField("title", "Building")
+			writer.WriteField("city", "Moscow")
+			writer.WriteField("description_ad", "Awesome")
+			writer.Close()
+			file.Close()
+			r, _ := http.NewRequest("POST", domain+"/ads/edit/15", body)
+			r.Header.Set("Content-Type", writer.FormDataContentType())
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputID:     15,
+			inputAd:     adsInDB[17],
+			outputID:    15,
+			outputAd:    adsInDB[16],
+			outputError: nil,
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 500,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isGetAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		isRemoveAd:           true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("DELETE", domain+"/ads/delete/15", nil)
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputID:     15,
+			inputAd:     adsInDB[17],
+			outputID:    15,
+			outputAd:    adsInDB[16],
+			outputError: nil,
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 200,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isGetAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("DELETE", domain+"/ads/delete/15", nil)
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputID:     15,
+			outputAd:    &model.AdItem{ID: -1},
+			outputError: nil,
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 400,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isGetAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("DELETE", domain+"/ads/delete/15", nil)
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputID:     15,
+			outputAd:    &model.AdItem{},
+			outputError: errors.New("e"),
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 500,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isGetAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("DELETE", domain+"/ads/delete/15", nil)
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputID:     15,
+			outputAd:    adsInDB[21],
+			outputError: nil,
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 403,
+	},
+	{
+		isPrepareDB:          true,
+		isPrepareSM:          true,
+		isGetAd:              true,
+		isPrepareCheckConnSM: true,
+		isCheckSession:       true,
+		isSecondCheckSession: true,
+		isRemoveAd:           true,
+		request: func() *http.Request {
+			r, _ := http.NewRequest("DELETE", domain+"/ads/delete/15", nil)
+			r.Header.Set("Cookie", "session_id=123abc")
+			return r
+		}(),
+		db: &mockDataDB{
+			inputID:        15,
+			inputAd:        adsInDB[17],
+			outputID:       15,
+			outputAd:       adsInDB[16],
+			outputError:    nil,
+			outputErrorSec: errors.New("e"),
+		},
+		sm: &mockDataSM{
+			inputSessionID: &model.SessionID{ID: "123abc"},
+			outputSession: &model.Session{
+				ID:        12,
+				UserAgent: "Go-http-client/1.1",
+				Login:     "pet@animal.com",
+			},
+			outputError: nil,
+		},
+		expectedStatusCode: 500,
+	},
+	{
+		request: func() *http.Request {
+			img := image.NewRGBA(image.Rect(0, 0, 100, 50))
+			img.Set(2, 3, color.RGBA{255, 0, 0, 255})
+			os.Mkdir("images", 0777)
+			f, _ := os.OpenFile(os.Getenv("CI_PROJECT_DIR")+"pkg/api/images/image.png", os.O_WRONLY|os.O_CREATE, 0777)
+			png.Encode(f, img)
+			r, _ := http.NewRequest("GET", domain+"/images/image.png", nil)
+			f.Close()
+			return r
+		}(),
+		expectedStatusCode: 200,
+	},
+	{
+		request: func() *http.Request {
+			r, _ := http.NewRequest("GET", domain+"/images/image123.png", nil)
+			return r
+		}(),
+		expectedStatusCode: 400,
+	},
 }
 
 func TestInterfaceOfAPI(t *testing.T) {
@@ -1079,8 +2080,13 @@ func TestInterfaceOfAPI(t *testing.T) {
 
 			// need EditUser
 			if tCase.isEditUser && tCase.isPrepareDB {
-				mockDB.EXPECT().EditUser(tCase.db.inputUser).
-					Return(tCase.db.outputID, tCase.db.outputError)
+				if tCase.db.inputUser == nil {
+					mockDB.EXPECT().EditUser(gomock.Not(nil)).
+						Return(tCase.db.outputID, tCase.db.outputError)
+				} else {
+					mockDB.EXPECT().EditUser(tCase.db.inputUser).
+						Return(tCase.db.outputID, tCase.db.outputError)
+				}
 			}
 
 			// need DeleteUser
@@ -1093,6 +2099,42 @@ func TestInterfaceOfAPI(t *testing.T) {
 			if tCase.isGetUserWithIDImg {
 				mockDB.EXPECT().GetUserWithID(tCase.db.inputIDimg).
 					Return(tCase.db.outputUserImg, tCase.db.outputErrorImg)
+			}
+
+			// need NewAd
+			if tCase.isNewAd && tCase.isPrepareDB {
+				if strings.Contains(tCase.request.Header.Get("Content-Type"), "multipart") {
+					mockDB.EXPECT().NewAd(gomock.Any()).
+						Return(tCase.db.outputID, tCase.db.outputError)
+				} else {
+					mockDB.EXPECT().NewAd(tCase.db.inputAd).
+						Return(tCase.db.outputID, tCase.db.outputError)
+				}
+			}
+
+			// need EditAd
+			if tCase.isEditAd && tCase.isPrepareDB {
+				if tCase.db.outputErrorSec != nil {
+					mockDB.EXPECT().EditAd(tCase.db.inputAd).
+						Return(tCase.db.outputID, tCase.db.outputErrorSec)
+				} else if strings.Contains(tCase.request.Header.Get("Content-Type"), "multipart") {
+					mockDB.EXPECT().EditAd(gomock.Any()).
+						Return(tCase.db.outputID, tCase.db.outputError)
+				} else {
+					mockDB.EXPECT().EditAd(tCase.db.inputAd).
+						Return(tCase.db.outputID, tCase.db.outputError)
+				}
+			}
+
+			// need RemoveAd
+			if tCase.isRemoveAd && tCase.isPrepareDB {
+				if tCase.db.outputErrorSec != nil {
+					mockDB.EXPECT().RemoveAd(tCase.db.inputID).
+						Return(tCase.db.outputID, tCase.db.outputErrorSec)
+				} else {
+					mockDB.EXPECT().RemoveAd(tCase.db.inputID).
+						Return(tCase.db.outputID, tCase.db.outputError)
+				}
 			}
 
 			mockSM := mock_model.NewMockSM(ctrl)
@@ -1142,8 +2184,10 @@ func TestInterfaceOfAPI(t *testing.T) {
 
 			// send request to server
 			client := http.DefaultClient
-			tCase.request.Header.Set("Content-Type",
-				"application/x-www-form-urlencoded; charset=utf-8")
+			if tCase.request.Header.Get("Content-Type") == "" {
+				tCase.request.Header.Set("Content-Type",
+					"application/x-www-form-urlencoded; charset=utf-8")
+			}
 			client.Timeout = time.Second * 25
 			result, err := client.Do(tCase.request)
 
@@ -1153,6 +2197,10 @@ func TestInterfaceOfAPI(t *testing.T) {
 			defer result.Body.Close()
 
 			if result.StatusCode != tCase.expectedStatusCode {
+				buf := make([]byte, 1024)
+				result.Body.Read(buf)
+				fmt.Println(string(buf))
+				result.Body.Close()
 				t.Errorf("Expected equal status codes:\nExpected:%v\nReceived:%v",
 					tCase.expectedStatusCode, result.StatusCode)
 			}
@@ -1194,6 +2242,11 @@ func TestInterfaceOfAPI(t *testing.T) {
 				}
 			}
 
+			// if response is ad create
+			if result.StatusCode == http.StatusOK && tCase.expectedAdCreate != nil {
+				data, _ = json.Marshal(tCase.expectedAdCreate)
+			}
+
 			if data != nil {
 				body, err := ioutil.ReadAll(result.Body)
 				if err != nil {
@@ -1207,4 +2260,57 @@ func TestInterfaceOfAPI(t *testing.T) {
 			}
 		}()
 	}
+}
+
+func TestMiddleware(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	db := mock_model.NewMockDB(ctrl)
+	sm := mock_model.NewMockSM(ctrl)
+
+	sm.EXPECT().IsConnected().Return(false)
+	sm.EXPECT().TryReconnect().Return(nil)
+
+	m := model.New(db, sm)
+
+	srv, ch := api.StartServer(api.Config{
+		Address:      "localhost:49123",
+		ReadTimeout:  "25s",
+		WriteTimeout: "25s",
+		IdleTimeout:  "25s",
+	}, m)
+
+	time.Sleep(time.Millisecond * 50) // time to start the server
+
+	res, _ := http.Post(domain+"/users/logout", "application/x-www-form-urlencoded; charset=utf-8", nil)
+	if res.StatusCode != 200 {
+		t.Error("Expected status 200")
+	}
+
+	srv.Shutdown(nil)
+	<-ch
+
+	sm.EXPECT().IsConnected().Return(false)
+	sm.EXPECT().TryReconnect().Return(errors.New("e"))
+
+	m = model.New(db, sm)
+
+	srv, ch = api.StartServer(api.Config{
+		Address:      "localhost:49123",
+		ReadTimeout:  "25s",
+		WriteTimeout: "25s",
+		IdleTimeout:  "25s",
+	}, m)
+
+	time.Sleep(time.Millisecond * 50) // time to start the server
+
+	res, _ = http.Post(domain+"/users/logout", "application/x-www-form-urlencoded; charset=utf-8", nil)
+	if res.StatusCode != 500 {
+		t.Error("Expected status 500")
+	}
+
+	srv.Shutdown(nil)
+	<-ch
 }

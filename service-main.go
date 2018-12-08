@@ -11,6 +11,7 @@ import (
 	"flag"
 	"io/ioutil"
 	"log"
+	"os"
 
 	"bmstu.codes/developers34/SBWeb/pkg/daemon"
 )
@@ -34,6 +35,17 @@ func setConfig() *daemon.Config {
 	if err != nil {
 		log.Fatalln("Can't unmarshal config file", err.Error())
 		return nil
+	}
+
+	// if deployed to Heroku
+	if os.Getenv("PORT") != "" {
+		cfg.API.Address = ":" + os.Getenv("PORT")
+	}
+	if os.Getenv("DATABASE_URL") != "" {
+		cfg.DB.DBAddress = os.Getenv("DATABASE_URL")
+	}
+	if os.Getenv("REDIS_URL") != "" {
+		cfg.SM.DBAddress = os.Getenv("REDIS_URL")
 	}
 
 	return &cfg
