@@ -30,6 +30,8 @@ before_script:
   - cp -r $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
   - cd $GOPATH/src/$REPO_NAME
   - make dep
+  - export PGPASSWORD=$POSTGRES_PASSWORD
+  - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f $CI_PROJECT_DIR/db/data/init.sql
 
 coverage:
   stage: test
