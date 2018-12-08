@@ -20,6 +20,7 @@ cache:
     - /go/src/gopkg.in
 
 stages:
+  - connect
   - test
   - build
   - deploy
@@ -32,7 +33,7 @@ before_script:
 
 connect_pq:
   image: postgres:alpine
-  stage: test
+  stage: connect
   tags:
     - laptop-runner
   script:
