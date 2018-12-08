@@ -476,7 +476,7 @@ var testCases = []testCase{
 		isNewUser:   true,
 		isPrepareDB: true,
 		request: func() *http.Request {
-			path := os.Getenv("CI_PROJECT_DIR") + "docs/AuthReq.PNG"
+			path := os.Getenv("CI_PROJECT_DIR") + "/docs/AuthReq.PNG"
 			file, err := os.Open(path)
 			if err != nil {
 				log.Fatal("Can't open file")
@@ -511,7 +511,7 @@ var testCases = []testCase{
 	{
 		isNewUser: true,
 		request: func() *http.Request {
-			path := os.Getenv("CI_PROJECT_DIR") + "docs/curlTest.md"
+			path := os.Getenv("CI_PROJECT_DIR") + "/docs/curlTest.md"
 			file, err := os.Open(path)
 			if err != nil {
 				log.Fatal("Can't open file")
@@ -1028,7 +1028,7 @@ var testCases = []testCase{
 		isPrepareSM:          true,
 		isGetUserWithIDImg:   true,
 		request: func() *http.Request {
-			path := os.Getenv("CI_PROJECT_DIR") + "docs/GeneralOverview.png"
+			path := os.Getenv("CI_PROJECT_DIR") + "/docs/GeneralOverview.png"
 			file, err := os.Open(path)
 			if err != nil {
 				log.Fatal("Can't open file")
@@ -1125,7 +1125,7 @@ var testCases = []testCase{
 		isPrepareSM:          true,
 		isGetUserWithIDImg:   true,
 		request: func() *http.Request {
-			path := os.Getenv("CI_PROJECT_DIR") + "docs/curlTest.md"
+			path := os.Getenv("CI_PROJECT_DIR") + "/docs/curlTest.md"
 			file, err := os.Open(path)
 			if err != nil {
 				log.Fatal("Can't open file")
@@ -1443,7 +1443,7 @@ var testCases = []testCase{
 		isCheckSession:       true,
 		isSecondCheckSession: true,
 		request: func() *http.Request {
-			path := os.Getenv("CI_PROJECT_DIR") + "docs/AuthReq.PNG"
+			path := os.Getenv("CI_PROJECT_DIR") + "/docs/AuthReq.PNG"
 			file, err := os.Open(path)
 			if err != nil {
 				log.Fatal("Can't open file")
@@ -1487,7 +1487,7 @@ var testCases = []testCase{
 		isPrepareCheckConnSM: true,
 		isCheckSession:       true,
 		request: func() *http.Request {
-			path := os.Getenv("CI_PROJECT_DIR") + "docs/curlTest.md"
+			path := os.Getenv("CI_PROJECT_DIR") + "/docs/curlTest.md"
 			file, err := os.Open(path)
 			if err != nil {
 				log.Fatal("Can't open file")
@@ -1744,7 +1744,7 @@ var testCases = []testCase{
 		isCheckSession:       true,
 		isSecondCheckSession: true,
 		request: func() *http.Request {
-			path := os.Getenv("CI_PROJECT_DIR") + "docs/AuthReq.PNG"
+			path := os.Getenv("CI_PROJECT_DIR") + "/docs/AuthReq.PNG"
 			file, err := os.Open(path)
 			if err != nil {
 				log.Fatal("Can't open file")
@@ -1821,7 +1821,7 @@ var testCases = []testCase{
 		isCheckSession:       true,
 		isSecondCheckSession: true,
 		request: func() *http.Request {
-			path := os.Getenv("CI_PROJECT_DIR") + "docs/curlTest.md"
+			path := os.Getenv("CI_PROJECT_DIR") + "/docs/curlTest.md"
 			file, err := os.Open(path)
 			if err != nil {
 				log.Fatal("Can't open file")
@@ -2013,7 +2013,7 @@ var testCases = []testCase{
 			img := image.NewRGBA(image.Rect(0, 0, 100, 50))
 			img.Set(2, 3, color.RGBA{255, 0, 0, 255})
 			os.Mkdir("images", 0777)
-			f, _ := os.OpenFile(os.Getenv("CI_PROJECT_DIR")+"pkg/api/images/image.png", os.O_WRONLY|os.O_CREATE, 0777)
+			f, _ := os.OpenFile(os.Getenv("CI_PROJECT_DIR")+"/pkg/api/images/image.png", os.O_WRONLY|os.O_CREATE, 0777)
 			png.Encode(f, img)
 			r, _ := http.NewRequest("GET", domain+"/images/image.png", nil)
 			f.Close()

@@ -1,4 +1,3 @@
-SET NAMES utf8;
 SET lc_messages TO 'en_US.UTF-8';
 
 --DROP TABLE IF EXISTS users;
