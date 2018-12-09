@@ -2017,7 +2017,7 @@ var testCases = []testCase{
 				fmt.Println(err.Error())
 			}
 			fmt.Println(os.Getenv("CI_PROJECT_DIR"))
-			f, _ := os.OpenFile("images/image.png", os.O_WRONLY|os.O_CREATE, 0777)
+			f, _ := os.OpenFile("./images/image.png", os.O_WRONLY|os.O_CREATE, 0777)
 			png.Encode(f, img)
 			r, _ := http.NewRequest("GET", domain+"/images/image.png", nil)
 			f.Close()
