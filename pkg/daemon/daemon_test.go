@@ -16,6 +16,7 @@ import (
 	"bmstu.codes/developers34/SBWeb/pkg/sessionmanager"
 )
 
+// must be executed from docker container linked with postgres and redis
 func TestRunService(t *testing.T) {
 	cfg := &daemon.Config{
 		DB: db.Config{
