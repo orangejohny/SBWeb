@@ -2012,8 +2012,12 @@ var testCases = []testCase{
 		request: func() *http.Request {
 			img := image.NewRGBA(image.Rect(0, 0, 100, 50))
 			img.Set(2, 3, color.RGBA{255, 0, 0, 255})
-			os.Mkdir("images", 0777)
-			f, _ := os.OpenFile(os.Getenv("CI_PROJECT_DIR")+"/pkg/api/images/image.png", os.O_WRONLY|os.O_CREATE, 0777)
+			err := os.Mkdir("images", 0777)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+			fmt.Println(os.Getenv("CI_PROJECT_DIR"))
+			f, _ := os.OpenFile("images/image.png", os.O_WRONLY|os.O_CREATE, 0777)
 			png.Encode(f, img)
 			r, _ := http.NewRequest("GET", domain+"/images/image.png", nil)
 			f.Close()
