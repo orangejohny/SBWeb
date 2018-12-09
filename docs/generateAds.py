@@ -8,14 +8,14 @@ path = '/home/orangejohny/Downloads/images'
 files = [join(path, f) for f in listdir(path) if isfile(join(path, f))]
 
 r = requests.post('https://search-build.herokuapp.com/users/login',
-                  data={'email': 'dkarg@gmail.com', 'password': '123456'})
+                  data={'email': 'dkargashin3@gmail.com', 'password': '123456'})
 
 tocken = r.cookies['session_id']
 cookie = dict(session_id=tocken)
 
 fake = Faker()
 
-for i in range(1):
+for i in range(50):
     title = fake.street_name()
     price = fake.building_number()
     city = fake.city()

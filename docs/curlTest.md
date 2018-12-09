@@ -33,7 +33,7 @@ try to trigger gitlab-ci
 
 ## Create user with avatar
 
-curl -v -F "images=@/home/orangejohny/Downloads/simpsons_PNG88.png" -F "first_name=dmitry" -F "last_name=kargashin" -F "email=dkarg@gmail.com" -F "password=123456" https://protected-bayou-62297.herokuapp.com/users/new
+curl -v -F "images=@/home/orangejohny/Downloads/simpsons_PNG88.png" -F "first_name=Dmitry" -F "last_name=Kargashin" -F "email=dkargashin3@gmail.com" -F "password=123456" -F 'about=The new era of development! ¯\_(ツ)_/¯' https://search-build.herokuapp.com/users/new
 
 ## Login user
 
