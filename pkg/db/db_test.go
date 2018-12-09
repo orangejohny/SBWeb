@@ -127,12 +127,12 @@ func TestInterface(t *testing.T) {
 	database.Exec(`INSERT INTO ads
 	(title, owner_ad, description_ad, price, city)
 	VALUES
-	('Bulding', 1, 'Some description', '100500', 'Moscow')`)
+	('Building', 1, 'Some description', '100500', 'Moscow')`)
 
 	database.Exec(`INSERT INTO ads
 	(title, owner_ad, description_ad, price, city)
 	VALUES
-	('Bulding that can be built', 1, 'Some description', 100500, 'Moscow')`)
+	('Building that can be built', 1, 'Some description', 100500, 'Moscow')`)
 
 	database.Close()
 
