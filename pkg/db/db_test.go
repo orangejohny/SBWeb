@@ -178,6 +178,6 @@ func TestInterface(t *testing.T) {
 	} else if len(ads) != 2 {
 		t.Error("Unexpected len", len(ads))
 	} else if !reflect.DeepEqual(*ads[0], ad1) || !reflect.DeepEqual(*ads[1], ad2) {
-		t.Error("Expected equal ads")
+		t.Error("Expected equal ads.Received:", *ads[0], "and\n", *ads[1])
 	}
 }
