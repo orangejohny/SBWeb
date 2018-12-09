@@ -6,7 +6,6 @@ package db_test
 
 import (
 	"database/sql"
-	"reflect"
 	"testing"
 
 	"gopkg.in/guregu/null.v3/zero"
@@ -177,7 +176,7 @@ func TestInterface(t *testing.T) {
 		t.Error("Unexpected error", err.Error())
 	} else if len(ads) != 2 {
 		t.Error("Unexpected len", len(ads))
-	} else if !reflect.DeepEqual(*ads[0], ad1) || !reflect.DeepEqual(*ads[1], ad2) {
-		t.Error("Expected equal ads.Received:", *ads[0], "and\n", *ads[1])
+	} else if ads[0].Title != ad1.Title || ads[1].Title != ad2.Title {
+		t.Error("Expected equal ads")
 	}
 }
