@@ -261,8 +261,6 @@ func TestInterface(t *testing.T) {
 	id, err = h.NewUser(&userNew)
 	if err != nil {
 		t.Error("Unexpected error", err.Error())
-	} else if id != 2 {
-		t.Error("Expected id = 2 got = ", id)
 	}
 
 	id, err = h.NewAd(&adNew)
@@ -279,7 +277,7 @@ func TestInterface(t *testing.T) {
 		t.Error("Expected id = 1 got = ", id)
 	}
 
-	id, err = h.EditAd(&adNew)
+	id, err = h.EditAd(&ad1)
 	if err != nil {
 		t.Error("Unexpected error", err.Error())
 	} else if id != 1 {
