@@ -26,6 +26,8 @@ import (
 	"bmstu.codes/developers34/SBWeb/pkg/model"
 )
 
+var domain = os.Getenv("URL_OF_API")
+
 // getIDfromCookie returns ID of user using cookie from request.
 // This function must be used with checkSessionMiddleware because
 // it doesn't handle any errors.
@@ -100,7 +102,7 @@ func loadImages(r *http.Request) ([]string, error) {
 			return nil, err
 		}
 
-		filenames = append(filenames, "/images/"+filename+".png")
+		filenames = append(filenames, domain+"/images/"+filename+".png")
 
 		// if we create or update user we need only one file
 		if strings.Contains(r.URL.Path, "/users/") {
@@ -123,4 +125,12 @@ func deleteImages(filenames []string) error {
 		}
 	}
 	return nil
+}
+
+// rDomain proccess string and deletes url
+func rDomain(s string) string {
+	if strings.Contains(s, domain) {
+		return strings.Replace(s, domain, "", 1)
+	}
+	return s
 }

@@ -3,6 +3,7 @@ images/
 coverage/
 coverage.cov
 index.html
+.vscode/
 
 # Binaries for programs and plugins
 *.exe
