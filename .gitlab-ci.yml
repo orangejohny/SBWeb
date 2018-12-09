@@ -67,6 +67,7 @@ unit_tests:
     - laptop-runner
   script:
     - make test
+    - ls
 
 race_detector:
   stage: test
