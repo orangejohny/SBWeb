@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"syscall"
 	"testing"
+	"time"
 
 	"bmstu.codes/developers34/SBWeb/pkg/api"
 	"bmstu.codes/developers34/SBWeb/pkg/daemon"
@@ -70,7 +71,10 @@ func TestRunService(t *testing.T) {
 	go func() {
 		err = daemon.RunService(cfg)
 	}()
+	time.Sleep(time.Millisecond * 100)
 	syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+	time.Sleep(time.Millisecond * 1000)
+
 	if err != nil {
 		t.Error("Unexpected error: ", err.Error())
 	}

@@ -9,9 +9,11 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -1008,6 +1010,7 @@ func adDeletePage(m *model.Model) http.Handler {
 func sendImage(m *model.Model) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		filename, _ := mux.Vars(r)["filename"]
+		fmt.Println(filepath.Abs("."))
 		_, err := os.Stat("./images/" + filename)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
