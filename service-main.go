@@ -17,7 +17,7 @@ import (
 )
 
 // setConfig parses the config provided in command options
-func setConfig() *daemon.Config {
+func setConfig() (*daemon.Config, error) {
 	cfg := daemon.Config{}
 
 	var pathToConfigFile string
@@ -27,14 +27,14 @@ func setConfig() *daemon.Config {
 
 	data, err := ioutil.ReadFile(pathToConfigFile)
 	if err != nil {
-		log.Fatalln("Can't read config file", err.Error())
-		return nil
+		log.Println("Can't read config file", err.Error())
+		return nil, err
 	}
 
 	err = json.Unmarshal(data, &cfg)
 	if err != nil {
-		log.Fatalln("Can't unmarshal config file", err.Error())
-		return nil
+		log.Println("Can't unmarshal config file", err.Error())
+		return nil, err
 	}
 
 	// if deployed to Heroku
@@ -48,12 +48,15 @@ func setConfig() *daemon.Config {
 		cfg.SM.DBAddress = os.Getenv("REDIS_URL")
 	}
 
-	return &cfg
+	return &cfg, nil
 }
 
 func main() {
 	log.SetFlags(log.Llongfile)
-	cfg := setConfig()
+	cfg, err := setConfig()
+	if err != nil {
+		log.Fatalln("Error config", err.Error())
+	}
 	if err := daemon.RunService(cfg); err != nil {
 		log.Fatalln("Error RunService", err.Error())
 	}
