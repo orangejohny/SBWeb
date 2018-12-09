@@ -40,12 +40,12 @@ Names of fields of JSON object which will be returned:
 	avatar_address   <string>
 HTTP parameters which are used to define user:
 	id
-	first_name         [UTF letter]
-	last_name          [UTF letter]
+	first_name
+	last_name
 	email              [email]
 	password           [printable ascii]
 	tel_number         [digits 1-9]
-	about              [ASCII]
+	about
 	avatatar_address   [existing address]
 
 Ad
@@ -63,13 +63,13 @@ Names of fields of JSON object which will be returned:
 	creation_time      <string>
 HTTP parameters which are used to define ad:
 	id
-	title               [printable ASCII]
+	title
 	price               [positive number]
-	country             [printable ASCII]
-	city                [printable ASCII]
-	subway_station      [printable ASCII]
+	country
+	city
+	subway_station
 	ad_images           [existing images addresses]
-	description_ad      [ASCII]
+	description_ad
 
 Interface
 
@@ -80,7 +80,7 @@ Read and search multiple ads
 "base/ads" address:
 	method                 GET
 	allowed parameters:
-		query                [printable ASCII]  search query; return only ads which contatins query in title of ad
+		query                                   search query; return only ads which contatins query in title of ad
 		limit                [positive number]  maximum number of ads which will be returned
 		offset               [positive number]  number of the first ad that will be returned
 	return result:
@@ -132,7 +132,7 @@ Create new user
 		password             [printable ASCII]  password that will be used for authorization
 	allowed parameters:
 		tel_number           [digits 1-9]       telephone number of user
-		about                [ASCII]            some additional information about user
+		about                                   some additional information about user
 		images               [.JPEG or .png]    avatar image of user (if provided then all parameters must be in "multipart/form-data")
 	return result:
 		status 201           JSON object of user create confirm
@@ -189,7 +189,7 @@ If avatar_address is empty then avatar image will be deleted if exists.
 		last_name            [UTF letters]      last name of user
 	allowed parameters:
 		tel_number           [digits 1-9]       telephone number of user
-		about                [ASCII]            some additional information about user
+		about                                   some additional information about user
 		avatar_address       [existing address] address to existing user avatar
 		images               [.JPEG or .png]    avatar image of user (if provided then all parameters must be in "multipart/form-data")
 	return result:
@@ -245,13 +245,13 @@ Cookie required for this action.
 "base/ads/new" address:
 	method                 POST
 	required parameters:
-		title                [printable ASCII]  title of ad
-		city                 [printable ASCII]  city where ad is provided
-		description_ad       [ASCII]            additional information about ad
+		title                                   title of ad
+		city                                    city where ad is provided
+		description_ad                          additional information about ad
 	allowed parameters:
 		price                [positive number]  price of ad
-		country              [printable ASCII]  country where ad is provided
-		subway_station       [printable ASCII]  station where ad is provided
+		country                                 country where ad is provided
+		subway_station                          station where ad is provided
 		images               [.JPEG or .png]    images of ad (if provided then all parameters must be in "multipart/form-data")
 	return result:
 		status 201           ad create confirm JSON object
@@ -280,13 +280,13 @@ to existing.
 	method               POST
 	id                   must be a digit number
 	required parameters:
-		title                [printable ASCII]  title of ad
-		city                 [printable ASCII]  city where ad is provided
-		description_ad       [ASCII]            additional information about ad
+		title                                   title of ad
+		city                                    city where ad is provided
+		description_ad                          additional information about ad
 	allowed parameters:
 		price                [positive number]     price of ad
-		country              [printable ASCII]     country where ad is provided
-		subway_station       [printable ASCII]     station where ad is provided
+		country                                    country where ad is provided
+		subway_station                             station where ad is provided
 		ad_images            [existing addresses]  array of existing addresses of ad's images
 		images               [.JPEG or .png]       images of ad (if provided then all parameters must be in "multipart/form-data")
 	return result:

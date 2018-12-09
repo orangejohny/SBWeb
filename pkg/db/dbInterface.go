@@ -184,6 +184,11 @@ func (h *Handler) GetAds(sp *model.SearchParams) ([]*model.AdItem, error) {
 	} else {
 		err = h.SearchAds.Select(&ads, sp)
 	}
+	if len(ads) != 0 {
+		for _, ad := range ads {
+			ad.AdImages = strings.Split(ad.AdImagesStr.String, ",")
+		}
+	}
 
 	return ads, err
 }
@@ -192,6 +197,11 @@ func (h *Handler) GetAds(sp *model.SearchParams) ([]*model.AdItem, error) {
 func (h *Handler) GetAdsOfUser(userID int64) ([]*model.AdItem, error) {
 	ads := make([]*model.AdItem, 0)
 	err := h.ReadAdsOfUser.Select(&ads, userID)
+	if len(ads) != 0 {
+		for _, ad := range ads {
+			ad.AdImages = strings.Split(ad.AdImagesStr.String, ",")
+		}
+	}
 	return ads, err
 }
 
