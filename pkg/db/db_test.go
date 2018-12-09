@@ -148,6 +148,21 @@ func TestInterface(t *testing.T) {
 		Email:     "ivan@gmail.com",
 	}
 
+	userNew := model.User{
+		FirstName: "Alex",
+		LastName:  "Ivanov",
+		Email:     "alex@gmail.com",
+		Password:  "123455",
+	}
+
+	adNew := model.AdItem{
+		Title:       "New ad",
+		UserID:      1,
+		Description: "Gooooood",
+		Price:       zero.NewInt(500, true),
+		City:        "New York",
+	}
+
 	ad1 := model.AdItem{
 		ID:          1,
 		Title:       "Building",
@@ -178,5 +193,110 @@ func TestInterface(t *testing.T) {
 		t.Error("Unexpected len", len(ads))
 	} else if ads[0].Title != ad1.Title || ads[1].Title != ad2.Title {
 		t.Error("Expected equal ads")
+	}
+
+	ads, err = h.GetAds(&model.SearchParams{
+		Limit:  15,
+		Query:  "that",
+		Offset: 0,
+	})
+	if err != nil {
+		t.Error("Unexpected error", err.Error())
+	} else if len(ads) != 1 {
+		t.Error("Unexpected len", len(ads))
+	} else if ads[0].Title != ad2.Title {
+		t.Error("Expected equal ads")
+	}
+
+	ads, err = h.GetAdsOfUser(1)
+	if err != nil {
+		t.Error("Unexpected error", err.Error())
+	} else if len(ads) != 2 {
+		t.Error("Unexpected len", len(ads))
+	} else if ads[0].Title != ad1.Title || ads[1].Title != ad2.Title {
+		t.Error("Expected equal ads")
+	}
+
+	ad, err := h.GetAd(1)
+	if err != nil {
+		t.Error("Unexpected error", err.Error())
+	} else if ad.Title != ad1.Title {
+		t.Error("Expected equal ads")
+	}
+
+	ad, _ = h.GetAd(15)
+	if ad.ID != -1 {
+		t.Error("Expected ID = -1")
+	}
+
+	u, err := h.GetUserWithID(1)
+	if err != nil {
+		t.Error("Unexpected error", err.Error())
+	} else if u.FirstName != user.FirstName {
+		t.Error("Expected equal users")
+	}
+
+	u, _ = h.GetUserWithID(15)
+	if u.ID != -1 {
+		t.Error("Expected ID = -1")
+	}
+
+	u, err = h.GetUserWithEmail("ivan@gmail.com")
+	if err != nil {
+		t.Error("Unexpected error", err.Error())
+	} else if u.FirstName != user.FirstName {
+		t.Error("Expected equal users")
+	}
+
+	u, _ = h.GetUserWithEmail("feffr2C")
+	if u.ID != -1 {
+		t.Error("Expected ID = -1")
+	}
+
+	id, _ := h.NewUser(&user)
+	if id != -1 {
+		t.Error("Expected ID = -1")
+	}
+
+	id, err = h.NewUser(&userNew)
+	if err != nil {
+		t.Error("Unexpected error", err.Error())
+	} else if id != 2 {
+		t.Error("Expected id = 2")
+	}
+
+	id, err = h.NewAd(&adNew)
+	if err != nil {
+		t.Error("Unexpected error", err.Error())
+	} else if id != 3 {
+		t.Error("Expected id = 3")
+	}
+
+	id, err = h.EditUser(&user)
+	if err != nil {
+		t.Error("Unexpected error", err.Error())
+	} else if id != 1 {
+		t.Error("Expected id = 1")
+	}
+
+	id, err = h.EditAd(&adNew)
+	if err != nil {
+		t.Error("Unexpected error", err.Error())
+	} else if id != 1 {
+		t.Error("Expected id = 1")
+	}
+
+	id, err = h.RemoveAd(1)
+	if err != nil {
+		t.Error("Unexpected error", err.Error())
+	} else if id != 1 {
+		t.Error("Expected id = 1")
+	}
+
+	id, err = h.RemoveUser(1)
+	if err != nil {
+		t.Error("Unexpected error", err.Error())
+	} else if id != 1 {
+		t.Error("Expected id = 1")
 	}
 }
