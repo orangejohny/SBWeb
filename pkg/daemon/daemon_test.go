@@ -79,4 +79,82 @@ func TestRunService(t *testing.T) {
 	if err != nil {
 		t.Error("Unexpected error: ", err.Error())
 	}
+
+	cfg = &daemon.Config{
+		DB: db.Config{
+			DBAddress:    "postgresql://runner:@badhost/data?sslmode=disable",
+			MaxOpenConns: 10,
+		},
+		SM: sessionmanager.Config{
+			DBAddress:      "redis://redis:6379/0",
+			TockenLength:   32,
+			ExpirationTime: 86400,
+		},
+		API: api.Config{
+			Address:      ":54000",
+			ReadTimeout:  "10s",
+			WriteTimeout: "10s",
+			IdleTimeout:  "10s",
+		},
+	}
+
+	go func() {
+		err = daemon.RunService(cfg)
+	}()
+
+	if err == nil {
+		t.Error("Error must be not nil")
+	}
+
+	cfg = &daemon.Config{
+		DB: db.Config{
+			DBAddress:    "postgresql://runner:@postgres/data?sslmode=disable",
+			MaxOpenConns: 10,
+		},
+		SM: sessionmanager.Config{
+			DBAddress:      "redis:/dwedfewfewfd:6379/0",
+			TockenLength:   32,
+			ExpirationTime: 86400,
+		},
+		API: api.Config{
+			Address:      ":54000",
+			ReadTimeout:  "10s",
+			WriteTimeout: "10s",
+			IdleTimeout:  "10s",
+		},
+	}
+
+	go func() {
+		err = daemon.RunService(cfg)
+	}()
+
+	if err == nil {
+		t.Error("Error must be not nil")
+	}
+
+	cfg = &daemon.Config{
+		DB: db.Config{
+			DBAddress:    "postgresql://runner:@postgres/data?sslmode=disable",
+			MaxOpenConns: 10,
+		},
+		SM: sessionmanager.Config{
+			DBAddress:      "redis://redis:6379/0",
+			TockenLength:   32,
+			ExpirationTime: 86400,
+		},
+		API: api.Config{
+			Address:      "wefew",
+			ReadTimeout:  "10s",
+			WriteTimeout: "10s",
+			IdleTimeout:  "10s",
+		},
+	}
+
+	go func() {
+		err = daemon.RunService(cfg)
+	}()
+
+	if err != nil {
+		t.Error("Expected error")
+	}
 }
