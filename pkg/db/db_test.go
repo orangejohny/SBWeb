@@ -255,48 +255,48 @@ func TestInterface(t *testing.T) {
 
 	id, _ := h.NewUser(&user)
 	if id != -1 {
-		t.Error("Expected ID = -1")
+		t.Error("Expected ID = -1 got = ", id)
 	}
 
 	id, err = h.NewUser(&userNew)
 	if err != nil {
 		t.Error("Unexpected error", err.Error())
 	} else if id != 2 {
-		t.Error("Expected id = 2")
+		t.Error("Expected id = 2 got = ", id)
 	}
 
 	id, err = h.NewAd(&adNew)
 	if err != nil {
 		t.Error("Unexpected error", err.Error())
 	} else if id != 3 {
-		t.Error("Expected id = 3")
+		t.Error("Expected id = 3 got = ", id)
 	}
 
 	id, err = h.EditUser(&user)
 	if err != nil {
 		t.Error("Unexpected error", err.Error())
 	} else if id != 1 {
-		t.Error("Expected id = 1")
+		t.Error("Expected id = 1 got = ", id)
 	}
 
 	id, err = h.EditAd(&adNew)
 	if err != nil {
 		t.Error("Unexpected error", err.Error())
 	} else if id != 1 {
-		t.Error("Expected id = 1")
+		t.Error("Expected id = 1 got = ", id)
 	}
 
 	id, err = h.RemoveAd(1)
 	if err != nil {
 		t.Error("Unexpected error", err.Error())
 	} else if id != 1 {
-		t.Error("Expected id = 1")
+		t.Error("Expected id = 1 got = ", id)
 	}
 
 	id, err = h.RemoveUser(1)
 	if err != nil {
 		t.Error("Unexpected error", err.Error())
 	} else if id != 1 {
-		t.Error("Expected id = 1")
+		t.Error("Expected id = 1 got = ", id)
 	}
 }
