@@ -72,6 +72,30 @@ func (mr *MockSMMockRecorder) DeleteSession(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSession", reflect.TypeOf((*MockSM)(nil).DeleteSession), arg0)
 }
 
+// IsConnected mocks base method
+func (m *MockSM) IsConnected() bool {
+	ret := m.ctrl.Call(m, "IsConnected")
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsConnected indicates an expected call of IsConnected
+func (mr *MockSMMockRecorder) IsConnected() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsConnected", reflect.TypeOf((*MockSM)(nil).IsConnected))
+}
+
+// TryReconnect mocks base method
+func (m *MockSM) TryReconnect() error {
+	ret := m.ctrl.Call(m, "TryReconnect")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// TryReconnect indicates an expected call of TryReconnect
+func (mr *MockSMMockRecorder) TryReconnect() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TryReconnect", reflect.TypeOf((*MockSM)(nil).TryReconnect))
+}
+
 // MockDB is a mock of DB interface
 type MockDB struct {
 	ctrl     *gomock.Controller

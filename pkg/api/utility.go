@@ -1,5 +1,5 @@
 // Copyright 2018 Dmitry Kargashin <dkargashin3@gmail.com>
-// Use of this source code is governed by GNU LGPLL
+// Use of this source code is governed by GNU LGPL
 // license that can be found in the LICENSE file.
 
 // utility.go contains some utility functions which are used by API handlers.
@@ -91,7 +91,7 @@ func loadImages(r *http.Request) ([]string, error) {
 		io.Copy(hasher, bytes.NewReader(dataTime))
 		io.Copy(hasher, bytes.NewReader(randBuf))
 		filename := hex.EncodeToString(hasher.Sum(nil))
-		dst, err := os.Create("./images/" + filename + ".png")
+		dst, _ := os.Create("./images/" + filename + ".png")
 		defer dst.Close()
 
 		// save image

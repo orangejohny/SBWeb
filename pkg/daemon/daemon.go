@@ -37,7 +37,7 @@ func RunService(cfg *Config) error {
 	// init connection with database
 	db, err := db.InitConnDB(cfg.DB)
 	if err != nil {
-		log.Fatalln("Can't connect to database", err.Error())
+		log.Println("Can't connect to database", err.Error())
 		return err
 	}
 	log.Println("Connected to DB")
@@ -45,7 +45,7 @@ func RunService(cfg *Config) error {
 	// init connection with session manager
 	sm, err := sm.InitConnSM(cfg.SM)
 	if err != nil {
-		log.Fatalln("Can't start session manager", err.Error())
+		log.Println("Can't start session manager", err.Error())
 		return err
 	}
 	log.Println("Connected to SM")
@@ -65,20 +65,19 @@ func RunService(cfg *Config) error {
 
 // waitForSignal waits signal from OS to shutdown server and
 // error from server himself.
-func waitForSignal(srv *http.Server, chSrv chan error) {
+func waitForSignal(srv *http.Server, chSrv chan error) error {
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 
-LOOP:
 	for {
 		select {
 		case s := <-ch:
 			srv.Shutdown(nil)
 			log.Printf("Got signal: %v, exiting.", s)
-			<-chSrv
-			break LOOP
+			return nil
 		case err := <-chSrv:
-			log.Fatalln(err)
+			log.Println(err)
+			return err
 		}
 	}
 }

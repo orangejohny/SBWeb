@@ -1,5 +1,5 @@
 // Copyright 2018 Dmitry Kargashin <dkargashin3@gmail.com>
-// Use of this source code is governed by GNU LGPLL
+// Use of this source code is governed by GNU LGPL
 // license that can be found in the LICENSE file.
 
 // middleware.go contains different middlewares which can be used with API server.
@@ -46,6 +46,23 @@ func logRequestMiddleware(m *model.Model, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		byts, _ := httputil.DumpRequest(r, true)
 		log.Println(string(byts))
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+// checkConnSM checks connection to SM and trying to reconnect if needed
+func checkConnSM(m *model.Model, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var err error
+		if !m.IsConnected() {
+			err = m.TryReconnect()
+		}
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(apiErrorHandle(connectProvider, "ConnSMErr", err, "Can't connect with SM"))
+			return
+		}
 
 		next.ServeHTTP(w, r)
 	})

@@ -1,9 +1,16 @@
 image: registry.bmstu.codes/developers34/sbweb:latest
 
+services:
+  - postgres:alpine
+  - redis:alpine
+
 variables:
   REPO_NAME: bmstu.codes/developers34/SBWeb
   PROJECT_PATH: $GOPATH/src/$REPO_NAME
-
+  POSTGRES_DB: data
+  POSTGRES_USER: runner
+  POSTGRES_PASSWORD: ""
+  
 cache:
   paths:
     - /apt-cache
@@ -15,6 +22,7 @@ cache:
 stages:
   - test
   - build
+  - deploy
 
 before_script:
   - export CC=clang
@@ -91,3 +99,13 @@ build:
   artifacts:
     paths:
       - SBWeb
+
+deploy_heroku:
+  stage: deploy
+  tags:
+    - laptop-runner
+  script:
+    - git push heroku master
+  only:
+    - master
+  when: manual

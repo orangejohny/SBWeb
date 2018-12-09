@@ -6,6 +6,7 @@ package sessionmanager
 
 import (
 	"encoding/json"
+	"log"
 
 	"bmstu.codes/developers34/SBWeb/pkg/model"
 	"github.com/garyburd/redigo/redis"
@@ -55,4 +56,25 @@ func (sm *SessionManager) DeleteSession(in *model.SessionID) error {
 	mkey := "sessions:" + in.ID
 	_, err := redis.Int(sm.redisConn.Do("DEL", mkey))
 	return err
+}
+
+// TryReconnect reconnects to redis
+func (sm *SessionManager) TryReconnect() error {
+	// sm.redisConn.Close()
+	conn, err := redis.DialURL(sm.redisAddr)
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+	sm.redisConn = conn
+	return nil
+}
+
+// IsConnected checks if connection is active
+func (sm *SessionManager) IsConnected() bool {
+	_, err := sm.redisConn.Do("PING")
+	if err != nil {
+		return false
+	}
+	return true
 }

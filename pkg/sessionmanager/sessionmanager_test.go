@@ -49,7 +49,6 @@ func TestInterfaceSession(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	defer s.Close()
 
 	SM, err := sm.InitConnSM(sm.Config{
 		DBAddress:      `redis://user:@localhost:` + s.Port() + `/0`,
@@ -60,7 +59,7 @@ func TestInterfaceSession(t *testing.T) {
 		t.Error(err)
 	}
 
-	sID, err := SM.CreateSession(&model.Session{
+	sID, _ := SM.CreateSession(&model.Session{
 		ID:        15,
 		Login:     "aaa@eee.ru",
 		UserAgent: "ieieie",
@@ -73,12 +72,12 @@ func TestInterfaceSession(t *testing.T) {
 
 	s.FastForward(5 * time.Second)
 
-	res, err := SM.CheckSession(sID)
+	res, _ := SM.CheckSession(sID)
 	if res != nil {
 		t.Error("Key mustn't exist")
 	}
 
-	sID, err = SM.CreateSession(&model.Session{
+	sID, _ = SM.CreateSession(&model.Session{
 		ID:        15,
 		Login:     "aaa@eee.ru",
 		UserAgent: "ieieie",
@@ -91,12 +90,12 @@ func TestInterfaceSession(t *testing.T) {
 
 	SM.DeleteSession(sID)
 
-	res, err = SM.CheckSession(sID)
+	res, _ = SM.CheckSession(sID)
 	if res != nil {
 		t.Error("Key mustn't exist")
 	}
 
-	sID, err = SM.CreateSession(&model.Session{
+	sID, _ = SM.CreateSession(&model.Session{
 		ID:        15,
 		Login:     "aaa@eee.ru",
 		UserAgent: "ieieie",
@@ -112,5 +111,27 @@ func TestInterfaceSession(t *testing.T) {
 	_, err = SM.CheckSession(sID)
 	if err != nil {
 		t.Error("Key must exist")
+	}
+
+	if !SM.IsConnected() {
+		t.Error("Must be connected")
+	}
+
+	s.Close()
+
+	if SM.IsConnected() {
+		t.Error("Must not be connected")
+	}
+
+	s.Restart()
+
+	if SM.TryReconnect() != nil {
+		t.Error("Unexpected error")
+	}
+	SM.IsConnected()
+	s.Close()
+
+	if SM.TryReconnect() == nil {
+		t.Error("Expected error")
 	}
 }
