@@ -80,7 +80,7 @@ func TestRunService(t *testing.T) {
 		t.Error("Unexpected error: ", err.Error())
 	}
 
-	/* cfg = &daemon.Config{
+	cfg = &daemon.Config{
 		DB: db.Config{
 			DBAddress:    "postgresql://runner:@badhost/data?sslmode=disable",
 			MaxOpenConns: 10,
@@ -99,10 +99,10 @@ func TestRunService(t *testing.T) {
 	}
 
 	go func() {
-		err = daemon.RunService(cfg)
+		ch <- daemon.RunService(cfg)
 	}()
 
-	if err == nil {
+	if err := <-ch; err == nil {
 		t.Error("Error must be not nil")
 	}
 
@@ -125,10 +125,10 @@ func TestRunService(t *testing.T) {
 	}
 
 	go func() {
-		err = daemon.RunService(cfg)
+		ch <- daemon.RunService(cfg)
 	}()
 
-	if err == nil {
+	if err := <-ch; err == nil {
 		t.Error("Error must be not nil")
 	}
 
@@ -151,10 +151,10 @@ func TestRunService(t *testing.T) {
 	}
 
 	go func() {
-		err = daemon.RunService(cfg)
+		ch <- daemon.RunService(cfg)
 	}()
 
-	if err != nil {
+	if err := <-ch; err != nil {
 		t.Error("Expected error")
-	} */
+	}
 }
