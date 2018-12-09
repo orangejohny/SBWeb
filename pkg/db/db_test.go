@@ -123,17 +123,17 @@ func TestInterface(t *testing.T) {
 	database.Exec(`INSERT INTO users
 	(first_name, last_name, email, password_hash)
 	VALUES
-	(Ivan, Ivanov, ivan@gmail.com, 123456)`)
+	('Ivan', 'Ivanov', 'ivan@gmail.com', '123456')`)
 
 	database.Exec(`INSERT INTO ads
 	(title, owner_ad, description_ad, price, city)
 	VALUES
-	(Bulding, 1, Some description, 100500, Moscow)`)
+	('Bulding', 1, 'Some description', '100500', 'Moscow')`)
 
 	database.Exec(`INSERT INTO ads
 	(title, owner_ad, description_ad, price, city)
 	VALUES
-	(Bulding that can be built, 1, Some description, 100500, Moscow)`)
+	('Bulding that can be built', 1, 'Some description', 100500, 'Moscow')`)
 
 	database.Close()
 
