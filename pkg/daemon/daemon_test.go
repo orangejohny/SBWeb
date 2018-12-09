@@ -36,8 +36,8 @@ func TestRunService(t *testing.T) {
 		},
 	}
 
-	db, _ := sql.Open("postgres", "postgresql://runner:@postgres/data?sslmode=disable")
-	db.Exec(`
+	database, _ := sql.Open("postgres", "postgresql://runner:@postgres/data?sslmode=disable")
+	database.Exec(`
 	CREATE TABLE IF NOT EXISTS users
 (
     id                SERIAL      PRIMARY KEY,
@@ -50,7 +50,7 @@ func TestRunService(t *testing.T) {
     avatar_address    text,
     reg_time          timestamp   DEFAULT CURRENT_TIMESTAMP NOT NULL
 );`)
-	db.Exec(`
+	database.Exec(`
 	CREATE TABLE IF NOT EXISTS ads
 (
     id             SERIAL       PRIMARY KEY,
@@ -66,17 +66,17 @@ func TestRunService(t *testing.T) {
     creation_time  timestamp    DEFAULT CURRENT_TIMESTAMP NOT NULL
 );`)
 
-	db.Close()
+	database.Close()
 
-	var err error
+	ch := make(chan error)
 	go func() {
-		err = daemon.RunService(cfg)
+		ch <- daemon.RunService(cfg)
 	}()
-	time.Sleep(time.Millisecond * 100)
-	syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 	time.Sleep(time.Millisecond * 1000)
+	syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+	time.Sleep(time.Millisecond * 2000)
 
-	if err != nil {
+	if err := <-ch; err != nil {
 		t.Error("Unexpected error: ", err.Error())
 	}
 
@@ -99,10 +99,10 @@ func TestRunService(t *testing.T) {
 	}
 
 	go func() {
-		err = daemon.RunService(cfg)
+		ch <- daemon.RunService(cfg)
 	}()
 
-	if err == nil {
+	if err := <-ch; err == nil {
 		t.Error("Error must be not nil")
 	}
 
@@ -125,10 +125,10 @@ func TestRunService(t *testing.T) {
 	}
 
 	go func() {
-		err = daemon.RunService(cfg)
+		ch <- daemon.RunService(cfg)
 	}()
 
-	if err == nil {
+	if err := <-ch; err == nil {
 		t.Error("Error must be not nil")
 	}
 
@@ -151,10 +151,10 @@ func TestRunService(t *testing.T) {
 	}
 
 	go func() {
-		err = daemon.RunService(cfg)
+		ch <- daemon.RunService(cfg)
 	}()
 
-	if err != nil {
+	if err := <-ch; err != nil {
 		t.Error("Expected error")
 	}
 }
