@@ -66,5 +66,5 @@
   unused-packages = true
 
 [metadata.heroku]
-  root-package="bmstu.codes/developers34/SBWeb"
+  root-package="github.com/orangejohny/SBWeb"
   ensure="true"
