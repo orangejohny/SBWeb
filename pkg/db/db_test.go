@@ -75,7 +75,7 @@ func TestInit(t *testing.T) {
 	}
 
 	database, _ = sql.Open("postgres", "postgresql://runner:@postgres/data?sslmode=disable")
-	database.Exec("DROP TABLE")
+	database.Exec("DROP TABLE ads")
 	database.Close()
 
 	_, err = db.InitConnDB(cfg)
