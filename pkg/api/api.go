@@ -584,7 +584,7 @@ func userUpdatePage(m *model.Model) http.Handler {
 
 		// check if image address not null and exists
 		if user.AvatarAddress.String != "" {
-			_, err = os.Stat("." + user.AvatarAddress.String)
+			_, err = os.Stat("." + rDomain(user.AvatarAddress.String))
 			if os.IsNotExist(err) {
 				w.WriteHeader(http.StatusBadRequest)
 				w.Write(apiErrorHandle(checkImage, imgExErr, err,
@@ -753,7 +753,7 @@ func adCreatePage(m *model.Model) http.Handler {
 			return
 		}
 
-		// TODO custom validators for UTF-8 with some usual charachters
+		// TODO custom validators for UTF-8 with some usual characters
 		// validate incoming data
 		/* _, err = govalidator.ValidateStruct(&ad)
 		if err != nil {
@@ -863,7 +863,7 @@ func adUpdatePage(m *model.Model) http.Handler {
 			return
 		}
 
-		// TODO custom validators for UTF-8 with some usual charachters
+		// TODO custom validators for UTF-8 with some usual characters
 		// validate incoming data
 		/* _, err = govalidator.ValidateStruct(&ad)
 		if err != nil {
@@ -906,7 +906,7 @@ func adUpdatePage(m *model.Model) http.Handler {
 		// check if images are not null and exist
 		if ad.AdImages != nil {
 			for _, image := range ad.AdImages {
-				_, err = os.Stat("." + image)
+				_, err = os.Stat("." + rDomain(image))
 				if os.IsNotExist(err) {
 					w.WriteHeader(http.StatusBadRequest)
 					w.Write(apiErrorHandle(checkImage, imgExErr, err,
