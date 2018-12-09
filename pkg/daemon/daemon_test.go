@@ -6,6 +6,7 @@ package daemon_test
 
 import (
 	"database/sql"
+	"syscall"
 	"testing"
 
 	"bmstu.codes/developers34/SBWeb/pkg/api"
@@ -65,7 +66,11 @@ func TestRunService(t *testing.T) {
 
 	db.Close()
 
-	err := daemon.RunService(cfg)
+	var err error
+	go func() {
+		err = daemon.RunService(cfg)
+	}()
+	syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 	if err != nil {
 		t.Error("Unexpected error: ", err.Error())
 	}
