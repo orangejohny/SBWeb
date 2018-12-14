@@ -103,8 +103,11 @@ func loadImages(r *http.Request, m *model.Model) ([]string, error) {
 			return nil, err
 		}
 
+		sourceFile, _ := os.Open("./images/" + filename + ".png")
+		defer file.Close()
+
 		// use aws s3 for uploading
-		addr, err := m.UploadImage("/images/"+filename+".png", dst)
+		addr, err := m.UploadImage("/images/"+filename+".png", sourceFile)
 		if err != nil {
 			return nil, err
 		}
