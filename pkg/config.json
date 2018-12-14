@@ -13,5 +13,10 @@
     "ReadTimeout": "10s",
     "WriteTimeout": "10s",
     "IdleTimeout": "10s"
+  },
+  "IM": {
+    "Bucket": "search-build",
+    "ACL": "public-read",
+    "Region": "eu-central-1"
   }
 }

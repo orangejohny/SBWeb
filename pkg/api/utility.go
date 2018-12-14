@@ -42,7 +42,7 @@ func getIDfromCookie(m *model.Model, r *http.Request) int64 {
 // loadImages process incoming request to upload images from it.
 // ParseMultipartFrom must called before this function.
 // It returns array of image's paths which were created.
-func loadImages(r *http.Request) ([]string, error) {
+func loadImages(r *http.Request, m *model.Model) ([]string, error) {
 	files := r.MultipartForm.File["images"]
 
 	filenames := make([]string, 0)
@@ -94,6 +94,7 @@ func loadImages(r *http.Request) ([]string, error) {
 		io.Copy(hasher, bytes.NewReader(randBuf))
 		filename := hex.EncodeToString(hasher.Sum(nil))
 		dst, _ := os.Create("./images/" + filename + ".png")
+		defer os.Remove("./images/" + filename + ".png")
 		defer dst.Close()
 
 		// save image
@@ -102,7 +103,13 @@ func loadImages(r *http.Request) ([]string, error) {
 			return nil, err
 		}
 
-		filenames = append(filenames, domain+"/images/"+filename+".png")
+		// use aws s3 for uploading
+		addr, err := m.UploadImage("/images/"+filename+".png", dst)
+		if err != nil {
+			return nil, err
+		}
+
+		filenames = append(filenames, addr)
 
 		// if we create or update user we need only one file
 		if strings.Contains(r.URL.Path, "/users/") {
@@ -114,12 +121,12 @@ func loadImages(r *http.Request) ([]string, error) {
 }
 
 // deleteImages deletes files with filenames.
-func deleteImages(filenames []string) error {
+func deleteImages(filenames []string, m *model.Model) error {
 	for _, filename := range filenames {
 		if filename == "" {
 			break
 		}
-		err := os.Remove("." + filename)
+		err := m.DeleteImage(filename)
 		if err != nil {
 			return err
 		}
@@ -127,10 +134,11 @@ func deleteImages(filenames []string) error {
 	return nil
 }
 
+// non need in this function since image handling by s3
 // rDomain proccess string and deletes url
-func rDomain(s string) string {
+/* func rDomain(s string) string {
 	if strings.Contains(s, domain) {
 		return strings.Replace(s, domain, "", 1)
 	}
 	return s
-}
+} */

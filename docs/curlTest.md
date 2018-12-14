@@ -54,3 +54,24 @@ curl -v --cookie "session_id=FpXOTUwLRYFkXJbHSXayUggXTQTCOa-cHk6lsCljwp0=; Expir
 ## Update user with avatar
 
 curl -v -F "images=@/home/orangejohny/Downloads/PNG_transparency_demonstration_1.png" -F "first_name=ddddmitry" -F "last_name=karg" --cookie "session_id=rGrjp9pjNic6waxXZvbTQfW-5qUMDQws7hLlyv07-c8=; Expires=Mon, 05 Nov 2018 19:35:00 GMT" 127.0.0.1:8080/users/profile
+
+AKIAICNNYQPNLYH7OBJQ
+eAHWFKoqwBCFSzxdgQLBLVioA+uChaZMXbzbCeCv
+
+export AWS_REGION=eu-west-2
+
+sess, err := session.NewSession(&aws.Config{Region: aws.String("us-west-2")})
+
+aws_access_key_id = AKIAICNNYQPNLYH7OBJQ
+aws_secret_access_key = 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
+
+export AWS_ACCESS_KEY_ID="AKIAICNNYQPNLYH7OBJQ"
+export AWS_SECRET_ACCESS_KEY="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"
+
+sess, err := session.NewSession(&aws.Config{
+    Region:      aws.String("us-west-2"),
+    Credentials: credentials.NewStaticCredentials("AKID", "SECRET_KEY", "TOKEN"),
+})
+
+AKIAJMLQ6SRNXLZ3FA5Q
+0sYGI/q5a4TFC9Kee4mHGNyFDvUAht53ikTYmogC
