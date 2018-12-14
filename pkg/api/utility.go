@@ -135,7 +135,7 @@ func deleteImages(filenames []string, m *model.Model) error {
 }
 
 // non need in this function since image handling by s3
-// rDomain proccess string and deletes url
+// rDomain process string and deletes url
 /* func rDomain(s string) string {
 	if strings.Contains(s, domain) {
 		return strings.Replace(s, domain, "", 1)
