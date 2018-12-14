@@ -99,6 +99,7 @@ func (s *S3) DeleteImage(key string) error {
 	return err
 }
 
+// DownloadImage downloads image from AWS
 func (s *S3) DownloadImage(key string) error {
 	downloader := s3manager.NewDownloader(s.sess)
 	file, _ := os.Create("." + key)
