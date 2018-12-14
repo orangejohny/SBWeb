@@ -6,6 +6,9 @@ version: "3.2"
 services:
   api:
     image: golang:1.11
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     volumes:
       - ./:/go/src/bmstu.codes/developers34/SBWeb
     working_dir: /go/src/bmstu.codes/developers34/SBWeb
@@ -18,6 +21,7 @@ services:
         published: 8080
         protocol: tcp
         mode: host
+  
 
   redis:
     image: redis:alpine
@@ -25,12 +29,10 @@ services:
   postgres:
     volumes:
       - ./pkg/db/data/init.sql:/docker-entrypoint-initdb.d/init.sql
-      # - /var/lib/postgresql/data:/var/lib/postgresql/data/pgdata
     environment:
       POSTGRES_DB: data
       POSTGRES_INITDB_ARGS: "-l en_US.UTF-8 -E UTF8"
       PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_USER: dataUSER
-      POSTGRES_PASSWORD: dataPASSWORD
-    #restart: always
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     image: postgres:alpine

@@ -6,9 +6,12 @@ package daemon_test
 
 import (
 	"database/sql"
+	"os"
 	"syscall"
 	"testing"
 	"time"
+
+	"bmstu.codes/developers34/SBWeb/pkg/s3"
 
 	"bmstu.codes/developers34/SBWeb/pkg/api"
 	"bmstu.codes/developers34/SBWeb/pkg/daemon"
@@ -33,6 +36,9 @@ func TestRunService(t *testing.T) {
 			ReadTimeout:  "10s",
 			WriteTimeout: "10s",
 			IdleTimeout:  "10s",
+		},
+		IM: s3.Config{
+			Region: "eu-central-1",
 		},
 	}
 
@@ -96,6 +102,9 @@ func TestRunService(t *testing.T) {
 			WriteTimeout: "10s",
 			IdleTimeout:  "10s",
 		},
+		IM: s3.Config{
+			Region: "eu-central-1",
+		},
 	}
 
 	go func() {
@@ -121,6 +130,9 @@ func TestRunService(t *testing.T) {
 			ReadTimeout:  "10s",
 			WriteTimeout: "10s",
 			IdleTimeout:  "10s",
+		},
+		IM: s3.Config{
+			Region: "eu-central-1",
 		},
 	}
 
@@ -148,6 +160,9 @@ func TestRunService(t *testing.T) {
 			WriteTimeout: "10s",
 			IdleTimeout:  "10s",
 		},
+		IM: s3.Config{
+			Region: "eu-central-1",
+		},
 	}
 
 	go func() {
@@ -156,5 +171,36 @@ func TestRunService(t *testing.T) {
 
 	if err := <-ch; err != nil {
 		t.Error("Expected error")
+	}
+
+	cfg = &daemon.Config{
+		DB: db.Config{
+			DBAddress:    "postgresql://runner:@badhost/data?sslmode=disable",
+			MaxOpenConns: 10,
+		},
+		SM: sessionmanager.Config{
+			DBAddress:      "redis://redis:6379/0",
+			TockenLength:   32,
+			ExpirationTime: 86400,
+		},
+		API: api.Config{
+			Address:      ":54000",
+			ReadTimeout:  "10s",
+			WriteTimeout: "10s",
+			IdleTimeout:  "10s",
+		},
+		IM: s3.Config{
+			Region: "eu-central-1",
+		},
+	}
+
+	os.Setenv("AWS_ACCESS_KEY_ID", "bad and strange id")
+
+	go func() {
+		ch <- daemon.RunService(cfg)
+	}()
+
+	if err := <-ch; err == nil {
+		t.Error("Error must be not nil")
 	}
 }
