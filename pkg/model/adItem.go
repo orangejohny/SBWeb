@@ -18,7 +18,7 @@ type AdItem struct {
 	Country       zero.String `db:"country" json:"country,omitempty" schema:"country,optional" valid:"-"`                      // consists of printable ASCII
 	City          string      `db:"city" json:"city,omitempty" schema:"city,optional" valid:",optional"`                       // required in DB
 	SubwayStation zero.String `db:"subway_station" json:"subway_station,omitempty" schema:"subway_station,optional" valid:"-"` // consists of printable ASCII
-	AdImages      []string    `db:"-" json:"ad_images,omitempty" schema:"ad_images,optional" valid:"-"`
+	AdImages      []string    `db:"-" json:"ad_images," schema:"ad_images,optional" valid:"-"`
 	AdImagesStr   zero.String `db:"ad_images" json:"-" schema:"-" valid:"-"` // for database
 	UserID        int64       `db:"owner_ad" json:"-" schema:"-" valid:"-"`  // for database
 	User          `json:"owner_ad" schema:"-" valid:"-"`
