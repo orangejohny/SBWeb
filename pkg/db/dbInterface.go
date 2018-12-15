@@ -186,7 +186,9 @@ func (h *Handler) GetAds(sp *model.SearchParams) ([]*model.AdItem, error) {
 	}
 	if len(ads) != 0 {
 		for _, ad := range ads {
-			ad.AdImages = strings.Split(ad.AdImagesStr.String, ",")
+			if ad.AdImagesStr.String != "" {
+				ad.AdImages = strings.Split(ad.AdImagesStr.String, ",")
+			}
 		}
 	}
 
@@ -199,7 +201,9 @@ func (h *Handler) GetAdsOfUser(userID int64) ([]*model.AdItem, error) {
 	err := h.ReadAdsOfUser.Select(&ads, userID)
 	if len(ads) != 0 {
 		for _, ad := range ads {
-			ad.AdImages = strings.Split(ad.AdImagesStr.String, ",")
+			if ad.AdImagesStr.String != "" {
+				ad.AdImages = strings.Split(ad.AdImagesStr.String, ",")
+			}
 		}
 	}
 	return ads, err
@@ -209,7 +213,9 @@ func (h *Handler) GetAdsOfUser(userID int64) ([]*model.AdItem, error) {
 func (h *Handler) GetAd(adID int64) (*model.AdItem, error) {
 	ad := &model.AdItem{}
 	err := h.ReadAd.Get(ad, adID)
-	ad.AdImages = strings.Split(ad.AdImagesStr.String, ",")
+	if ad.AdImagesStr.String != "" {
+		ad.AdImages = strings.Split(ad.AdImagesStr.String, ",")
+	}
 	if err == sql.ErrNoRows {
 		ad.ID = -1
 	}
