@@ -313,7 +313,7 @@ func userCreatePage(m *model.Model) http.Handler {
 
 		// load images from request if it is possible
 		if isMultipartForm {
-			filenames, err := loadImages(r)
+			filenames, err := loadImages(r, m)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write(apiErrorHandle(checkImage, imgCreErr, err,
@@ -584,10 +584,9 @@ func userUpdatePage(m *model.Model) http.Handler {
 
 		// check if image address not null and exists
 		if user.AvatarAddress.String != "" {
-			_, err = os.Stat("." + rDomain(user.AvatarAddress.String))
-			if os.IsNotExist(err) {
+			if !m.IsExist(user.AvatarAddress.String) {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write(apiErrorHandle(checkImage, imgExErr, err,
+				w.Write(apiErrorHandle(checkImage, imgExErr, errors.New("No such image"),
 					imgExMsg))
 				return
 			}
@@ -600,13 +599,13 @@ func userUpdatePage(m *model.Model) http.Handler {
 				return
 			}
 			// delete existing avatar image
-			deleteImages([]string{userFromDB.AvatarAddress.String})
+			deleteImages([]string{userFromDB.AvatarAddress.String}, m)
 		}
 
 		// load images from request if image address is null and
 		// content-type is multipart/form-data
 		if isMultipartForm {
-			filenames, err := loadImages(r)
+			filenames, err := loadImages(r, m)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write(apiErrorHandle(checkImage, imgCreErr, err,
@@ -673,7 +672,7 @@ func userDeletePage(m *model.Model) http.Handler {
 			w.Write(apiErrorHandle(connectProvider, getInfoDBErr, err, getInfoDBMsg))
 			return
 		}
-		deleteImages([]string{userFromDB.AvatarAddress.String})
+		deleteImages([]string{userFromDB.AvatarAddress.String}, m)
 
 		// TODO removing images of ads which were created by user
 
@@ -767,7 +766,7 @@ func adCreatePage(m *model.Model) http.Handler {
 		ad.AdImages = nil
 		// load images from request if it is possible
 		if isMultipartForm {
-			filenames, err := loadImages(r)
+			filenames, err := loadImages(r, m)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write(apiErrorHandle(checkImage, imgCreErr, err,
@@ -906,23 +905,22 @@ func adUpdatePage(m *model.Model) http.Handler {
 		// check if images are not null and exist
 		if ad.AdImages != nil {
 			for _, image := range ad.AdImages {
-				_, err = os.Stat("." + rDomain(image))
-				if os.IsNotExist(err) {
+				if !m.IsExist(image) {
 					w.WriteHeader(http.StatusBadRequest)
-					w.Write(apiErrorHandle(checkImage, imgExErr, err,
+					w.Write(apiErrorHandle(checkImage, imgExErr, errors.New("No such image"),
 						imgExMsg))
 					return
 				}
 			}
 		} else {
 			// TODO delete particular images of ad
-			deleteImages(adFromDatabase.AdImages)
+			deleteImages(adFromDatabase.AdImages, m)
 		}
 
 		// load images from request if existing images array is null and
 		// content-type is multipart/form-data
 		if isMultipartForm {
-			filenames, err := loadImages(r)
+			filenames, err := loadImages(r, m)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write(apiErrorHandle(checkImage, imgCreErr, err,
@@ -988,7 +986,7 @@ func adDeletePage(m *model.Model) http.Handler {
 		}
 
 		// delete images of such ad
-		deleteImages(adFromDatabase.AdImages)
+		deleteImages(adFromDatabase.AdImages, m)
 
 		// remove ad from DB
 		_, err = m.RemoveAd(id)
@@ -1003,19 +1001,27 @@ func adDeletePage(m *model.Model) http.Handler {
 	})
 }
 
+// images handling is implemented by aws s3 now
 // sendImage handles */images/{filename} with method GET.
 // It returns image with such filename if it's exists.
 func sendImage(m *model.Model) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		filename, _ := mux.Vars(r)["filename"]
-		_, err := os.Stat("./images/" + filename)
-		if err != nil {
+		if !m.IsExist("/images/" + filename) {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write(apiErrorHandle(checkImage, noImgErr, err,
+			w.Write(apiErrorHandle(checkImage, noImgErr, errors.New("No such image"),
 				noImgMsg))
 			return
 		}
 
+		err := m.DownloadImage("/images/" + filename)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(apiErrorHandle(connectProvider, "DownloadImgError", err,
+				"Can't access S3"))
+			return
+		}
 		http.ServeFile(w, r, "./images/"+filename)
+		os.Remove("./images/" + filename)
 	})
 }

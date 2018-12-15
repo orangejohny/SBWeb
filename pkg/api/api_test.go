@@ -10,9 +10,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"image"
-	"image/color"
-	"image/png"
 	"io"
 	"io/ioutil"
 	"log"
@@ -193,6 +190,14 @@ type mockDataSM struct {
 	outputError     error
 }
 
+type mockDataIM struct {
+	inputKey string
+
+	outputError    error
+	outputBool     bool
+	outputLocation string
+}
+
 // testCase represents one particular test case.
 type testCase struct {
 	// flags for db
@@ -219,6 +224,12 @@ type testCase struct {
 	isDeleteSession      bool
 	isPrepareCheckConnSM bool
 
+	// flags for im
+	isExist    bool
+	isDownload bool
+	isUpload   bool
+	isDelete   bool
+
 	// expect flags
 	isPrepareDB bool
 	isPrepareSM bool
@@ -229,6 +240,7 @@ type testCase struct {
 	// data for functions of DB and SM
 	sm *mockDataSM
 	db *mockDataDB
+	im *mockDataIM
 
 	// expected response of server
 	expectedStatusCode  int
@@ -475,6 +487,7 @@ var testCases = []testCase{
 	{
 		isNewUser:   true,
 		isPrepareDB: true,
+		isUpload:    true,
 		request: func() *http.Request {
 			path := os.Getenv("CI_PROJECT_DIR") + "/docs/AuthReq.PNG"
 			file, err := os.Open(path)
@@ -498,6 +511,9 @@ var testCases = []testCase{
 			r.Header.Set("Content-Type", writer.FormDataContentType())
 			return r
 		}(),
+		im: &mockDataIM{
+			outputError: nil,
+		},
 		db: &mockDataDB{
 			outputID:    17,
 			outputError: nil,
@@ -1027,6 +1043,7 @@ var testCases = []testCase{
 		isPrepareDB:          true,
 		isPrepareSM:          true,
 		isGetUserWithIDImg:   true,
+		isUpload:             true,
 		request: func() *http.Request {
 			path := os.Getenv("CI_PROJECT_DIR") + "/docs/GeneralOverview.png"
 			file, err := os.Open(path)
@@ -1049,6 +1066,9 @@ var testCases = []testCase{
 			r.Header.Set("Cookie", "session_id=123abc")
 			return r
 		}(),
+		im: &mockDataIM{
+			outputError: nil,
+		},
 		db: &mockDataDB{
 			inputIDimg:     17,
 			outputID:       17,
@@ -1072,6 +1092,7 @@ var testCases = []testCase{
 		isSecondCheckSession: true,
 		isCheckSession:       true,
 		isPrepareSM:          true,
+		isExist:              true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/users/profile",
 				strings.NewReader("first_name=Alex&last_name=Ivanov&avatar_address=blbabalbal"))
@@ -1086,6 +1107,10 @@ var testCases = []testCase{
 				UserAgent: "Go-http-client/1.1",
 				Login:     "pet@animal.com",
 			},
+		},
+		im: &mockDataIM{
+			outputBool: false,
+			inputKey:   "blbabalbal",
 		},
 		expectedStatusCode: 400,
 	},
@@ -1442,6 +1467,7 @@ var testCases = []testCase{
 		isPrepareCheckConnSM: true,
 		isCheckSession:       true,
 		isSecondCheckSession: true,
+		isUpload:             true,
 		request: func() *http.Request {
 			path := os.Getenv("CI_PROJECT_DIR") + "/docs/AuthReq.PNG"
 			file, err := os.Open(path)
@@ -1465,6 +1491,9 @@ var testCases = []testCase{
 			r.Header.Set("Cookie", "session_id=123abc")
 			return r
 		}(),
+		im: &mockDataIM{
+			outputError: nil,
+		},
 		db: &mockDataDB{
 			inputAd:     adsInDB[15],
 			outputID:    15,
@@ -1743,6 +1772,7 @@ var testCases = []testCase{
 		isPrepareCheckConnSM: true,
 		isCheckSession:       true,
 		isSecondCheckSession: true,
+		isUpload:             true,
 		request: func() *http.Request {
 			path := os.Getenv("CI_PROJECT_DIR") + "/docs/AuthReq.PNG"
 			file, err := os.Open(path)
@@ -1766,6 +1796,9 @@ var testCases = []testCase{
 			r.Header.Set("Cookie", "session_id=123abc")
 			return r
 		}(),
+		im: &mockDataIM{
+			outputError: nil,
+		},
 		db: &mockDataDB{
 			inputID:     15,
 			inputAd:     adsInDB[17],
@@ -1791,12 +1824,17 @@ var testCases = []testCase{
 		isPrepareCheckConnSM: true,
 		isCheckSession:       true,
 		isSecondCheckSession: true,
+		isExist:              true,
 		request: func() *http.Request {
 			r, _ := http.NewRequest("POST", domain+"/ads/edit/15",
 				strings.NewReader("title=Building&city=Moscow&description_ad=Awesome&ad_images=/eee"))
 			r.Header.Set("Cookie", "session_id=123abc")
 			return r
 		}(),
+		im: &mockDataIM{
+			outputBool: false,
+			inputKey:   "/eee",
+		},
 		db: &mockDataDB{
 			inputID:     15,
 			outputAd:    adsInDB[16],
@@ -2008,26 +2046,26 @@ var testCases = []testCase{
 		},
 		expectedStatusCode: 500,
 	},
-	{
-		request: func() *http.Request {
-			img := image.NewRGBA(image.Rect(0, 0, 100, 50))
-			img.Set(2, 3, color.RGBA{255, 0, 0, 255})
-			os.Mkdir("images", 0777)
-			f, _ := os.OpenFile("./images/image.png", os.O_WRONLY|os.O_CREATE, 0777)
-			png.Encode(f, img)
-			r, _ := http.NewRequest("GET", domain+"/images/image.png", nil)
-			f.Close()
-			return r
-		}(),
-		expectedStatusCode: 200,
-	},
-	{
-		request: func() *http.Request {
-			r, _ := http.NewRequest("GET", domain+"/images/image123.png", nil)
-			return r
-		}(),
-		expectedStatusCode: 400,
-	},
+	/* 	{
+	   		request: func() *http.Request {
+	   			img := image.NewRGBA(image.Rect(0, 0, 100, 50))
+	   			img.Set(2, 3, color.RGBA{255, 0, 0, 255})
+	   			os.Mkdir("images", 0777)
+	   			f, _ := os.OpenFile("./images/image.png", os.O_WRONLY|os.O_CREATE, 0777)
+	   			png.Encode(f, img)
+	   			r, _ := http.NewRequest("GET", domain+"/images/image.png", nil)
+	   			f.Close()
+	   			return r
+	   		}(),
+	   		expectedStatusCode: 200,
+	   	},
+	   	{
+	   		request: func() *http.Request {
+	   			r, _ := http.NewRequest("GET", domain+"/images/image123.png", nil)
+	   			return r
+	   		}(),
+	   		expectedStatusCode: 400,
+	   	}, */
 }
 
 func TestInterfaceOfAPI(t *testing.T) {
@@ -2167,7 +2205,29 @@ func TestInterfaceOfAPI(t *testing.T) {
 				mockSM.EXPECT().IsConnected().Return(true)
 			}
 
-			tModel := model.New(mockDB, mockSM)
+			mockIM := mock_model.NewMockIM(ctrl)
+
+			if tCase.im != nil && tCase.isExist {
+				mockIM.EXPECT().IsExist(tCase.im.inputKey).
+					Return(tCase.im.outputBool).AnyTimes()
+			}
+
+			if tCase.im != nil && tCase.isUpload {
+				mockIM.EXPECT().UploadImage(gomock.Any(), gomock.Any()).
+					Return(tCase.im.outputLocation, tCase.im.outputError).AnyTimes()
+			}
+
+			if tCase.im != nil && tCase.isDelete {
+				mockIM.EXPECT().DeleteImage(gomock.Any()).
+					Return(tCase.im.outputError).AnyTimes()
+			}
+
+			if tCase.im != nil && tCase.isDownload {
+				mockIM.EXPECT().DownloadImage(gomock.Any()).
+					Return(tCase.im.outputError)
+			}
+
+			tModel := model.New(mockDB, mockSM, mockIM)
 
 			srv, ch := api.StartServer(api.Config{
 				Address:      "localhost:49123",
@@ -2269,11 +2329,12 @@ func TestMiddleware(t *testing.T) {
 
 	db := mock_model.NewMockDB(ctrl)
 	sm := mock_model.NewMockSM(ctrl)
+	im := mock_model.NewMockIM(ctrl)
 
 	sm.EXPECT().IsConnected().Return(false)
 	sm.EXPECT().TryReconnect().Return(nil)
 
-	m := model.New(db, sm)
+	m := model.New(db, sm, im)
 
 	srv, ch := api.StartServer(api.Config{
 		Address:      "localhost:49123",
@@ -2295,7 +2356,7 @@ func TestMiddleware(t *testing.T) {
 	sm.EXPECT().IsConnected().Return(false)
 	sm.EXPECT().TryReconnect().Return(errors.New("e"))
 
-	m = model.New(db, sm)
+	m = model.New(db, sm, im)
 
 	srv, ch = api.StartServer(api.Config{
 		Address:      "localhost:49123",

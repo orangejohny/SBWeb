@@ -44,18 +44,20 @@ Characteristics:
 */
 package model
 
-// Model is a struct that contains DB and SM interfaces. Such project model allows
+// Model is a struct that contains DB, IM and SM interfaces. Such project model allows
 // to use different database and session manager implementation without changing business-logic.
 // Model is used by API handlers.
 type Model struct {
 	DB
 	SM
+	IM
 }
 
 // New creates Model structure from object that implements DB and SM interfaces.
-func New(db DB, sm SM) *Model {
+func New(db DB, sm SM, im IM) *Model {
 	return &Model{
 		DB: db,
 		SM: sm,
+		IM: im,
 	}
 }

@@ -16,6 +16,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"bmstu.codes/developers34/SBWeb/pkg/s3"
+
 	"bmstu.codes/developers34/SBWeb/pkg/model"
 
 	"bmstu.codes/developers34/SBWeb/pkg/api"
@@ -28,6 +30,7 @@ type Config struct {
 	DB  db.Config
 	SM  sm.Config
 	API api.Config
+	IM  s3.Config
 }
 
 // RunService is a function that starts the whole service using
@@ -50,8 +53,15 @@ func RunService(cfg *Config) error {
 	}
 	log.Println("Connected to SM")
 
+	im, err := s3.InitS3(cfg.IM)
+	if err != nil {
+		log.Println("Can't access AWS S3", err.Error())
+		return err
+	}
+	log.Println("Connected to AWS S3")
+
 	// create model for API
-	m := model.New(db, sm)
+	m := model.New(db, sm, im)
 
 	// start server
 	log.Println("Starting API server...")
