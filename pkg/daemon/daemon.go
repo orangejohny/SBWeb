@@ -82,7 +82,7 @@ func waitForSignal(srv *http.Server, chSrv chan error) error {
 	for {
 		select {
 		case s := <-ch:
-			srv.Shutdown(nil)
+			_ = srv.Shutdown(nil)
 			log.Printf("Got signal: %v, exiting.", s)
 			return nil
 		case err := <-chSrv:

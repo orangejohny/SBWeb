@@ -1,3 +1,13 @@
+// Copyright 2018 Dmitry Kargashin <dkargashin3@gmail.com>
+// Use of this source code is governed by GNU LGPL
+// license that can be found in the LICENSE file.
+
+/*
+Package s3 is used to implement model.IM interface. Its purpose
+is controlling images of users and ads.
+
+s3 uses AWS simple storage service to store images.
+*/
 package s3
 
 import (
