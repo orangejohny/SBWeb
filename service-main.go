@@ -2,8 +2,44 @@
 // Use of this source code is governed by GNU LGPL
 // license that can be found in the LICENSE file.
 
-// SBWeb is the web-service for course work of developers34 team.
-// It's supposed to search and hire specialists of building industry.
+/*
+SBWeb is the web-service for course work of developers34 team.
+It's supposed to search and hire specialists of building industry.
+
+Usage of application
+
+Environment variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must be specified.
+If environment variable PORT is specified then its value will override value of config API address.
+If environment variable REDIS_URL is specified then its value will override value of config SM DBAddress.
+If environment variable DATABASE_URL is specified then its value will override value of config DB DBAddress.
+
+To run application you need to specify the "cfg" parameter that receives
+path to config file formatted as JSON.
+
+Config has this structure:
+  {
+    "DB": {
+      "DBAddress": <Address of postgres database (string)>,
+      "MaxOpenConns": <Number of maximum open connections to database (int)>
+    },
+    "SM": {
+      "DBAddress": <Address of redis storage (string)>,
+      "TockenLength": <Length of tocken that will be used as session tocken (int)>,
+      "ExpirationTime": <Expiration time of a session in seconds (int)>
+    },
+    "API": {
+      "Address": <Port where the server will be started (string)>,
+      "ReadTimeout": <Maximum duration for reading the entire request, including the body (string with postfix 's')>,
+      "WriteTimeout": <Maximum duration before timing out writes of the response (string with postfix 's')>,
+      "IdleTimeout": <Maximum amount of time to wait for the next request when keep-alives are enabled (string with postfix 's')>
+    },
+    "IM": {
+      "Bucket": <Name of the AWS S3 bucket where to store images (string)>,
+      "ACL": <Permissions to images uploaded by application (string)>,
+      "Region": <Region of the AWS S3 bucket (string)>
+    }
+  }
+*/
 package main
 
 import (
