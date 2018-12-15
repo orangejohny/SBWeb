@@ -15,8 +15,8 @@ cookie = dict(session_id=tocken)
 
 fake = Faker()
 
-for i in range(5):
-    title = fake.street_name()
+for i in range(20):
+    title = fake.street_name()+" build"
     price = fake.building_number()
     city = fake.city()
     description = fake.text(128)

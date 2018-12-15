@@ -1,6 +1,6 @@
 {
   "DB": {
-    "DBAddress": "postgresql://dataUSER:dataPASSWORD@postgres/data?sslmode=disable",
+    "DBAddress": "postgresql://<user>:<password>@postgres/data?sslmode=disable",
     "MaxOpenConns": 10
   },
   "SM": {

@@ -2236,11 +2236,7 @@ func TestInterfaceOfAPI(t *testing.T) {
 				IdleTimeout:  "25s",
 			}, tModel)
 
-			time.Sleep(time.Millisecond * 50) // time to start the server
-			defer func() {
-				srv.Shutdown(nil)
-				<-ch
-			}()
+			time.Sleep(time.Millisecond * 100) // time to start the server
 
 			// send request to server
 			client := http.DefaultClient
@@ -2250,6 +2246,9 @@ func TestInterfaceOfAPI(t *testing.T) {
 			}
 			client.Timeout = time.Second * 25
 			result, err := client.Do(tCase.request)
+			_ = srv.Shutdown(nil)
+			<-ch
+			time.Sleep(time.Millisecond * 100)
 
 			if err != nil {
 				t.Fatal("Expected no error while request\nGot: ", err.Error())
@@ -2260,7 +2259,6 @@ func TestInterfaceOfAPI(t *testing.T) {
 				buf := make([]byte, 1024)
 				result.Body.Read(buf)
 				fmt.Println(string(buf))
-				result.Body.Close()
 				t.Errorf("Expected equal status codes:\nExpected:%v\nReceived:%v",
 					tCase.expectedStatusCode, result.StatusCode)
 			}
