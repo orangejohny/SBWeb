@@ -15,14 +15,14 @@ cookie = dict(session_id=tocken)
 
 fake = Faker()
 
-for i in range(20):
-    title = fake.street_name()+" build"
+for i in range(2):
+    title = fake.street_name()+" empty"
     price = fake.building_number()
     city = fake.city()
     description = fake.text(128)
     file = random.choice(files)
 
-    r = requests.post('https://search-build.herokuapp.com/ads/new', cookies=cookie, files={'images':open(file, 'rb')},
+    r = requests.post('https://search-build.herokuapp.com/ads/new', cookies=cookie,
                       data={'title': title, 'price': price, 'city': city, 'description_ad': description})
     print('Published:', r.status_code)
 
