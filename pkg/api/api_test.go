@@ -2248,6 +2248,7 @@ func TestInterfaceOfAPI(t *testing.T) {
 			result, err := client.Do(tCase.request)
 			_ = srv.Shutdown(nil)
 			<-ch
+			time.Sleep(time.Millisecond * 100)
 
 			if err != nil {
 				t.Fatal("Expected no error while request\nGot: ", err.Error())
@@ -2258,7 +2259,6 @@ func TestInterfaceOfAPI(t *testing.T) {
 				buf := make([]byte, 1024)
 				result.Body.Read(buf)
 				fmt.Println(string(buf))
-				result.Body.Close()
 				t.Errorf("Expected equal status codes:\nExpected:%v\nReceived:%v",
 					tCase.expectedStatusCode, result.StatusCode)
 			}
